@@ -67,3 +67,6 @@ docker-compose.override.yml
 # ==============================
 /.kamal/tmp
 .kamal/.lock
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

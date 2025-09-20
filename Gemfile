@@ -31,6 +31,13 @@ gem "solid_cable"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
+# Bootstrap 5
+# gem "bootstrap", "~> 5.2"
+# gem "sassc-rails"
+
+gem "cssbundling-rails"
+
+
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false
 

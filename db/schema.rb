@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_19_184408) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_20_175710) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,9 +26,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_19_184408) do
     t.datetime "delivery_date"
     t.decimal "price"
     t.float "distance_km"
-    t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status"
+    t.datetime "pickup_date"
     t.index ["service_type_id"], name: "index_orders_on_service_type_id"
     t.index ["vehicle_type_id"], name: "index_orders_on_vehicle_type_id"
   end
@@ -37,6 +38,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_19_184408) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "transport_orders", force: :cascade do |t|
+    t.string "pickup_address"
+    t.float "pickup_lat"
+    t.float "pickup_lon"
+    t.string "delivery_address"
+    t.float "delivery_lat"
+    t.float "delivery_lon"
+    t.bigint "vehicle_type_id", null: false
+    t.bigint "service_type_id", null: false
+    t.datetime "delivery_date"
+    t.decimal "price"
+    t.float "distance_km"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["service_type_id"], name: "index_transport_orders_on_service_type_id"
+    t.index ["vehicle_type_id"], name: "index_transport_orders_on_vehicle_type_id"
   end
 
   create_table "vehicle_types", force: :cascade do |t|
@@ -49,4 +69,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_19_184408) do
 
   add_foreign_key "orders", "service_types"
   add_foreign_key "orders", "vehicle_types"
+  add_foreign_key "transport_orders", "service_types"
+  add_foreign_key "transport_orders", "vehicle_types"
 end
