@@ -7,6 +7,7 @@ class OrdersController < ApplicationController
   end
 
   def preview
+    @ors_api_key = ENV["ORS_API_KEY"]
     @order = Order.new(order_params)
     @order.geocode_addresses
     @order.calculate_price_and_delivery
@@ -30,6 +31,7 @@ class OrdersController < ApplicationController
   end
 
   def show
+    @ors_api_key = ENV["ORS_API_KEY"]
   end
 
   private

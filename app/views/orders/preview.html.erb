@@ -7,7 +7,8 @@
         </div>
         <div class="card-body p-4">
 
-          <div class="row mb-3">
+            <!-- Order details -->
+             <div class="row mb-3">
             <div class="col-md-6">
               <p><strong>Adres odbioru:</strong> <%= @order.pickup_address %></p>
               <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
@@ -21,29 +22,49 @@
             </div>
           </div>
 
-          <!-- Mapa -->
+          <!-- Map -->
           <div id="map" style="height: 400px; border-radius: 12px;" class="mb-4"></div>
+
+          <!-- Leaflet -->
           <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
           <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
           <script>
             document.addEventListener("DOMContentLoaded", function() {
-              var map = L.map('map').setView([<%= @order.pickup_lat || 52.2297 %>, <%= @order.pickup_lon || 21.0122 %>], 6);
+              const map = L.map('map').setView([<%= @order.pickup_lat || 52.2297 %>, <%= @order.pickup_lon || 21.0122 %>], 6);
 
               L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
               }).addTo(map);
 
-              var route = [
-                [<%= @order.pickup_lat || 52.2297 %>, <%= @order.pickup_lon || 21.0122 %>],
-                [<%= @order.delivery_lat || 50.0647 %>, <%= @order.delivery_lon || 19.9450 %>]
-              ];
+             // Point markers
+              const pickupMarker = L.marker([<%= @order.pickup_lat %>, <%= @order.pickup_lon %>]).addTo(map)
+                .bindPopup("Odbiór").openPopup();
+              const deliveryMarker = L.marker([<%= @order.delivery_lat %>, <%= @order.delivery_lon %>]).addTo(map)
+                .bindPopup("Dostawa");
 
-              L.polyline(route, {color: 'blue', weight: 4}).addTo(map);
-              map.fitBounds(route);
+             // ORS API – road route
+              const apiKey = "<%= @ors_api_key %>";
+
+              const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=<%= @order.pickup_lon %>,<%= @order.pickup_lat %>&end=<%= @order.delivery_lon %>,<%= @order.delivery_lat %>`;
+
+              fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                  if (!data.features || data.features.length === 0) {
+                    console.error("Brak trasy ORS");
+                    return;
+                  }
+
+                  const coords = data.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                  L.polyline(coords, { color: 'blue', weight: 5 }).addTo(map);
+                  map.fitBounds(coords);
+                })
+                .catch(err => console.error("Błąd ORS:", err));
             });
           </script>
 
-          
+        <!-- Order Form -->
           <div class="text-center mt-3">
             <%= form_with url: orders_path, method: :post do %>
               <%= submit_tag "Zamawiam", class: "btn btn-success btn-lg px-5 rounded-pill shadow-sm" %>
