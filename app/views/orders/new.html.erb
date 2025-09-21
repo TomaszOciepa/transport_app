@@ -6,41 +6,35 @@
           <h4>Nowe zamówienie transportowe</h4>
         </div>
         <div class="card-body p-4">
-          <%= form_with(model: @order, local: true, class: "needs-validation") do |f| %>
+          <%= form_with(model: @order, url: preview_orders_path, local: true, class: "needs-validation") do |f| %>
             
-            <!-- pickup_address -->
             <div class="mb-3">
               <%= f.label :pickup_address, "Skąd (adres)", class: "form-label fw-bold" %>
               <%= f.text_field :pickup_address, class: "form-control", placeholder: "np. Warszawa, ul. Marszałkowska 1" %>
             </div>
 
-            <!-- delivery_address -->
             <div class="mb-3">
               <%= f.label :delivery_address, "Dokąd (adres)", class: "form-label fw-bold" %>
               <%= f.text_field :delivery_address, class: "form-control", placeholder: "np. Kraków, ul. Długa 10" %>
             </div>
 
-              <!-- pickup_date -->
             <div class="mb-3">
-                <%= f.label :pickup_date, "Data odbioru", class: "form-label fw-bold" %>
-                <%= f.date_field :pickup_date, class: "form-control" %>
+              <%= f.label :pickup_date, "Data odbioru", class: "form-label fw-bold" %>
+              <%= f.date_field :pickup_date, class: "form-control" %>
             </div>
 
-
-            <!-- vehicle_type -->
             <div class="mb-3">
               <%= f.label :vehicle_type_id, "Typ pojazdu", class: "form-label fw-bold" %>
               <%= f.collection_select :vehicle_type_id, @vehicle_types, :id, :name, {}, class: "form-select" %>
             </div>
 
-            <!-- service_type -->
             <div class="mb-3">
               <%= f.label :service_type_id, "Typ usługi", class: "form-label fw-bold" %>
               <%= f.collection_select :service_type_id, @service_types, :id, :name, {}, class: "form-select" %>
             </div>
 
             <div class="text-center">
-              <%= f.submit "Złóż zamówienie", class: "btn btn-lg btn-primary px-5 rounded-pill shadow-sm" %>
+              <%= f.submit "Oblicz koszty", class: "btn btn-lg btn-primary px-5 rounded-pill shadow-sm" %>
             </div>
           <% end %>
         </div>
