@@ -18,10 +18,11 @@
               <%= f.text_field :delivery_address, class: "form-control", placeholder: "np. Kraków, ul. Długa 10", required: true %>
             </div>
 
-            <div class="mb-3">
-              <%= f.label :pickup_date, "Data odbioru", class: "form-label fw-bold" %>
-              <%= f.date_field :pickup_date, class: "form-control", required: true %>
-            </div>
+          <div class="mb-3">
+            <%= f.label :pickup_date, "Data i godzina odbioru", class: "form-label fw-bold" %>
+            <%= f.datetime_local_field :pickup_date, class: "form-control", required: true %>
+          </div>
+
 
             <div class="mb-3">
               <%= f.label :vehicle_type_id, "Typ pojazdu", class: "form-label fw-bold" %>

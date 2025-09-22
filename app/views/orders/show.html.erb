@@ -17,6 +17,7 @@
             </div>
             <div class="col-md-6">
               <p><strong>Dystans:</strong> <%= @order.distance_km.round(2) %> km</p>
+               <p><strong>Czas podróży:</strong> <%= @order.travel_time %> h</p>
               <p><strong>Przewidywana data dostawy:</strong> <%= @order.delivery_date&.strftime("%d-%m-%Y %H:%M") %></p>
               <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN") %></p>
             </div>
