@@ -1,29 +1,30 @@
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-10">
-      <div class="card shadow-lg rounded-4">
-        <div class="card-header bg-success text-white text-center">
-          <h4>Podsumowanie zamówienia</h4>
-        </div>
-        <div class="card-body p-4">
+      <h3 class="mb-4 fw-bold text-start">Podsumowanie zamówienia</h3>
 
-         <!-- Order details -->
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <p><strong>Adres odbioru:</strong> <%= @order.pickup_address %></p>
-              <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
-              <p><strong>Pojazd:</strong> <%= @order.vehicle_type.name if @order.vehicle_type %></p>
-              <p><strong>Usługa:</strong> <%= @order.service_type.name if @order.service_type %></p>
-            </div>
-            <div class="col-md-6">
-              <p><strong>Dystans:</strong> <%= @order.distance_km.round(2) %> km</p>
-               <p><strong>Czas podróży:</strong> <%= @order.travel_time %> h</p>
-              <p><strong>Przewidywana data dostawy:</strong> <%= @order.delivery_date&.strftime("%d-%m-%Y %H:%M") %></p>
-              <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN") %></p>
+      <div class="card shadow-lg rounded-4 border-0">
+        <div class="card-body p-5">
+
+          <!-- Order details -->
+          <div class="bg-light rounded-3 p-4 mb-4">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <p><strong>Adres odbioru:</strong> <%= @order.pickup_address %></p>
+                <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
+                <p><strong>Pojazd:</strong> <%= @order.vehicle_type.name if @order.vehicle_type %></p>
+                <p><strong>Usługa:</strong> <%= @order.service_type.name if @order.service_type %></p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <p><strong>Dystans:</strong> <%= @order.distance_km.round(2) %> km</p>
+                <p><strong>Czas podróży:</strong> <%= @order.travel_time %> h</p>
+                <p><strong>Przewidywana data dostawy:</strong> <%= @order.delivery_date&.strftime("%d-%m-%Y %H:%M") %></p>
+                <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN") %></p>
+              </div>
             </div>
           </div>
 
-        <!-- Map -->
+          <!-- Map -->
           <div id="map" style="height: 400px; border-radius: 12px;" class="mb-4"></div>
 
           <!-- Leaflet -->
@@ -38,15 +39,16 @@
                 attribution: '© OpenStreetMap contributors'
               }).addTo(map);
 
-             // Point markers
-              const pickupMarker = L.marker([<%= @order.pickup_lat %>, <%= @order.pickup_lon %>]).addTo(map)
-                .bindPopup("Odbiór").openPopup();
-              const deliveryMarker = L.marker([<%= @order.delivery_lat %>, <%= @order.delivery_lon %>]).addTo(map)
-                .bindPopup("Dostawa");
+              // Point markers
+              if (<%= @order.pickup_lat.present? && @order.pickup_lon.present? %>) {
+                L.marker([<%= @order.pickup_lat %>, <%= @order.pickup_lon %>]).addTo(map).bindPopup("Odbiór").openPopup();
+              }
+              if (<%= @order.delivery_lat.present? && @order.delivery_lon.present? %>) {
+                L.marker([<%= @order.delivery_lat %>, <%= @order.delivery_lon %>]).addTo(map).bindPopup("Dostawa");
+              }
 
               // ORS API – road route
               const apiKey = "<%= @ors_api_key %>";
-
               const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=<%= @order.pickup_lon %>,<%= @order.pickup_lat %>&end=<%= @order.delivery_lon %>,<%= @order.delivery_lat %>`;
 
               fetch(url)
@@ -56,9 +58,8 @@
                     console.error("Brak trasy ORS");
                     return;
                   }
-
                   const coords = data.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
-                  L.polyline(coords, { color: 'blue', weight: 5 }).addTo(map);
+                  L.polyline(coords, { color: 'black', weight: 5 }).addTo(map);
                   map.fitBounds(coords);
                 })
                 .catch(err => console.error("Błąd ORS:", err));
