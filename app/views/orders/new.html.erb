@@ -1,41 +1,66 @@
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow-lg rounded-4">
-        <div class="card-header bg-primary text-white text-center">
-          <h4>Nowe zamówienie transportowe</h4>
-        </div>
-        <div class="card-body p-4">
-          <%= form_with(model: @order, url: preview_orders_path, local: true, class: "needs-validation") do |f| %>
-            
-            <div class="mb-3">
-              <%= f.label :pickup_address, "Skąd (adres)", class: "form-label fw-bold" %>
-              <%= f.text_field :pickup_address, class: "form-control", placeholder: "np. Warszawa, ul. Marszałkowska 1", required: true %>
+    <div class="col-lg-10">
+      <h3 class="mb-4 fw-bold text-start">Oblicz cenę za transport</h3>
+
+      <div class="card shadow-lg rounded-4 border-0">
+        <div class="card-body p-5">
+          <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form") do |f| %>
+
+            <!-- Step 1 -->
+            <div class="step step-active bg-light rounded-3 p-4 mb-4" id="step-1">
+              <h5 class="fw-bold mb-4">Dane odbioru i dostawy</h5>
+              <div class="mb-4">
+                <%= f.label :pickup_address, "Odbiór", class: "form-label fw-bold" %>
+                <%= f.text_field :pickup_address, class: "form-control form-control-lg step-field", placeholder: "np. Warszawa, ul. Marszałkowska 1", required: true %>
+              </div>
+              <div class="mb-4">
+                <%= f.label :delivery_address, "Dostawa", class: "form-label fw-bold" %>
+                <%= f.text_field :delivery_address, class: "form-control form-control-lg step-field", placeholder: "np. Kraków, ul. Długa 10", required: true %>
+              </div>
             </div>
 
-            <div class="mb-3">
-              <%= f.label :delivery_address, "Dokąd (adres)", class: "form-label fw-bold" %>
-              <%= f.text_field :delivery_address, class: "form-control", placeholder: "np. Kraków, ul. Długa 10", required: true %>
+            <!-- Step 2 -->
+            <div class="step step-disabled bg-light rounded-3 p-4 mb-4" id="step-2">
+              <h5 class="fw-bold mb-4">Wybierz typ pojazdu</h5>
+              <div class="row g-3">
+                <% @vehicle_types.each do |vehicle| %>
+                  <div class="col-6 col-md-4">
+                    <label class="w-100 vehicle-card-label">
+                      <%= f.radio_button :vehicle_type_id, vehicle.id, class: "btn-check vehicle-radio", autocomplete: "off", required: true, disabled: true %>
+                      <div class="card h-100 text-center vehicle-card">
+                        <div class="card-body">
+                          <i class="bi bi-truck display-5 text-primary"></i>
+                          <h6 class="mt-2"><%= vehicle.name %></h6>
+                          <small><%= number_to_currency(vehicle.price_per_km, unit: "PLN") %>/km</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                <% end %>
+              </div>
             </div>
 
-          <div class="mb-3">
-            <%= f.label :pickup_date, "Data i godzina odbioru", class: "form-label fw-bold" %>
-            <%= f.datetime_local_field :pickup_date, class: "form-control", required: true %>
-          </div>
+            <!-- Step 3 -->
+            <div class="step step-disabled bg-light rounded-3 p-4 mb-4" id="step-3">
+              <h5 class="fw-bold mb-4">Wybierz typ usługi</h5>
+              <div class="d-flex flex-wrap gap-3 mb-4">
+                <% @service_types.each do |service| %>
+                  <label>
+                    <%= f.radio_button :service_type_id, service.id, class: "btn-check step-field", autocomplete: "off", required: true, disabled: true %>
+                    <span class="btn btn-outline-secondary rounded-pill px-4 py-2"><%= service.name %></span>
+                  </label>
+                <% end %>
+              </div>
 
+              <div class="mb-4">
+                <%= f.label :pickup_date, "Data i godzina odbioru", class: "form-label fw-bold" %>
+                <%= f.datetime_local_field :pickup_date, class: "form-control form-control-lg step-field", required: true %>
+              </div>
 
-            <div class="mb-3">
-              <%= f.label :vehicle_type_id, "Typ pojazdu", class: "form-label fw-bold" %>
-              <%= f.collection_select :vehicle_type_id, @vehicle_types, :id, :name, {}, class: "form-select", required: true %>
+            <div class="d-flex justify-content-end mt-4">
+              <%= f.submit "Oblicz koszt", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
             </div>
-
-            <div class="mb-3">
-              <%= f.label :service_type_id, "Typ usługi", class: "form-label fw-bold" %>
-              <%= f.collection_select :service_type_id, @service_types, :id, :name, {}, class: "form-select", required: true %>
-            </div>
-
-            <div class="text-center">
-              <%= f.submit "Oblicz koszty", class: "btn btn-lg btn-primary px-5 rounded-pill shadow-sm" %>
             </div>
           <% end %>
         </div>
@@ -43,3 +68,93 @@
     </div>
   </div>
 </div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+  .step-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .step-active {
+    opacity: 1;
+  }
+  .custom-submit {
+    background-color: #000;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  .custom-submit:hover {
+    background-color: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .custom-submit:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+.vehicle-card {
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.vehicle-card-label:hover .vehicle-card {
+  border-color: #555;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  transform: translateY(-3px);
+}
+
+.vehicle-radio:checked + .vehicle-card {
+  border-color: #000;
+  background-color: #e9ecef;
+  font-weight: bold;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transform: translateY(-5px);
+}
+
+.vehicle-card-body i {
+  transition: transform 0.3s ease;
+}
+
+.vehicle-radio:checked + .vehicle-card i {
+  transform: scale(1.1);
+}
+
+
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const steps = document.querySelectorAll(".step");
+    let currentStep = 0;
+
+    function activateStep(stepIndex) {
+      steps[stepIndex].classList.remove("step-disabled");
+      steps[stepIndex].classList.add("step-active");
+      steps[stepIndex].querySelectorAll("input").forEach(el => el.disabled = false);
+      steps[stepIndex].scrollIntoView({ behavior: "smooth" });
+    }
+
+    function checkStepCompletion(stepIndex) {
+      const fields = steps[stepIndex].querySelectorAll(".step-field");
+      let valid = true;
+      fields.forEach(field => {
+        if (!field.checkValidity()) valid = false;
+      });
+      if (valid && stepIndex < steps.length - 1) {
+        currentStep++;
+        activateStep(currentStep);
+      }
+    }
+
+    steps.forEach((step, index) => {
+      step.addEventListener("input", () => checkStepCompletion(index));
+      step.addEventListener("change", () => checkStepCompletion(index));
+    });
+
+    activateStep(currentStep);
+  });
+</script>
