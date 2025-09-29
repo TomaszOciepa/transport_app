@@ -1,7 +1,7 @@
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-lg-10">
-      <h3 class="mb-4 fw-bold text-start">Oblicz cenę za transport</h3>
+      <h3 class="mb-4 fw-bold text-start">Oblicz cenę transportu</h3>
 
       <div class="card shadow-lg rounded-4 border-0">
         <div class="card-body p-5">
@@ -13,10 +13,14 @@
               <div class="mb-4">
                 <%= f.label :pickup_address, "Odbiór", class: "form-label fw-bold" %>
                 <%= f.text_field :pickup_address, class: "form-control form-control-lg step-field", placeholder: "np. Warszawa, Marszałkowska 1", required: true %>
+                <%= f.hidden_field :pickup_lat, id: "pickup_lat" %>
+                <%= f.hidden_field :pickup_lon, id: "pickup_lon" %> 
               </div>
               <div class="mb-4">
                 <%= f.label :delivery_address, "Dostawa", class: "form-label fw-bold" %>
                 <%= f.text_field :delivery_address, class: "form-control form-control-lg step-field", placeholder: "np. Kraków, Długa 10", required: true %>
+                <%= f.hidden_field :delivery_lat, id: "delivery_lat" %>
+                <%= f.hidden_field :delivery_lon, id: "delivery_lon" %>
               </div>
             </div>
 
@@ -157,4 +161,45 @@
 
     activateStep(currentStep);
   });
+</script>
+
+
+<script>
+  function initAutocomplete() {
+    const pickupInput = document.getElementById('order_pickup_address');
+    if (pickupInput) {
+      const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, 
+      // {
+      //   componentRestrictions: { country: 'pl' }
+      // }
+      );
+
+      pickupAutocomplete.addListener('place_changed', () => {
+        const place = pickupAutocomplete.getPlace();
+        if (!place.geometry) return; // brak geometrii
+        pickupInput.value = place.formatted_address; // ustawia widoczne pole
+        document.getElementById('pickup_lat').value = place.geometry.location.lat();
+        document.getElementById('pickup_lon').value = place.geometry.location.lng();
+      });
+    }
+
+    const deliveryInput = document.getElementById('order_delivery_address');
+    if (deliveryInput) {
+      const deliveryAutocomplete = new google.maps.places.Autocomplete(deliveryInput, 
+      // {
+      //   componentRestrictions: { country: 'pl' }
+      // }
+      );
+
+      deliveryAutocomplete.addListener('place_changed', () => {
+        const place = deliveryAutocomplete.getPlace();
+        if (!place.geometry) return;
+        deliveryInput.value = place.formatted_address;
+        document.getElementById('delivery_lat').value = place.geometry.location.lat();
+        document.getElementById('delivery_lon').value = place.geometry.location.lng();
+      });
+    }
+  }
+
+  document.addEventListener("turbo:load", initAutocomplete);
 </script>
