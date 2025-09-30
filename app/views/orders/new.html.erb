@@ -1,13 +1,20 @@
-<div class="container py-5" data-controller="autocomplete">
+<div class="container py-5" data-controller="autocomplete"
+     data-autocomplete-pickup-target="pickup"
+     data-autocomplete-pickup-lat-target="pickupLat"
+     data-autocomplete-pickup-lon-target="pickupLon"
+     data-autocomplete-delivery-target="delivery"
+     data-autocomplete-delivery-lat-target="deliveryLat"
+     data-autocomplete-delivery-lon-target="deliveryLon">
+
   <div class="row justify-content-center">
     <div class="col-lg-10">
       <h3 class="mb-4 fw-bold text-start">Oblicz cenę transportu</h3>
 
       <div class="card shadow-lg rounded-4 border-0">
         <div class="card-body p-5">
-          <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form") do |f| %>
+          <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form", data: { turbo: false }) do |f| %>
 
-  
+            <!-- Dane odbioru i dostawy -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Dane odbioru i dostawy</h5>
 
@@ -33,7 +40,8 @@
                 <%= f.hidden_field :delivery_lon, id: "delivery_lon", data: { autocomplete_target: "deliveryLon" } %>
               </div>
             </div>
-            
+
+            <!-- Wybierz typ pojazdu -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ pojazdu</h5>
               <div class="d-flex flex-wrap gap-3 mb-4">
@@ -50,7 +58,7 @@
               </div>
             </div>
 
-
+            <!-- Wybierz typ usługi -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ usługi</h5>
               <div class="d-flex flex-wrap gap-3 mb-4">
@@ -79,113 +87,4 @@
   </div>
 </div>
 
-<%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" %>
 
-
-
-<script>
-  let isPickupValid = false;
-  let isDeliveryValid = false;
-
-  function initAutocomplete() {
-    const pickupInput = document.getElementById("order_pickup_address");
-    const pickupLat = document.getElementById("pickup_lat");
-    const pickupLon = document.getElementById("pickup_lon");
-
-    const deliveryInput = document.getElementById("order_delivery_address");
-    const deliveryLat = document.getElementById("delivery_lat");
-    const deliveryLon = document.getElementById("delivery_lon");
-
-    // --- Pickup Autocomplete ---
-    if (pickupInput) {
-      const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, 
-      // { types: ["geocode"], componentRestrictions: { country: "pl" } }
-      );
-
-      pickupAutocomplete.addListener("place_changed", function () {
-        const place = pickupAutocomplete.getPlace();
-        if (place.geometry) {
-          pickupLat.value = place.geometry.location.lat();
-          pickupLon.value = place.geometry.location.lng();
-          isPickupValid = true;
-          clearFieldError(pickupInput);
-        } else {
-          isPickupValid = false;
-        }
-      });
-
-      pickupInput.addEventListener("input", function() {
-        isPickupValid = false;
-      });
-    }
-
-    // --- Delivery Autocomplete ---
-    if (deliveryInput) {
-      const deliveryAutocomplete = new google.maps.places.Autocomplete(deliveryInput,
-      // { types: ["geocode"], componentRestrictions: { country: "pl" } }
-      );
-
-      deliveryAutocomplete.addListener("place_changed", function () {
-        const place = deliveryAutocomplete.getPlace();
-        if (place.geometry) {
-          deliveryLat.value = place.geometry.location.lat();
-          deliveryLon.value = place.geometry.location.lng();
-          isDeliveryValid = true;
-          clearFieldError(deliveryInput);
-        } else {
-          isDeliveryValid = false;
-        }
-      });
-
-      deliveryInput.addEventListener("input", function() {
-        isDeliveryValid = false;
-      });
-    }
-
-
-    const form = document.getElementById("order-form");
-    if (form) {
-      form.addEventListener("submit", function(event) {
-        let firstError = null;
-
-        if (!isPickupValid) {
-          event.preventDefault();
-          showFieldError(pickupInput, "Proszę wybrać poprawny adres odbioru z sugestii.");
-          if (!firstError) firstError = pickupInput;
-        } else {
-          clearFieldError(pickupInput);
-        }
-
-        if (!isDeliveryValid) {
-          event.preventDefault();
-          showFieldError(deliveryInput, "Proszę wybrać poprawny adres dostawy z sugestii.");
-          if (!firstError) firstError = deliveryInput;
-        } else {
-          clearFieldError(deliveryInput);
-        }
-
-    
-        if (firstError) {
-          firstError.scrollIntoView({ behavior: "smooth", block: "center" });
-          firstError.focus();
-        }
-      });
-    }
-
- 
-    function showFieldError(input, message) {
-      clearFieldError(input);
-      const error = document.createElement("div");
-      error.className = "invalid-feedback d-block";
-      error.textContent = message;
-      input.parentNode.appendChild(error);
-      input.classList.add("is-invalid");
-    }
-
-    function clearFieldError(input) {
-      const error = input.parentNode.querySelector(".invalid-feedback");
-      if (error) error.remove();
-      input.classList.remove("is-invalid");
-    }
-  }
-</script>
