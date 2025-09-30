@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  pickup_address: MyString
+  pickup_lat: 1.5
+  pickup_lon: 1.5
+  delivery_address: MyString
+  delivery_lat: 1.5
+  delivery_lon: 1.5
+  vehicle_type: one
+  service_type: one
+  delivery_date: 2025-09-19 20:44:08
+  price: 9.99
+  distance_km: 1.5
+  status: 1
+
+two:
+  pickup_address: MyString
+  pickup_lat: 1.5
+  pickup_lon: 1.5
+  delivery_address: MyString
+  delivery_lat: 1.5
+  delivery_lon: 1.5
+  vehicle_type: two
+  service_type: two
+  delivery_date: 2025-09-19 20:44:08
+  price: 9.99
+  distance_km: 1.5
+  status: 1

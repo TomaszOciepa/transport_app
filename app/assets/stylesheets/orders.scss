@@ -1,0 +1,64 @@
+/* Przycisk submit */
+.custom-submit {
+  background-color: #000;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.custom-submit:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.custom-submit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Kafelki pojazdów */
+.vehicle-btn {
+  display: block;
+  border-radius: 12px;
+  min-width: 120px;
+  text-align: center;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  background-color: #f8f9fa;
+}
+
+/* Hover - lekki efekt */
+.vehicle-btn:hover {
+  background-color: #e0e0e0;
+  border-color: #555;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+/* Ukryty radio button */
+.btn-check {
+  display: none;
+}
+
+/* Zaznaczony kafelek pojazdu - ciemne tło */
+.btn-check:checked + .vehicle-btn {
+  background-color: #111; /* ciemniejsze tło */
+  color: #fff;
+  border-color: #000;
+  font-weight: bold;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+}
+
+/* Powiększenie ikony w zaznaczonym kafelku */
+.btn-check:checked + .vehicle-btn i {
+  transform: scale(1.1);
+  color: #fff;
+}
+
+/* Ikona pojazdu - przejście */
+.vehicle-btn i {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
