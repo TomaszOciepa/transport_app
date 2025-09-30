@@ -28,7 +28,20 @@
           <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
           <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-          <script>
+          <!-- Order Form -->
+          <div class="d-flex justify-content-end mt-4">
+            <%= form_with url: orders_path, method: :post do %>
+              <%= submit_tag "Zamawiam", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+ <script>
             document.addEventListener("DOMContentLoaded", function() {
               const map = L.map('map').setView([<%= @order.pickup_lat || 52.2297 %>, <%= @order.pickup_lon || 21.0122 %>], 6);
 
@@ -65,15 +78,3 @@
                 .catch(err => console.error("Błąd ORS:", err));
             });
           </script>
-
-          <!-- Order Form -->
-          <div class="d-flex justify-content-end mt-4">
-            <%= form_with url: orders_path, method: :post do %>
-              <%= submit_tag "Zamawiam", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
