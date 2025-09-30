@@ -80,3 +80,52 @@
 </div>
 
 <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" %>
+
+
+<script>
+  function initAutocomplete() {
+
+    const pickupInput = document.getElementById("order_pickup_address");
+    const pickupLat = document.getElementById("pickup_lat");
+    const pickupLon = document.getElementById("pickup_lon");
+
+    if (pickupInput) {
+      const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput,
+      //  {
+      //   types: ["geocode"],
+      //   componentRestrictions: { country: "pl" }
+      // }
+      );
+
+      pickupAutocomplete.addListener("place_changed", function () {
+        const place = pickupAutocomplete.getPlace();
+        if (place.geometry) {
+          pickupLat.value = place.geometry.location.lat();
+          pickupLon.value = place.geometry.location.lng();
+        }
+      });
+    }
+
+
+    const deliveryInput = document.getElementById("order_delivery_address");
+    const deliveryLat = document.getElementById("delivery_lat");
+    const deliveryLon = document.getElementById("delivery_lon");
+
+    if (deliveryInput) {
+      const deliveryAutocomplete = new google.maps.places.Autocomplete(deliveryInput, 
+      // {
+      //   types: ["geocode"],
+      //   componentRestrictions: { country: "pl" }
+      // }
+      );
+
+      deliveryAutocomplete.addListener("place_changed", function () {
+        const place = deliveryAutocomplete.getPlace();
+        if (place.geometry) {
+          deliveryLat.value = place.geometry.location.lat();
+          deliveryLon.value = place.geometry.location.lng();
+        }
+      });
+    }
+  }
+</script>
