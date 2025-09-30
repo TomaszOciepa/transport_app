@@ -82,19 +82,24 @@
 <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" %>
 
 
-<script>
-  function initAutocomplete() {
 
+<script>
+  let isPickupValid = false;
+  let isDeliveryValid = false;
+
+  function initAutocomplete() {
     const pickupInput = document.getElementById("order_pickup_address");
     const pickupLat = document.getElementById("pickup_lat");
     const pickupLon = document.getElementById("pickup_lon");
 
+    const deliveryInput = document.getElementById("order_delivery_address");
+    const deliveryLat = document.getElementById("delivery_lat");
+    const deliveryLon = document.getElementById("delivery_lon");
+
+    // --- Pickup Autocomplete ---
     if (pickupInput) {
-      const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput,
-      //  {
-      //   types: ["geocode"],
-      //   componentRestrictions: { country: "pl" }
-      // }
+      const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, 
+      // { types: ["geocode"], componentRestrictions: { country: "pl" } }
       );
 
       pickupAutocomplete.addListener("place_changed", function () {
@@ -102,21 +107,22 @@
         if (place.geometry) {
           pickupLat.value = place.geometry.location.lat();
           pickupLon.value = place.geometry.location.lng();
+          isPickupValid = true;
+          clearFieldError(pickupInput);
+        } else {
+          isPickupValid = false;
         }
+      });
+
+      pickupInput.addEventListener("input", function() {
+        isPickupValid = false;
       });
     }
 
-
-    const deliveryInput = document.getElementById("order_delivery_address");
-    const deliveryLat = document.getElementById("delivery_lat");
-    const deliveryLon = document.getElementById("delivery_lon");
-
+    // --- Delivery Autocomplete ---
     if (deliveryInput) {
-      const deliveryAutocomplete = new google.maps.places.Autocomplete(deliveryInput, 
-      // {
-      //   types: ["geocode"],
-      //   componentRestrictions: { country: "pl" }
-      // }
+      const deliveryAutocomplete = new google.maps.places.Autocomplete(deliveryInput,
+      // { types: ["geocode"], componentRestrictions: { country: "pl" } }
       );
 
       deliveryAutocomplete.addListener("place_changed", function () {
@@ -124,8 +130,62 @@
         if (place.geometry) {
           deliveryLat.value = place.geometry.location.lat();
           deliveryLon.value = place.geometry.location.lng();
+          isDeliveryValid = true;
+          clearFieldError(deliveryInput);
+        } else {
+          isDeliveryValid = false;
         }
       });
+
+      deliveryInput.addEventListener("input", function() {
+        isDeliveryValid = false;
+      });
+    }
+
+
+    const form = document.getElementById("order-form");
+    if (form) {
+      form.addEventListener("submit", function(event) {
+        let firstError = null;
+
+        if (!isPickupValid) {
+          event.preventDefault();
+          showFieldError(pickupInput, "Proszę wybrać poprawny adres odbioru z sugestii.");
+          if (!firstError) firstError = pickupInput;
+        } else {
+          clearFieldError(pickupInput);
+        }
+
+        if (!isDeliveryValid) {
+          event.preventDefault();
+          showFieldError(deliveryInput, "Proszę wybrać poprawny adres dostawy z sugestii.");
+          if (!firstError) firstError = deliveryInput;
+        } else {
+          clearFieldError(deliveryInput);
+        }
+
+    
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+          firstError.focus();
+        }
+      });
+    }
+
+ 
+    function showFieldError(input, message) {
+      clearFieldError(input);
+      const error = document.createElement("div");
+      error.className = "invalid-feedback d-block";
+      error.textContent = message;
+      input.parentNode.appendChild(error);
+      input.classList.add("is-invalid");
+    }
+
+    function clearFieldError(input) {
+      const error = input.parentNode.querySelector(".invalid-feedback");
+      if (error) error.remove();
+      input.classList.remove("is-invalid");
     }
   }
 </script>
