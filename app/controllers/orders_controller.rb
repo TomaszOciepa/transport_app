@@ -19,16 +19,20 @@ class OrdersController < ApplicationController
   def create
     if session[:preview_order]
       @order = Order.new(session[:preview_order])
+  
       if @order.save
         session.delete(:preview_order)
-        redirect_to @order, notice: "Zamówienie zostało zapisane."
+        redirect_to @order, notice: "The order has been saved."
       else
-        redirect_to new_order_path, alert: "Nie udało się zapisać zamówienia."
+        load_collections
+        flash.now[:alert] = "The form contains invalid data. Please correct the errors and try again."
+        render :new, status: :unprocessable_entity
       end
     else
-      redirect_to new_order_path, alert: "Brak danych do zapisania."
+      redirect_to new_order_path, alert: "No data to save."
     end
   end
+  
 
   def show
     @ors_api_key = ENV["ORS_API_KEY"]

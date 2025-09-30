@@ -3,12 +3,17 @@ class Order < ApplicationRecord
   belongs_to :vehicle_type
   belongs_to :service_type
 
- # Geocoding addresses
   geocoded_by :pickup_address, latitude: :pickup_lat, longitude: :pickup_lon
   geocoded_by :delivery_address, latitude: :delivery_lat, longitude: :delivery_lon
 
   before_validation :geocode_addresses
   before_save :calculate_price_and_delivery
+
+validates :pickup_address, :delivery_address, :vehicle_type_id, :service_type_id, :pickup_date, presence: true
+
+validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, presence: true
+validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: true
+
 
   # Geocoding addresses to coordinates
   def geocode_addresses

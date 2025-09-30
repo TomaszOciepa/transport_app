@@ -1,53 +1,62 @@
-<div class="container py-5">
+<div class="container py-5" data-controller="autocomplete">
   <div class="row justify-content-center">
     <div class="col-lg-10">
-      <h3 class="mb-4 fw-bold text-start">Oblicz cenę za transport</h3>
+      <h3 class="mb-4 fw-bold text-start">Oblicz cenę transportu</h3>
 
       <div class="card shadow-lg rounded-4 border-0">
         <div class="card-body p-5">
           <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form") do |f| %>
 
-            <!-- Step 1 -->
-            <div class="step step-active bg-light rounded-3 p-4 mb-4" id="step-1">
+  
+            <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Dane odbioru i dostawy</h5>
+
               <div class="mb-4">
                 <%= f.label :pickup_address, "Odbiór", class: "form-label fw-bold" %>
-                <%= f.text_field :pickup_address, class: "form-control form-control-lg step-field", placeholder: "np. Warszawa, Marszałkowska 1", required: true %>
+                <%= f.text_field :pickup_address,
+                                 class: "form-control form-control-lg",
+                                 placeholder: "np. Warszawa, Marszałkowska 1",
+                                 required: true,
+                                 data: { autocomplete_target: "pickup" } %>
+                <%= f.hidden_field :pickup_lat, id: "pickup_lat", data: { autocomplete_target: "pickupLat" } %>
+                <%= f.hidden_field :pickup_lon, id: "pickup_lon", data: { autocomplete_target: "pickupLon" } %>
               </div>
+
               <div class="mb-4">
                 <%= f.label :delivery_address, "Dostawa", class: "form-label fw-bold" %>
-                <%= f.text_field :delivery_address, class: "form-control form-control-lg step-field", placeholder: "np. Kraków, Długa 10", required: true %>
+                <%= f.text_field :delivery_address,
+                                 class: "form-control form-control-lg",
+                                 placeholder: "np. Kraków, Długa 10",
+                                 required: true,
+                                 data: { autocomplete_target: "delivery" } %>
+                <%= f.hidden_field :delivery_lat, id: "delivery_lat", data: { autocomplete_target: "deliveryLat" } %>
+                <%= f.hidden_field :delivery_lon, id: "delivery_lon", data: { autocomplete_target: "deliveryLon" } %>
               </div>
             </div>
-
-            <!-- Step 2 -->
-            <div class="step step-disabled bg-light rounded-3 p-4 mb-4" id="step-2">
+            
+            <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ pojazdu</h5>
-              <div class="row g-3">
+              <div class="d-flex flex-wrap gap-3 mb-4">
                 <% @vehicle_types.each do |vehicle| %>
-                  <div class="col-6 col-md-4">
-                    <label class="w-100 vehicle-card-label">
-                      <%= f.radio_button :vehicle_type_id, vehicle.id, class: "btn-check vehicle-radio", autocomplete: "off", required: true, disabled: true %>
-                      <div class="card h-100 text-center vehicle-card">
-                        <div class="card-body">
-                          <i class="bi bi-truck display-5 text-primary"></i>
-                          <h6 class="mt-2"><%= vehicle.name %></h6>
-                          <small><%= number_to_currency(vehicle.price_per_km, unit: "PLN") %>/km</small>
-                        </div>
-                      </div>
-                    </label>
-                  </div>
+                  <label>
+                    <%= f.radio_button :vehicle_type_id, vehicle.id, class: "btn-check", autocomplete: "off", required: true %>
+                    <span class="btn vehicle-btn p-4 text-center" style="min-width: 120px;">
+                      <i class="bi bi-truck display-5"></i>
+                      <div class="mt-2"><%= vehicle.name %></div>
+                      <small><%= number_to_currency(vehicle.price_per_km, unit: "PLN") %>/km</small>
+                    </span>
+                  </label>
                 <% end %>
               </div>
             </div>
 
-            <!-- Step 3 -->
-            <div class="step step-disabled bg-light rounded-3 p-4 mb-4" id="step-3">
+
+            <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ usługi</h5>
               <div class="d-flex flex-wrap gap-3 mb-4">
                 <% @service_types.each do |service| %>
                   <label>
-                    <%= f.radio_button :service_type_id, service.id, class: "btn-check step-field", autocomplete: "off", required: true, disabled: true %>
+                    <%= f.radio_button :service_type_id, service.id, class: "btn-check", autocomplete: "off", required: true %>
                     <span class="btn btn-outline-secondary rounded-pill px-4 py-2"><%= service.name %></span>
                   </label>
                 <% end %>
@@ -55,13 +64,14 @@
 
               <div class="mb-4">
                 <%= f.label :pickup_date, "Data i godzina odbioru", class: "form-label fw-bold" %>
-                <%= f.datetime_local_field :pickup_date, class: "form-control form-control-lg step-field", required: true %>
+                <%= f.datetime_local_field :pickup_date, class: "form-control form-control-lg", required: true %>
               </div>
 
-            <div class="d-flex justify-content-end mt-4">
-              <%= f.submit "Oblicz koszt", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
+              <div class="d-flex justify-content-end mt-4">
+                <%= f.submit "Oblicz koszt", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
+              </div>
             </div>
-            </div>
+
           <% end %>
         </div>
       </div>
@@ -69,92 +79,113 @@
   </div>
 </div>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-<style>
-  .step-disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .step-active {
-    opacity: 1;
-  }
-  .custom-submit {
-    background-color: #000;
-    border: none;
-    transition: all 0.3s ease;
-  }
-  .custom-submit:hover {
-    background-color: #333;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  }
-  .custom-submit:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
-.vehicle-card {
-  border: 2px solid #ddd;
-  border-radius: 12px;
-  background-color: #f8f9fa;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.vehicle-card-label:hover .vehicle-card {
-  border-color: #555;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-  transform: translateY(-3px);
-}
-
-.vehicle-radio:checked + .vehicle-card {
-  border-color: #000;
-  background-color: #e9ecef;
-  font-weight: bold;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  transform: translateY(-5px);
-}
-
-.vehicle-card-body i {
-  transition: transform 0.3s ease;
-}
-
-.vehicle-radio:checked + .vehicle-card i {
-  transform: scale(1.1);
-}
+<%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" %>
 
 
-</style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const steps = document.querySelectorAll(".step");
-    let currentStep = 0;
+  let isPickupValid = false;
+  let isDeliveryValid = false;
 
-    function activateStep(stepIndex) {
-      steps[stepIndex].classList.remove("step-disabled");
-      steps[stepIndex].classList.add("step-active");
-      steps[stepIndex].querySelectorAll("input").forEach(el => el.disabled = false);
-      steps[stepIndex].scrollIntoView({ behavior: "smooth" });
-    }
+  function initAutocomplete() {
+    const pickupInput = document.getElementById("order_pickup_address");
+    const pickupLat = document.getElementById("pickup_lat");
+    const pickupLon = document.getElementById("pickup_lon");
 
-    function checkStepCompletion(stepIndex) {
-      const fields = steps[stepIndex].querySelectorAll(".step-field");
-      let valid = true;
-      fields.forEach(field => {
-        if (!field.checkValidity()) valid = false;
+    const deliveryInput = document.getElementById("order_delivery_address");
+    const deliveryLat = document.getElementById("delivery_lat");
+    const deliveryLon = document.getElementById("delivery_lon");
+
+    // --- Pickup Autocomplete ---
+    if (pickupInput) {
+      const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, 
+      // { types: ["geocode"], componentRestrictions: { country: "pl" } }
+      );
+
+      pickupAutocomplete.addListener("place_changed", function () {
+        const place = pickupAutocomplete.getPlace();
+        if (place.geometry) {
+          pickupLat.value = place.geometry.location.lat();
+          pickupLon.value = place.geometry.location.lng();
+          isPickupValid = true;
+          clearFieldError(pickupInput);
+        } else {
+          isPickupValid = false;
+        }
       });
-      if (valid && stepIndex < steps.length - 1) {
-        currentStep++;
-        activateStep(currentStep);
-      }
+
+      pickupInput.addEventListener("input", function() {
+        isPickupValid = false;
+      });
     }
 
-    steps.forEach((step, index) => {
-      step.addEventListener("input", () => checkStepCompletion(index));
-      step.addEventListener("change", () => checkStepCompletion(index));
-    });
+    // --- Delivery Autocomplete ---
+    if (deliveryInput) {
+      const deliveryAutocomplete = new google.maps.places.Autocomplete(deliveryInput,
+      // { types: ["geocode"], componentRestrictions: { country: "pl" } }
+      );
 
-    activateStep(currentStep);
-  });
+      deliveryAutocomplete.addListener("place_changed", function () {
+        const place = deliveryAutocomplete.getPlace();
+        if (place.geometry) {
+          deliveryLat.value = place.geometry.location.lat();
+          deliveryLon.value = place.geometry.location.lng();
+          isDeliveryValid = true;
+          clearFieldError(deliveryInput);
+        } else {
+          isDeliveryValid = false;
+        }
+      });
+
+      deliveryInput.addEventListener("input", function() {
+        isDeliveryValid = false;
+      });
+    }
+
+
+    const form = document.getElementById("order-form");
+    if (form) {
+      form.addEventListener("submit", function(event) {
+        let firstError = null;
+
+        if (!isPickupValid) {
+          event.preventDefault();
+          showFieldError(pickupInput, "Proszę wybrać poprawny adres odbioru z sugestii.");
+          if (!firstError) firstError = pickupInput;
+        } else {
+          clearFieldError(pickupInput);
+        }
+
+        if (!isDeliveryValid) {
+          event.preventDefault();
+          showFieldError(deliveryInput, "Proszę wybrać poprawny adres dostawy z sugestii.");
+          if (!firstError) firstError = deliveryInput;
+        } else {
+          clearFieldError(deliveryInput);
+        }
+
+    
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+          firstError.focus();
+        }
+      });
+    }
+
+ 
+    function showFieldError(input, message) {
+      clearFieldError(input);
+      const error = document.createElement("div");
+      error.className = "invalid-feedback d-block";
+      error.textContent = message;
+      input.parentNode.appendChild(error);
+      input.classList.add("is-invalid");
+    }
+
+    function clearFieldError(input) {
+      const error = input.parentNode.querySelector(".invalid-feedback");
+      if (error) error.remove();
+      input.classList.remove("is-invalid");
+    }
+  }
 </script>
