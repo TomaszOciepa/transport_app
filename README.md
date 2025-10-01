@@ -1,25 +1,31 @@
-# README
+# Transport App
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a Rails application for managing transport orders and calculating transport costs.
 
-Things you may want to cover:
+## Getting Started with Docker
 
-* Ruby version
+Follow these steps to run the application using Docker:
 
-* System dependencies
+1. **Clone the repository**
 
-* Configuration
+````bash
+git clone https://github.com/TomaszOciepa/transport_app.git
+cd transport_app
 
-* Database creation
+2. **Install Bootstrap and Sass**
 
-* Database initialization
+```bash
+yarn add --dev sass
+yarn build:css
 
-* How to run the test suite
+3. **Build and start Docker containers**
 
-* Services (job queues, cache servers, search engines, etc.)
+```bash
+docker compose build
+docker compose up
 
-* Deployment instructions
 
-* ...
-# transport_app
+The Rails application will be available at http://localhost:3000
+.
+The PostgreSQL database runs on port 5432 inside the Docker network.
+````
