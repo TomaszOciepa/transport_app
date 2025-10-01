@@ -49,7 +49,7 @@ class Order < ApplicationRecord
     # travel_hours *= service_type.multiplier
 
     # start_time = pickup_date&.to_time.change(hour: 9) || Time.current
-    start_time = pickup_date&.to_time || Time.current
+    start_time = start_time = pickup_date || Time.zone.now
 
     self.delivery_date ||= start_time + travel_hours.hours
   end
