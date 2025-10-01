@@ -1,3 +1,15 @@
+
+<% content_for :head do %>
+  <script async defer data-turbo-track="reload"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7GlH-DOckBL4CYmu2hpzIJ2Kj7q30eJw&libraries=places&language=pl&callback=googleMapsLoaded">
+  </script>
+  <script>
+    window.googleMapsLoaded = function() {
+      document.dispatchEvent(new Event("google-maps-loaded"));
+    };
+  </script>
+<% end %>
+
 <div class="container py-5" data-controller="autocomplete"
      data-autocomplete-pickup-target="pickup"
      data-autocomplete-pickup-lat-target="pickupLat"

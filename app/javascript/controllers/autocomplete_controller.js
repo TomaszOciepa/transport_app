@@ -14,7 +14,18 @@ export default class extends Controller {
   connect() {
     this.isPickupValid = false;
     this.isDeliveryValid = false;
-    this.initAutocomplete();
+
+    if (typeof google === "undefined") {
+      document.addEventListener(
+        "google-maps-loaded",
+        () => {
+          this.initAutocomplete();
+        },
+        { once: true }
+      );
+    } else {
+      this.initAutocomplete();
+    }
   }
 
   initAutocomplete() {
