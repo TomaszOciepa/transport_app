@@ -17,9 +17,13 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /usr/sh
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+RUN yarn add --dev sass
+
 COPY . .
 
-RUN yarn install && yarn add --dev sass
+ENV PATH /app/node_modules/.bin:$PATH
 
 EXPOSE 3000
 
