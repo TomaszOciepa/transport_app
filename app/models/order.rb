@@ -3,16 +3,14 @@ class Order < ApplicationRecord
   belongs_to :vehicle_type
   belongs_to :service_type
 
-  geocoded_by :pickup_address, latitude: :pickup_lat, longitude: :pickup_lon
-  geocoded_by :delivery_address, latitude: :delivery_lat, longitude: :delivery_lon
-
   before_validation :geocode_addresses
   before_save :calculate_price_and_delivery
 
-validates :pickup_address, :delivery_address, :vehicle_type_id, :service_type_id, :pickup_date, presence: true
+  validates :pickup_address, :delivery_address, :vehicle_type_id, :service_type_id, :pickup_date, presence: true
 
-validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, presence: true
-validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: true
+  validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, presence: true
+  validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: true
+
 
 
   # Geocoding addresses to coordinates
@@ -52,7 +50,7 @@ validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: 
     # travel_hours *= service_type.multiplier
 
     # start_time = pickup_date&.to_time.change(hour: 9) || Time.current
-    start_time = pickup_date&.to_time || Time.current
+    start_time = start_time = pickup_date || Time.zone.now
 
     self.delivery_date ||= start_time + travel_hours.hours
   end

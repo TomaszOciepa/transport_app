@@ -11,9 +11,10 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <p><strong>Adres odbioru:</strong> <%= @order.pickup_address %></p>
-                <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
-                <p><strong>Pojazd:</strong> <%= @order.vehicle_type.name if @order.vehicle_type %></p>
-                <p><strong>Usługa:</strong> <%= @order.service_type.name if @order.service_type %></p>
+
+                <p><strong>Pojazd:</strong> <%= @order.vehicle_type&.name %></p>
+                <p><strong>Usługa:</strong> <%= @order.service_type&.name %></p>
+              
               </div>
               <div class="col-md-6 mb-3">
                 <p><strong>Dystans:</strong> <%= @order.distance_km.round(2) %> km</p>
@@ -25,47 +26,24 @@
           </div>
 
           <!-- Map -->
-          <div id="map" style="height: 400px; border-radius: 12px;" class="mb-4"></div>
+          <div
+            id="map"
+            data-controller="order-map"
+            data-order-map-pickup-lat-value="<%= @order.pickup_lat || 52.2297 %>"
+            data-order-map-pickup-lon-value="<%= @order.pickup_lon || 21.0122 %>"
+            <% if @order.delivery_lat && @order.delivery_lon %>
+              data-order-map-delivery-lat-value="<%= @order.delivery_lat %>"
+              data-order-map-delivery-lon-value="<%= @order.delivery_lon %>"
+            <% end %>
+            data-order-map-ors-api-key-value="<%= @ors_api_key %>"
+            style="height: 400px; border-radius: 12px;"
+            class="mb-4"
+          ></div>
 
-          <!-- Leaflet -->
+          <!-- Leaflet CSS/JS -->
           <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
           <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-          <script>
-            document.addEventListener("DOMContentLoaded", function() {
-              const map = L.map('map').setView([<%= @order.pickup_lat || 52.2297 %>, <%= @order.pickup_lon || 21.0122 %>], 6);
-
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-              }).addTo(map);
-
-              // Point markers
-              if (<%= @order.pickup_lat.present? && @order.pickup_lon.present? %>) {
-                L.marker([<%= @order.pickup_lat %>, <%= @order.pickup_lon %>]).addTo(map).bindPopup("Odbiór").openPopup();
-              }
-              if (<%= @order.delivery_lat.present? && @order.delivery_lon.present? %>) {
-                L.marker([<%= @order.delivery_lat %>, <%= @order.delivery_lon %>]).addTo(map).bindPopup("Dostawa");
-              }
-
-              // ORS API – road route
-              const apiKey = "<%= @ors_api_key %>";
-              const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=<%= @order.pickup_lon %>,<%= @order.pickup_lat %>&end=<%= @order.delivery_lon %>,<%= @order.delivery_lat %>`;
-
-              fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                  if (!data.features || data.features.length === 0) {
-                    console.error("Brak trasy ORS");
-                    return;
-                  }
-                  const coords = data.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
-                  L.polyline(coords, { color: 'black', weight: 5 }).addTo(map);
-                  map.fitBounds(coords);
-                })
-                .catch(err => console.error("Błąd ORS:", err));
-            });
-          </script>
-
+     
         </div>
       </div>
     </div>

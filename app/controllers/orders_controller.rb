@@ -8,13 +8,26 @@ class OrdersController < ApplicationController
 
   def preview
     @ors_api_key = ENV["ORS_API_KEY"]
-    @order = Order.new(order_params)
-    @order.geocode_addresses
-    @order.calculate_price_and_delivery
+  
+    if request.post?
+      @order = Order.new(order_params)
+      @order.geocode_addresses
+      @order.calculate_price_and_delivery
+  
+      session[:preview_order] = order_params
+    elsif session[:preview_order]
+      
+      @order = Order.new(session[:preview_order])
+      @order.geocode_addresses
+      @order.calculate_price_and_delivery
+    else
+      redirect_to new_order_path, alert: "No data to preview."
+    end
+  
     load_collections
-
-    session[:preview_order] = order_params
   end
+  
+
 
   def create
     if session[:preview_order]
