@@ -6,4 +6,5 @@ Rails.application.routes.draw do
     end
   end
   root "orders#new"
+  match "/404", to: "errors#not_found", via: :all
 end
