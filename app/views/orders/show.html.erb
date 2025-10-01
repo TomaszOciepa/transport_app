@@ -11,9 +11,10 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <p><strong>Adres odbioru:</strong> <%= @order.pickup_address %></p>
-                <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
+
                 <p><strong>Pojazd:</strong> <%= @order.vehicle_type&.name %></p>
                 <p><strong>Usługa:</strong> <%= @order.service_type&.name %></p>
+              
               </div>
               <div class="col-md-6 mb-3">
                 <p><strong>Dystans:</strong> <%= @order.distance_km.round(2) %> km</p>
@@ -42,7 +43,7 @@
           <!-- Leaflet CSS/JS -->
           <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
           <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
+     
         </div>
       </div>
     </div>

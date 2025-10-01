@@ -12,6 +12,7 @@ class Order < ApplicationRecord
   validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: true
 
 
+
   # Geocoding addresses to coordinates
   def geocode_addresses
     if pickup_address.present? && pickup_lat.blank? && pickup_lon.blank?
