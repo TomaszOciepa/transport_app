@@ -1,124 +1,111 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Connects to data-controller="autocomplete"
 export default class extends Controller {
   static targets = [
     "pickup",
     "pickupLat",
     "pickupLon",
+    "pickupCity",
+    "pickupPostcode",
     "delivery",
     "deliveryLat",
     "deliveryLon",
+    "deliveryCity",
+    "deliveryPostcode",
   ];
 
   connect() {
-    this.isPickupValid = false;
-    this.isDeliveryValid = false;
+    this.pickupSelected = false;
+    this.deliverySelected = false;
 
-    if (typeof google === "undefined") {
-      document.addEventListener(
-        "google-maps-loaded",
-        () => {
-          this.initAutocomplete();
-        },
-        { once: true }
-      );
-    } else {
-      this.initAutocomplete();
-    }
-  }
-
-  initAutocomplete() {
-    // --- Pickup Autocomplete ---
-    if (this.hasPickupTarget) {
-      const pickupAutocomplete = new google.maps.places.Autocomplete(
-        this.pickupTarget
-      );
-      pickupAutocomplete.addListener("place_changed", () => {
-        const place = pickupAutocomplete.getPlace();
-        if (place.geometry) {
-          this.pickupLatTarget.value = place.geometry.location.lat();
-          this.pickupLonTarget.value = place.geometry.location.lng();
-          this.isPickupValid = true;
-          this.clearFieldError(this.pickupTarget);
-        } else {
-          this.isPickupValid = false;
-        }
-      });
-      this.pickupTarget.addEventListener("input", () => {
-        this.isPickupValid = false;
-      });
-    }
-
-    // --- Delivery Autocomplete ---
-    if (this.hasDeliveryTarget) {
-      const deliveryAutocomplete = new google.maps.places.Autocomplete(
-        this.deliveryTarget
-      );
-      deliveryAutocomplete.addListener("place_changed", () => {
-        const place = deliveryAutocomplete.getPlace();
-        if (place.geometry) {
-          this.deliveryLatTarget.value = place.geometry.location.lat();
-          this.deliveryLonTarget.value = place.geometry.location.lng();
-          this.isDeliveryValid = true;
-          this.clearFieldError(this.deliveryTarget);
-        } else {
-          this.isDeliveryValid = false;
-        }
-      });
-      this.deliveryTarget.addEventListener("input", () => {
-        this.isDeliveryValid = false;
-      });
-    }
-
-    // --- Form validation ---
     const form = this.element.querySelector("form");
-    if (form) {
-      form.addEventListener("submit", (event) => {
-        let firstError = null;
 
-        if (!this.isPickupValid) {
-          event.preventDefault();
-          this.showFieldError(
-            this.pickupTarget,
-            "Proszę wybrać poprawny adres odbioru z sugestii."
-          );
-          if (!firstError) firstError = this.pickupTarget;
-        } else {
-          this.clearFieldError(this.pickupTarget);
-        }
+    // submit
+    form.addEventListener("submit", (e) => {
+      this.clearValidation(this.pickupTarget);
+      this.clearValidation(this.deliveryTarget);
 
-        if (!this.isDeliveryValid) {
-          event.preventDefault();
-          this.showFieldError(
-            this.deliveryTarget,
-            "Proszę wybrać poprawny adres dostawy z sugestii."
-          );
-          if (!firstError) firstError = this.deliveryTarget;
-        } else {
-          this.clearFieldError(this.deliveryTarget);
-        }
+      if (!this.pickupSelected) {
+        e.preventDefault();
+        this.showValidationError(
+          this.pickupTarget,
+          "Proszę wybrać adres odbioru z podpowiedzi."
+        );
+      }
 
-        if (firstError) {
-          firstError.scrollIntoView({ behavior: "smooth", block: "center" });
-          firstError.focus();
-        }
-      });
+      if (!this.deliverySelected) {
+        e.preventDefault();
+        this.showValidationError(
+          this.deliveryTarget,
+          "Proszę wybrać adres dostawy z podpowiedzi."
+        );
+      }
+    });
+
+    // we set flags when selecting a hint
+    this.pickupTarget.addEventListener("retrieve", (e) =>
+      this.handlePickupRetrieve(e)
+    );
+    this.deliveryTarget.addEventListener("retrieve", (e) =>
+      this.handleDeliveryRetrieve(e)
+    );
+  }
+
+  handlePickupRetrieve(e) {
+    this.pickupSelected = true;
+    const feature = e.detail.features[0];
+    this.pickupLatTarget.value = feature.geometry.coordinates[1];
+    this.pickupLonTarget.value = feature.geometry.coordinates[0];
+
+    if (feature.context) {
+      const place = feature.context.find((c) => c.id.includes("place"));
+      const postcode = feature.context.find((c) => c.id.includes("postcode"));
+      this.pickupCityTarget.value = place ? place.text : "";
+      this.pickupPostcodeTarget.value = postcode ? postcode.text : "";
     }
+    this.clearValidation(this.pickupTarget);
   }
 
-  showFieldError(input, message) {
-    this.clearFieldError(input);
-    const error = document.createElement("div");
-    error.className = "invalid-feedback d-block";
-    error.textContent = message;
-    input.parentNode.appendChild(error);
-    input.classList.add("is-invalid");
+  handleDeliveryRetrieve(e) {
+    this.deliverySelected = true;
+    const feature = e.detail.features[0];
+    this.deliveryLatTarget.value = feature.geometry.coordinates[1];
+    this.deliveryLonTarget.value = feature.geometry.coordinates[0];
+
+    if (feature.context) {
+      const place = feature.context.find((c) => c.id.includes("place"));
+      const postcode = feature.context.find((c) => c.id.includes("postcode"));
+      this.deliveryCityTarget.value = place ? place.text : "";
+      this.deliveryPostcodeTarget.value = postcode ? postcode.text : "";
+    }
+    this.clearValidation(this.deliveryTarget);
   }
 
-  clearFieldError(input) {
-    const error = input.parentNode.querySelector(".invalid-feedback");
-    if (error) error.remove();
-    input.classList.remove("is-invalid");
+  showValidationError(inputElement, message) {
+    inputElement.classList.add("is-invalid");
+    if (
+      !inputElement.nextElementSibling ||
+      !inputElement.nextElementSibling.classList.contains("invalid-feedback")
+    ) {
+      const feedback = document.createElement("div");
+      feedback.classList.add("invalid-feedback");
+      feedback.textContent = message;
+      inputElement.after(feedback);
+    } else {
+      inputElement.nextElementSibling.textContent = message;
+    }
+
+    // scroll to the error field
+    inputElement.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  clearValidation(inputElement) {
+    inputElement.classList.remove("is-invalid");
+    if (
+      inputElement.nextElementSibling &&
+      inputElement.nextElementSibling.classList.contains("invalid-feedback")
+    ) {
+      inputElement.nextElementSibling.remove();
+    }
   }
 }

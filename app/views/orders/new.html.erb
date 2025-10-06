@@ -1,21 +1,20 @@
 <% content_for :head do %>
-  <script async defer data-turbo-track="reload"
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7GlH-DOckBL4CYmu2hpzIJ2Kj7q30eJw&libraries=places&language=pl&callback=googleMapsLoaded">
-  </script>
-  <script>
-    window.googleMapsLoaded = function() {
-      document.dispatchEvent(new Event("google-maps-loaded"));
-    };
-  </script>
+  <!-- Mapbox Search JS Web -->
+  <script src="https://api.mapbox.com/search-js/v1.0.0/web.js"></script>
+  <link href="https://api.mapbox.com/search-js/v1.0.0/web.css" rel="stylesheet" />
 <% end %>
 
 <div class="container py-5" data-controller="autocomplete"
-     data-autocomplete-pickup-target="pickup"
-     data-autocomplete-pickup-lat-target="pickupLat"
-     data-autocomplete-pickup-lon-target="pickupLon"
-     data-autocomplete-delivery-target="delivery"
-     data-autocomplete-delivery-lat-target="deliveryLat"
-     data-autocomplete-delivery-lon-target="deliveryLon">
+    data-autocomplete-pickup-target="pickup"
+    data-autocomplete-pickup-lat-target="pickupLat"
+    data-autocomplete-pickup-lon-target="pickupLon"
+    data-autocomplete-pickup-city-target="pickupCity"
+    data-autocomplete-pickup-postcode-target="pickupPostcode"
+    data-autocomplete-delivery-target="delivery"
+    data-autocomplete-delivery-lat-target="deliveryLat"
+    data-autocomplete-delivery-lon-target="deliveryLon"
+    data-autocomplete-delivery-city-target="deliveryCity"
+    data-autocomplete-delivery-postcode-target="deliveryPostcode">
 
   <div class="row justify-content-center">
     <div class="col-lg-10">
@@ -25,35 +24,92 @@
         <div class="card-body p-5">
           <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form", data: { turbo: false }) do |f| %>
 
-            <!-- Dane odbioru i dostawy -->
-
+          <!-- Pickup and delivery details -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Dane odbioru i dostawy</h5>
 
+              <!-- Pickup -->
               <div class="mb-4">
                 <%= f.label :pickup_address, "Odbiór", class: "form-label fw-bold" %>
-                <%= f.text_field :pickup_address,
-                                 class: "form-control form-control-lg",
-                                 placeholder: "np. Warszawa, Marszałkowska 1",
-                                 required: true,
-                                 data: { autocomplete_target: "pickup" } %>
+                <mapbox-address-autofill
+                  access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
+                  language="pl"
+                  data-autocomplete-target="pickup">
+                    <input type="text"
+                          id="pickup_address"
+                          name="order[pickup_address]"
+                          class="form-control form-control-lg"
+                          placeholder="Wyszukaj adres odbioru"
+                          required>
+                </mapbox-address-autofill>
+
+                <div class="row mt-2 g-2">
+                  <div class="col-md-6">
+                    <%= f.text_field :pickup_postcode, 
+                                     id: "pickup_postcode", 
+                                     data: { autocomplete_target: "pickupPostcode" }, 
+                                     autocomplete: "postal-code",
+                                     class: "form-control form-control-lg",
+                                     placeholder: "Kod pocztowy",
+                                     readonly: true %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= f.text_field :pickup_city, 
+                                     id: "pickup_city", 
+                                     data: { autocomplete_target: "pickupCity" }, 
+                                     autocomplete: "address-level2",
+                                     class: "form-control form-control-lg",
+                                     placeholder: "Miasto",
+                                     readonly: true %>
+                  </div>
+                </div>
+
                 <%= f.hidden_field :pickup_lat, id: "pickup_lat", data: { autocomplete_target: "pickupLat" } %>
                 <%= f.hidden_field :pickup_lon, id: "pickup_lon", data: { autocomplete_target: "pickupLon" } %>
               </div>
 
+              <!-- Delivery -->
               <div class="mb-4">
                 <%= f.label :delivery_address, "Dostawa", class: "form-label fw-bold" %>
-                <%= f.text_field :delivery_address,
-                                 class: "form-control form-control-lg",
-                                 placeholder: "np. Kraków, Długa 10",
-                                 required: true,
-                                 data: { autocomplete_target: "delivery" } %>
+                <mapbox-address-autofill
+                  access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
+                  language="pl"
+                  data-autocomplete-target="delivery">
+                  <input  type="text"
+                          id="delivery_address"
+                          name="order[delivery_address]"
+                          class="form-control form-control-lg"
+                          placeholder="Wyszukaj adres dostawy"
+                          required>
+                </mapbox-address-autofill>
+
+                <div class="row mt-2 g-2">
+                  <div class="col-md-6">
+                    <%= f.text_field :delivery_postcode, 
+                                     id: "delivery_postcode", 
+                                     data: { autocomplete_target: "deliveryPostcode" }, 
+                                     autocomplete: "postal-code",
+                                     class: "form-control form-control-lg",
+                                     placeholder: "Kod pocztowy",
+                                     readonly: true %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= f.text_field :delivery_city, 
+                                     id: "delivery_city", 
+                                     data: { autocomplete_target: "deliveryCity" }, 
+                                     autocomplete: "address-level2",
+                                     class: "form-control form-control-lg",
+                                     placeholder: "Miasto",
+                                     readonly: true %>
+                  </div>
+                </div>
+
                 <%= f.hidden_field :delivery_lat, id: "delivery_lat", data: { autocomplete_target: "deliveryLat" } %>
                 <%= f.hidden_field :delivery_lon, id: "delivery_lon", data: { autocomplete_target: "deliveryLon" } %>
               </div>
             </div>
 
-            <!-- Wybierz typ pojazdu -->
+            <!-- Select vehicle type -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ pojazdu</h5>
               <div class="d-flex flex-wrap gap-3 mb-4">
@@ -70,8 +126,7 @@
               </div>
             </div>
 
-            <!-- Wybierz typ usługi -->
-
+            <!-- Select service type -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ usługi</h5>
               <div class="d-flex flex-wrap gap-3 mb-4">
@@ -99,9 +154,3 @@
     </div>
   </div>
 </div>
-
-
-
-
-
- 

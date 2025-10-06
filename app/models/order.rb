@@ -3,6 +3,9 @@ class Order < ApplicationRecord
   belongs_to :vehicle_type
   belongs_to :service_type
 
+  attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
+
+  before_validation :combine_full_addresses
   before_validation :geocode_addresses
   before_save :calculate_price_and_delivery
 
@@ -55,6 +58,16 @@ class Order < ApplicationRecord
     self.delivery_date ||= start_time + travel_hours.hours
   end
 
+  def combine_full_addresses
+    if pickup_address.present?
+      self.pickup_address = [pickup_address, pickup_postcode, pickup_city].compact.join(', ')
+    end
+  
+    if delivery_address.present?
+      self.delivery_address = [delivery_address, delivery_postcode, delivery_city].compact.join(', ')
+    end
+  end
+  
   private
 
   def fetch_distance_from_ors
@@ -77,4 +90,6 @@ class Order < ApplicationRecord
 
     0
   end
+
+ 
 end

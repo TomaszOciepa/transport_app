@@ -11,6 +11,7 @@ class OrdersController < ApplicationController
   
     if request.post?
       @order = Order.new(order_params)
+      @order.combine_full_addresses
       @order.geocode_addresses
       @order.calculate_price_and_delivery
   
@@ -18,6 +19,7 @@ class OrdersController < ApplicationController
     elsif session[:preview_order]
       
       @order = Order.new(session[:preview_order])
+      @order.combine_full_addresses
       @order.geocode_addresses
       @order.calculate_price_and_delivery
     else
@@ -59,8 +61,8 @@ class OrdersController < ApplicationController
 
   def order_params
     params.require(:order).permit(
-      :pickup_address, :pickup_lat, :pickup_lon,
-      :delivery_address, :delivery_lat, :delivery_lon,
+      :pickup_address, :pickup_lat, :pickup_lon, :pickup_city, :pickup_postcode,
+      :delivery_address, :delivery_lat, :delivery_lon, :delivery_city, :delivery_postcode,
       :vehicle_type_id, :service_type_id, :pickup_date
     )
   end
