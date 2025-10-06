@@ -53,6 +53,7 @@
 # Environment / Secrets
 # ==============================
 # .env*
+.env
 .envrc
 .env.local
 
