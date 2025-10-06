@@ -24,7 +24,7 @@
         <div class="card-body p-5">
           <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form", data: { turbo: false }) do |f| %>
 
-            <!-- Dane odbioru i dostawy -->
+          <!-- Pickup and delivery details -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Dane odbioru i dostawy</h5>
 
@@ -107,7 +107,7 @@
               </div>
             </div>
 
-            <!-- Wybierz typ pojazdu -->
+            <!-- Select vehicle type -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ pojazdu</h5>
               <div class="d-flex flex-wrap gap-3 mb-4">
@@ -124,7 +124,7 @@
               </div>
             </div>
 
-            <!-- Wybierz typ usługi -->
+            <!-- Select service type -->
             <div class="bg-light rounded-3 p-4 mb-4">
               <h5 class="fw-bold mb-4">Wybierz typ usługi</h5>
               <div class="d-flex flex-wrap gap-3 mb-4">
