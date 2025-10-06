@@ -35,11 +35,12 @@
                   access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
                   language="pl"
                   data-autocomplete-target="pickup">
-                  <%= f.text_field :pickup_address,
-                                   id: "pickup_address",
-                                   class: "form-control form-control-lg",
-                                   placeholder: "Wyszukaj adres odbioru",
-                                   required: true %>
+                    <input type="text"
+                          id="pickup_address"
+                          name="order[pickup_address]"
+                          class="form-control form-control-lg"
+                          placeholder="Wyszukaj adres odbioru"
+                          required>
                 </mapbox-address-autofill>
 
                 <div class="row mt-2 g-2">
@@ -74,11 +75,12 @@
                   access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
                   language="pl"
                   data-autocomplete-target="delivery">
-                  <%= f.text_field :delivery_address,
-                                   id: "delivery_address",
-                                   class: "form-control form-control-lg",
-                                   placeholder: "Wyszukaj adres dostawy",
-                                   required: true %>
+                  <input  type="text"
+                          id="delivery_address"
+                          name="order[delivery_address]"
+                          class="form-control form-control-lg"
+                          placeholder="Wyszukaj adres dostawy"
+                          required>
                 </mapbox-address-autofill>
 
                 <div class="row mt-2 g-2">
