@@ -6,22 +6,26 @@ export default class extends Controller {
     "pickup",
     "pickupLat",
     "pickupLon",
+    "pickupCity",
+    "pickupPostcode",
     "delivery",
     "deliveryLat",
     "deliveryLon",
+    "deliveryCity",
+    "deliveryPostcode",
   ];
 
   connect() {
-    // Pickup
     this.pickupTarget.addEventListener("retrieve", (e) => {
       const feature = e.detail.features[0];
+
       this.pickupLatTarget.value = feature.geometry.coordinates[1];
       this.pickupLonTarget.value = feature.geometry.coordinates[0];
     });
 
-    // Delivery
     this.deliveryTarget.addEventListener("retrieve", (e) => {
       const feature = e.detail.features[0];
+
       this.deliveryLatTarget.value = feature.geometry.coordinates[1];
       this.deliveryLonTarget.value = feature.geometry.coordinates[0];
     });
