@@ -60,12 +60,36 @@ class OrdersController < ApplicationController
   end
 
   def order_params
-    params.require(:order).permit(
-      :pickup_address, :pickup_lat, :pickup_lon, :pickup_city, :pickup_postcode,
-      :delivery_address, :delivery_lat, :delivery_lon, :delivery_city, :delivery_postcode,
-      :vehicle_type_id, :service_type_id, :pickup_date
+    permitted = params.require(:order).permit(
+      :pickup_address,
+      :pickup_postcode,
+      :pickup_city,
+      :pickup_lat,
+      :pickup_lon,
+      :delivery_address,
+      :delivery_postcode,
+      :delivery_city,
+      :delivery_lat,
+      :delivery_lon,
+      :vehicle_type_id,
+      :service_type_id,
+      :pickup_date,
+      pickup_address: ["address-search"],
+      delivery_address: ["address-search"]
     )
+  
+    # jeśli pickup_address przyszło jako hash, wyciągnij wartość
+    if permitted[:pickup_address].is_a?(Hash)
+      permitted[:pickup_address] = permitted[:pickup_address]["address-search"]
+    end
+  
+    if permitted[:delivery_address].is_a?(Hash)
+      permitted[:delivery_address] = permitted[:delivery_address]["address-search"]
+    end
+  
+    permitted
   end
+  
 
   def load_collections
     @vehicle_types = VehicleType.all

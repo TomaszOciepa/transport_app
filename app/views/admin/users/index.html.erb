@@ -1,0 +1,54 @@
+<div class="container-fluid">
+  <h2 class="fw-bold mb-4">Użytkownicy</h2>
+
+  <table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>Email</th>
+        <th>Rola</th>
+        <th>Utworzono</th>
+        <th>Akcje</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= user.email %></td>
+          <td><span class="badge bg-secondary"><%= user.role %></span></td>
+          <td><%= user.created_at.localtime.strftime("%d.%m.%Y %H:%M") %></td>
+          <td>
+            <%= link_to "Edytuj", edit_admin_user_path(user), class: "btn btn-sm btn-outline-primary me-2" %>
+            <%= link_to "Usuń",
+                admin_user_path(user),
+                data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć tego użytkownika?" },
+                class: "btn btn-sm btn-danger" %>
+
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteUserModalLabel">Potwierdź usunięcie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        Czy na pewno chcesz usunąć użytkownika <span id="modalUserEmail" class="fw-bold"></span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <form id="deleteUserForm" method="post" style="display:inline">
+          <input type="hidden" name="_method" value="delete">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <button type="submit" class="btn btn-danger">Usuń</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

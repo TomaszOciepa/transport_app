@@ -1,0 +1,41 @@
+<div class="container-fluid">
+  <h2 class="fw-bold mb-4">Panel administratora</h2>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="card-title fw-bold mb-3"><i class="bi bi-people-fill me-2"></i>Użytkownicy</h5>
+            <p class="card-text text-muted">Zarządzaj kontami i rolami użytkowników.</p>
+          </div>
+          <%= link_to "Przejdź", admin_users_path, class: "btn btn-dark rounded-pill mt-3" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="card-title fw-bold mb-3"><i class="bi bi-gear-fill me-2"></i>Ustawienia systemu</h5>
+            <p class="card-text text-muted">Konfiguracja aplikacji.</p>
+          </div>
+          <%= link_to "Przejdź", admin_settings_path, class: "btn btn-dark rounded-pill mt-3" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="card-title fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Raporty</h5>
+            <p class="card-text text-muted">Raporty i statystyki.</p>
+          </div>
+          <%= link_to "Przejdź", admin_reports_path, class: "btn btn-dark rounded-pill mt-3" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
