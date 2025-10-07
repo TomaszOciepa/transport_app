@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Panel Admina - TransportApp</title>
+    <title>Panel Dyspozytora - TransportApp</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -23,34 +23,34 @@
 
         <!-- Logo panelu admina -->
         <div class="mb-4">
-          <a href="<%= admin_root_path %>" class="text-white text-decoration-none">
-            <h4 class="m-0">Admin</h4>
+          <a href="<%= dispatcher_root_path %>" class="text-white text-decoration-none">
+            <h4 class="m-0">Dispo</h4>
             <small class="text-light opacity-75">TransportApp</small>
           </a>
         </div>
 
         <ul class="nav flex-column">
           <li class="nav-item mb-2">
-            <%= link_to admin_root_path, class: "nav-link text-white #{'fw-bold' if current_page?(admin_root_path)}" do %>
+            <%= link_to dispatcher_root_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_root_path)}" do %>
               <i class="bi bi-speedometer2 me-2"></i> Dashboard
             <% end %>
           </li>
 
           <li class="nav-item mb-2">
-            <%= link_to admin_users_path, class: "nav-link text-white #{'fw-bold' if current_page?(admin_users_path)}" do %>
-              <i class="bi bi-people-fill me-2"></i> Użytkownicy
+            <%= link_to dispatcher_orders_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_orders_path)}" do %>
+              <i class="bi bi-box-seam me-2"></i> Zamówienia
             <% end %>
           </li>
 
           <li class="nav-item mb-2">
-            <%= link_to admin_settings_path, class: "nav-link text-white #{'fw-bold' if current_page?(admin_settings_path)}" do %>
-              <i class="bi bi-gear-fill me-2"></i> Ustawienia
+            <%= link_to dispatcher_calendar_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_calendar_path)}" do %>
+              <i class="bi bi-calendar-event me-2"></i> Kalendarz
             <% end %>
           </li>
 
           <li class="nav-item mb-2">
-            <%= link_to admin_reports_path, class: "nav-link text-white #{'fw-bold' if current_page?(admin_reports_path)}" do %>
-              <i class="bi bi-bar-chart-fill me-2"></i> Raporty
+            <%= link_to dispatcher_notifications_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_notifications_path)}" do %>
+              <i class="bi bi-bell-fill me-2"></i> Powiadomienia
             <% end %>
           </li>
 
