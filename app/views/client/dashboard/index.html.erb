@@ -1,0 +1,41 @@
+<div class="container-fluid">
+  <h2 class="fw-bold mb-4">Panel klienta</h2>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="card-title fw-bold mb-3"><i class="bi bi-box-seam me-2"></i>Zamówienia</h5>
+            <p class="card-text text-muted">Zarządzaj zamówieniami transportu.</p>
+          </div>
+          <%= link_to "Przejdź", client_orders_path, class: "btn btn-dark rounded-pill mt-3" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="card-title fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Kalendarz</h5>
+            <p class="card-text text-muted">Terminy zamówień i dyspozycji.</p>
+          </div>
+          <%= link_to "Przejdź", client_calendar_path, class: "btn btn-dark rounded-pill mt-3" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="card-title fw-bold mb-3"><i class="bi bi-bell-fill me-2"></i>Powiadomienia</h5>
+            <p class="card-text text-muted">Powiadomienia i statusy zamówień.</p>
+          </div>
+          <%= link_to "Przejdź", client_notifications_path, class: "btn btn-dark rounded-pill mt-3" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

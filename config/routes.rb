@@ -22,6 +22,13 @@ Rails.application.routes.draw do
     get "notifications", to: "dashboard#notifications"
   end
   
+  namespace :client do
+    root "dashboard#index"
+    resources :orders, only: [:index, :show, :edit, :update, :destroy]
+    get "calendar", to: "dashboard#calendar"
+    get "notifications", to: "dashboard#notifications"
+  end
+
   root "orders#new"
   match "/404", to: "errors#not_found", via: :all
 end

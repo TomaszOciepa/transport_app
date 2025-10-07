@@ -49,6 +49,10 @@
                 <%= link_to "Panel dyspoztora", dispatcher_root_path, class: "btn btn-outline-secondary me-2" %>
             <% end %>
 
+            <% if user_signed_in? && current_user.client? %>
+                <%= link_to "Panel klienta", client_root_path, class: "btn btn-outline-secondary me-2" %>
+            <% end %>
+
               <% if user_signed_in? %>
                 <span class="me-3 fw-bold">Witaj, <%= current_user.email %> (<%= current_user.role %>)</span>
                 <%= link_to "Wyloguj", destroy_user_session_path, 
