@@ -1,0 +1,37 @@
+<div class="container-fluid">
+  <h2 class="fw-bold mb-4">Lista zamówień</h2>
+
+  <table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Adres załadunku</th>
+        <th>Adres dostawy</th>
+        <th>Data załadunku</th>
+        <th>Data dostawy</th>
+        <th>Odległość (km)</th>
+        <th>Cena (PLN)</th>
+        <th>Akcje</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr>
+          <td><%= order.id %></td>
+          <td><%= order.pickup_address %></td>
+          <td><%= order.delivery_address %></td>
+          <td><%= l(order.pickup_date, format: :short) if order.pickup_date %></td>
+          <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
+          <td><%= number_with_precision(order.distance_km, precision: 2) %></td>
+          <td><%= number_to_currency(order.price, unit: "PLN ", precision: 2) %></td>
+          <td>
+            <%= link_to "Szczegóły", dispatcher_order_path(order), class: "btn btn-sm btn-outline-primary me-2" %>
+            <%= link_to "Usuń", dispatcher_order_path(order),
+                        data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zamówienie?" },
+                        class: "btn btn-sm btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
