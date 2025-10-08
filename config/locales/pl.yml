@@ -44,3 +44,8 @@ pl:
           available: "Dostępny"
           busy: "Zajęty"
           off_duty: "Nieaktywny"
+      vehicle:
+        statuses:
+          available: "Dostępny"
+          in_transit: "W trasie"
+          maintenance: "W serwisie"

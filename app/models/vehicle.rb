@@ -6,4 +6,9 @@ class Vehicle < ApplicationRecord
 
    validates :brand, :registration_number, :vehicle_type_id, :required_license, presence: true
    validates :registration_number, uniqueness: true
+
+   def status_name
+    I18n.t("activerecord.attributes.vehicle.statuses.#{status}")
+  end
+
 end
