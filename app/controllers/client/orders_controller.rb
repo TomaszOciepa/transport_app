@@ -8,6 +8,7 @@ module Client
         sort_direction = params[:direction].in?(%w[asc desc]) ? params[:direction] : "asc"
       
         @orders = current_user.orders
+                              .where.not(status: :canceled)  # <-- wykluczamy anulowane
                               .includes(:service_type, :vehicle_type)
                               .order("#{sort_column} #{sort_direction}")
       end
@@ -27,8 +28,11 @@ module Client
       end
   
       def destroy
-        @order.destroy
-        redirect_to dispatcher_orders_path, notice: "Zamówienie zostało usunięte."
+        if @order.update(status: :canceled)
+          redirect_to client_orders_path, notice: "Zamówienie zostało usunięte."
+        else
+          redirect_to client_orders_path, alert: "Nie udało się usunąc zamówienia."
+        end
       end
   
       private
