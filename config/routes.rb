@@ -21,7 +21,8 @@ Rails.application.routes.draw do
       member do
         get :assign               
         get :assign_driver        
-        get :assign_finalize    
+        get :assign_finalize 
+        patch :unassign   
       end
     end
     resources :drivers

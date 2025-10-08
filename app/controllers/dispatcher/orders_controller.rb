@@ -1,6 +1,6 @@
 module Dispatcher
   class OrdersController < ApplicationController
-    before_action :set_order, only: [:show, :edit, :update, :destroy, :assign, :assign_driver, :assign_finalize]
+    before_action :set_order, only: [:show, :edit, :update, :destroy, :assign, :assign_driver, :assign_finalize, :unassign]
 
 
     def assign
@@ -34,6 +34,24 @@ module Dispatcher
       redirect_to dispatcher_order_path(@order), notice: "Kierowca i pojazd zostały przypisane do zamówienia."
     rescue ActiveRecord::RecordInvalid => e
       redirect_to dispatcher_order_path(@order), alert: "Nie udało się przypisać pojazdu lub kierowcy: #{e.message}"
+    end
+
+    def unassign
+      ActiveRecord::Base.transaction do
+        if @order.driver
+          @order.driver.update!(status: :available)
+        end
+    
+        if @order.vehicle
+          @order.vehicle.update!(status: :available)
+        end
+    
+        @order.update!(driver: nil, vehicle: nil, status: :pending)
+      end
+    
+      redirect_to dispatcher_order_path(@order), notice: "Kierowca i pojazd zostali odłączeni od zamówienia."
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to dispatcher_order_path(@order), alert: "Nie udało się odłączyć: #{e.message}"
     end
 
     def index
