@@ -1,0 +1,20 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">Wybierz pojazd dla zamówienia <span class="text-primary">#<%= @order.order_number %></span></h2>
+
+  <% if @available_vehicles.any? %>
+    <% @available_vehicles.each do |vehicle| %>
+      <div class="card mb-2 p-3 shadow-sm">
+        <p><strong>Pojazd:</strong> <%= vehicle.brand %> - <%= vehicle.registration_number %></p>
+        <p><strong>Status:</strong> <%= vehicle.status %></p>
+        <p><strong>Wymagana kategoria prawa jazdy:</strong> <%= vehicle.required_license %></p>
+        <%= link_to "Wybierz", assign_driver_dispatcher_order_path(@order, vehicle_id: vehicle.id), class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="text-muted">Brak dostępnych pojazdów dla tego typu zamówienia.</p>
+  <% end %>
+
+  <div class="mt-3">
+    <%= link_to "Powrót do zamówienia", dispatcher_order_path(@order), class: "btn btn-outline-secondary" %>
+  </div>
+</div>

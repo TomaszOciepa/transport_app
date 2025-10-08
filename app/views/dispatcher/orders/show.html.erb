@@ -81,5 +81,10 @@
     <%= link_to "Usuń", dispatcher_order_path(@order),
             data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć zamówienie?" },
             class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
+    
+    <% if @order.driver.nil? && @order.vehicle.nil? %>
+      <%= link_to "Przypisz pojazd i kierowcę", assign_dispatcher_order_path(@order),
+            class: "btn btn-primary rounded-pill px-4 py-2 shadow-sm" %>
+    <% end %>
   </div>
 </div>
