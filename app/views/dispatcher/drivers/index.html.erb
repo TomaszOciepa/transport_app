@@ -1,0 +1,48 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Lista kierowców</h2>
+    <%= link_to "Dodaj nowego kierowcę", new_dispatcher_driver_path, class: "btn btn-primary rounded-pill px-4 py-2 shadow-sm" %>
+  </div>
+
+  <div class="table-responsive shadow-sm rounded">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Imię</th>
+          <th>Nazwisko</th>
+          <th>Email</th>
+          <th>Telefon</th>
+          <th>Kategoria prawa jazdy</th>
+          <th>Status</th>
+          <th>Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @drivers.each do |driver| %>
+          <tr class="align-middle">
+            <td><%= driver.first_name %></td>
+            <td><%= driver.last_name %></td>
+            <td><%= driver.email %></td>
+            <td><%= driver.phone %></td>
+            <td><%= driver.license_category %></td>
+            <td>
+              <% status_class = case driver.status
+                when "available" then "bg-success text-white"
+                when "busy" then "bg-warning text-dark"
+                when "off_duty" then "bg-secondary text-white"
+                else "bg-secondary text-white"
+              end %>
+              <span class="badge <%= status_class %> rounded-pill px-3 py-1">
+                <%= I18n.t("activerecord.attributes.driver.statuses.#{driver.status}") %>
+              </span>
+            </td>
+
+            <td>
+              <%= link_to "Szczegóły", dispatcher_driver_path(driver), class: "btn btn-sm btn-outline-secondary me-1 mb-1" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

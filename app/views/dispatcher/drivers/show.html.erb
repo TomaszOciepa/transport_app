@@ -1,0 +1,51 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">Kierowca <span class="text-primary"><%= @driver.first_name %> <%= @driver.last_name %></span></h2>
+
+  <div class="card shadow-sm rounded-4 p-4 position-relative">
+    <small class="text-muted position-absolute top-0 end-0 m-3">
+      Utworzono: <%= l(@driver.created_at, format: :long) %>
+    </small>
+
+    <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-person-circle me-2"></i>Dane kierowcy</h5>
+
+    <div class="row mb-3">
+      <div class="col-md-6 mb-2">
+     <p><strong>Status:</strong>
+        <% status_class = case @driver.status
+          when "available" then "bg-success text-white"
+          when "busy" then "bg-warning text-dark"
+          when "off_duty" then "bg-secondary text-white"
+          else "bg-secondary text-white"
+        end %>
+        <span class="badge <%= status_class %> rounded-pill px-3 py-1"><%= @driver.status_name %></span>
+      </p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Email:</strong> <%= @driver.email %></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Telefon:</strong> <%= @driver.phone %></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Kategoria prawa jazdy:</strong> <%= @driver.license_category %></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Rok urodzenia:</strong> <%= @driver.birth_year %></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Dostępność:</strong> 
+          <%= "#{@driver.available_from.strftime('%H:%M')} - #{@driver.available_to.strftime('%H:%M')}" if @driver.available_from && @driver.available_to %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-3 d-flex justify-content-start">
+    <%= link_to "Powrót do listy", dispatcher_drivers_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm me-2" %>
+    <%= link_to "Edytuj", edit_dispatcher_driver_path(@driver), class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
+    <%= link_to "Usuń", dispatcher_driver_path(@driver),
+            data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć tego kierowcę?" },
+            class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
+
+  </div>
+</div>

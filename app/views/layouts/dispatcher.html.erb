@@ -43,6 +43,12 @@
           </li>
 
           <li class="nav-item mb-2">
+            <%= link_to dispatcher_drivers_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_drivers_path)}" do %>
+              <i class="bi bi-box-seam me-2"></i> Kierowcy
+            <% end %>
+          </li>
+
+          <li class="nav-item mb-2">
             <%= link_to dispatcher_calendar_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_calendar_path)}" do %>
               <i class="bi bi-calendar-event me-2"></i> Kalendarz
             <% end %>

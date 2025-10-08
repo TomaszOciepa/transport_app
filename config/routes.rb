@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   namespace :dispatcher do
     root "dashboard#index"
     resources :orders, only: [:index, :show, :edit, :update, :destroy]
+    resources :drivers
     get "calendar", to: "dashboard#calendar"
     get "notifications", to: "dashboard#notifications"
   end

@@ -39,3 +39,8 @@ pl:
           in_transit: "W trasie"
           completed: "Zakończone"
           canceled: "Anulowane"
+      driver:
+        statuses:
+          available: "Dostępny"
+          busy: "Zajęty"
+          off_duty: "Nieaktywny"
