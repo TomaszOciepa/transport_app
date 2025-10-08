@@ -37,10 +37,17 @@
 
           <!-- Order Form -->
           <div class="d-flex justify-content-end mt-4">
-            <%= form_with url: orders_path, method: :post do %>
-              <%= submit_tag "Zamawiam", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
-            <% end %>
+              <% if user_signed_in? %>
+                <%= form_with url: orders_path, method: :post do %>
+                  <%= submit_tag "Zamawiam", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
+                <% end %>
+              <% else %>
+                <%= link_to "Zaloguj się, aby zamówić",
+                      new_user_session_path,
+                      class: "btn btn-lg btn-outline-dark px-5 rounded-pill shadow-sm custom-submit" %>
+              <% end %>
           </div>
+
         </div>
       </div>
     </div>

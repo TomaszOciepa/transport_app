@@ -1,5 +1,6 @@
 # app/models/order.rb
 class Order < ApplicationRecord
+  belongs_to :user
   belongs_to :vehicle_type
   belongs_to :service_type
 

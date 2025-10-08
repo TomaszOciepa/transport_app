@@ -10,3 +10,11 @@ VehicleType.create!([
     { name: "Standard", multiplier: 1.0 },
     { name: "Express", multiplier: 1.5 }
   ])
+
+
+
+  User.create!([
+    {email: 'client@example.com', password: 'password123', password_confirmation: 'password123', role: :client},
+    { email: 'dispatcher@example.com', password: 'password123', password_confirmation: 'password123', role: :dispatcher},
+    {email: 'admin@example.com', password: 'password123', password_confirmation: 'password123', role: :admin}
+  ])
