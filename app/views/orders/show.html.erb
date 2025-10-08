@@ -7,23 +7,32 @@
         <div class="card-body p-5">
 
           <!-- Order details -->
-          <div class="bg-light rounded-3 p-4 mb-4">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <p><strong>Adres odbioru:</strong> <%= @order.pickup_address %></p>
-                <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
-                <p><strong>Pojazd:</strong> <%= @order.vehicle_type&.name %></p>
-                <p><strong>Usługa:</strong> <%= @order.service_type&.name %></p>
-              
-              </div>
-              <div class="col-md-6 mb-3">
-                <p><strong>Dystans:</strong> <%= @order.distance_km.round(2) %> km</p>
-                <p><strong>Czas podróży:</strong> <%= @order.travel_time %> h</p>
-                <p><strong>Przewidywana data dostawy:</strong> <%= @order.delivery_date&.strftime("%d-%m-%Y %H:%M") %></p>
-                <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN") %></p>
-              </div>
-            </div>
-          </div>
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+  <div class="card-body bg-light">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <p><strong>Numer zamówienia:</strong> <%= @order.order_number %></p>
+        <p><strong>Status:</strong> 
+          <span class="badge bg-warning"><%= @order.status_name %></span>
+        </p>
+        <p><strong>Adres odbioru:</strong> <%= @order.pickup_address %></p>
+        <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
+        <p><strong>Pojazd:</strong> <%= @order.vehicle_type&.name %></p>
+        <p><strong>Usługa:</strong> <%= @order.service_type&.name %></p>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <p><strong>Dystans:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
+        <p><strong>Czas podróży:</strong> <%= @order.travel_time.round(2) if @order.travel_time %> h</p>
+        <p><strong>Przewidywana dostawa:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
+        <p><strong>Cena:</strong> 
+          <span class="fw-bold text-success"><%= number_to_currency(@order.price, unit: "PLN") %></span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
           <!-- Map -->
           <div

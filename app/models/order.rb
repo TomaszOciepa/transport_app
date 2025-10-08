@@ -6,16 +6,23 @@ class Order < ApplicationRecord
 
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 
+  enum :status, [ :pending, :scheduled, :in_transit, :completed, :canceled ]
+
+
   before_validation :combine_full_addresses
   before_validation :geocode_addresses
   before_save :calculate_price_and_delivery
+  before_create :generate_order_number
 
+  validates :order_number, uniqueness: true
   validates :pickup_address, :delivery_address, :vehicle_type_id, :service_type_id, :pickup_date, presence: true
 
   validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, presence: true
   validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: true
 
-
+  def status_name
+    I18n.t("activerecord.attributes.order.statuses.#{status}")
+  end
 
   # Geocoding addresses to coordinates
   def geocode_addresses
@@ -70,6 +77,23 @@ class Order < ApplicationRecord
   end
   
   private
+
+  def generate_order_number
+    date_prefix = Time.current.strftime("%Y-%m-%d") # rrrr-mm-dd
+
+    # Count how many orders there are already on this day
+    count_today = Order.where("created_at >= ? AND created_at < ?", Time.current.beginning_of_day, Time.current.end_of_day).count
+
+    sequence_number = (count_today + 1).to_s.rjust(5, '0') # 00001, 00002, ...
+    self.order_number = "#{date_prefix}-#{sequence_number}"
+
+    # collision protection (uniqueness)
+    while Order.exists?(order_number: self.order_number)
+      count_today += 1
+      sequence_number = (count_today + 1).to_s.rjust(5, '0')
+      self.order_number = "#{date_prefix}-#{sequence_number}"
+    end
+  end
 
   def fetch_distance_from_ors
     api_key = ENV['ORS_API_KEY']
