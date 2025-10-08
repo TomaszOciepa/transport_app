@@ -3,6 +3,8 @@ class Order < ApplicationRecord
   belongs_to :user
   belongs_to :vehicle_type
   belongs_to :service_type
+  belongs_to :driver, optional: true
+  belongs_to :vehicle, optional: true
 
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 
