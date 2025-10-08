@@ -10,6 +10,8 @@ module Dispatcher
     end
 
     def edit
+      @service_types = ServiceType.all
+      @vehicle_types = VehicleType.all
     end
 
     def update

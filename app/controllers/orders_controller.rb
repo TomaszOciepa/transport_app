@@ -36,6 +36,7 @@ class OrdersController < ApplicationController
     if session[:preview_order]
       @order = Order.new(session[:preview_order])
       @order.user = current_user
+      @order.status = :pending
       
       if @order.save
         session.delete(:preview_order)

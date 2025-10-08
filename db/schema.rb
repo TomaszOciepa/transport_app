@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_08_064054) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_08_084541) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,10 +28,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_08_064054) do
     t.float "distance_km"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "status"
     t.datetime "pickup_date"
     t.integer "travel_time"
     t.bigint "user_id", null: false
+    t.integer "status", default: 0, null: false
+    t.string "order_number"
+    t.index ["order_number"], name: "index_orders_on_order_number", unique: true
     t.index ["service_type_id"], name: "index_orders_on_service_type_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
     t.index ["vehicle_type_id"], name: "index_orders_on_vehicle_type_id"

@@ -4,7 +4,13 @@ module Client
       before_action :set_order, only: [:show, :edit, :update, :destroy]
   
       def index
-        @orders = current_user.orders.order(pickup_date: :asc)
+        sort_column = params[:sort].presence_in(%w[order_number status pickup_date delivery_date service_type_id vehicle_type_id]) || "pickup_date"
+        sort_direction = params[:direction].in?(%w[asc desc]) ? params[:direction] : "asc"
+      
+        @orders = current_user.orders
+                              .where.not(status: :canceled)  # <-- wykluczamy anulowane
+                              .includes(:service_type, :vehicle_type)
+                              .order("#{sort_column} #{sort_direction}")
       end
   
       def show
@@ -22,8 +28,11 @@ module Client
       end
   
       def destroy
-        @order.destroy
-        redirect_to dispatcher_orders_path, notice: "Zamówienie zostało usunięte."
+        if @order.update(status: :canceled)
+          redirect_to client_orders_path, notice: "Zamówienie zostało usunięte."
+        else
+          redirect_to client_orders_path, alert: "Nie udało się usunąc zamówienia."
+        end
       end
   
       private
