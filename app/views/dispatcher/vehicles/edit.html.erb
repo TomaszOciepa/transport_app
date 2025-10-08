@@ -1,0 +1,44 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">
+    Edytuj pojazd <span class="text-primary"><%= @vehicle.brand %> <%= @vehicle.registration_number %></span>
+  </h2>
+  <%= form_with model: @vehicle, url: dispatcher_vehicle_path(@vehicle), method: :patch, local: true do |f| %>
+    <div class="card shadow-sm rounded-4 p-4 position-relative">
+      <small class="text-muted position-absolute top-0 end-0 m-3">
+        Utworzono: <%= l(@vehicle.created_at, format: :long) %>
+      </small>
+      <h5 class="mb-3 border-bottom pb-2">
+        <i class="bi bi-truck me-2"></i>Dane pojazdu
+      </h5>
+      <div class="row mb-3">
+        <div class="col-md-6 mb-2">
+          <%= f.label :brand, "Marka", class: "form-label fw-bold" %>
+          <%= f.text_field :brand, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-2">
+          <%= f.label :registration_number, "Numer rejestracyjny", class: "form-label fw-bold" %>
+          <%= f.text_field :registration_number, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-2">
+          <%= f.label :vehicle_type_id, "Typ pojazdu", class: "form-label fw-bold" %>
+          <%= f.collection_select :vehicle_type_id, VehicleType.order(:name), :id, :name, {}, class: "form-select" %>
+        </div>
+        <div class="col-md-6 mb-2">
+          <%= f.label :required_license, "Wymagana kategoria prawa jazdy", class: "form-label fw-bold" %>
+          <%= f.text_field :required_license, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-2">
+          <%= f.label :status, "Status", class: "form-label fw-bold" %>
+          <%= f.select :status,
+              Vehicle.statuses.keys.map { |s| [I18n.t("activerecord.attributes.vehicle.statuses.#{s}"), s] },
+              {}, 
+              class: "form-select" %>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3 d-flex justify-content-start">
+      <%= f.submit "Zapisz zmiany", class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm me-2" %>
+      <%= link_to "Anuluj", dispatcher_vehicle_path(@vehicle), class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
+    </div>
+  <% end %>
+</div>

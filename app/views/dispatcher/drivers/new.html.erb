@@ -1,0 +1,52 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">Dodaj nowego kierowcę</h2>
+
+  <div class="card shadow-sm rounded-4 p-4">
+    <%= form_with model: [:dispatcher, @driver], local: true do |f| %>
+      
+      <div class="row mb-3">
+        <div class="col-md-6 mb-3">
+          <%= f.label :first_name, "Imię", class: "form-label" %>
+          <%= f.text_field :first_name, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :last_name, "Nazwisko", class: "form-label" %>
+          <%= f.text_field :last_name, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :email, "Email", class: "form-label" %>
+          <%= f.email_field :email, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :phone, "Telefon", class: "form-label" %>
+          <%= f.text_field :phone, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :license_category, "Kategoria prawa jazdy", class: "form-label" %>
+          <%= f.text_field :license_category, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :birth_year, "Rok urodzenia", class: "form-label" %>
+          <%= f.number_field :birth_year, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :available_from, "Dostępny od", class: "form-label" %>
+          <%= f.time_field :available_from, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :available_to, "Dostępny do", class: "form-label" %>
+          <%= f.time_field :available_to, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :status, "Status", class: "form-label" %>
+          <%= f.select :status, Driver.statuses.keys.map { |s| [s.humanize, s] }, {}, class: "form-select" %>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <%= f.submit "Dodaj kierowcę", class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm me-2" %>
+        <%= link_to "Anuluj", dispatcher_drivers_path, class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm ms-2" %>
+      </div>
+    <% end %>
+  </div>
+</div>

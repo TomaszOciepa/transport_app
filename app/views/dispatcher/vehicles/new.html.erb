@@ -1,0 +1,33 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">Dodaj nowy pojazd</h2>
+  <div class="card shadow-sm rounded-4 p-4">
+    <%= form_with model: [:dispatcher, @vehicle], local: true do |f| %>
+      <div class="row mb-3">
+        <div class="col-md-6 mb-3">
+          <%= f.label :brand, "Marka", class: "form-label" %>
+          <%= f.text_field :brand, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :registration_number, "Numer rejestracyjny", class: "form-label" %>
+          <%= f.text_field :registration_number, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :vehicle_type_id, "Typ pojazdu", class: "form-label" %>
+          <%= f.collection_select :vehicle_type_id, VehicleType.order(:name), :id, :name, { prompt: "Wybierz typ pojazdu" }, class: "form-select" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :required_license, "Wymagana kategoria prawa jazdy", class: "form-label" %>
+          <%= f.text_field :required_license, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :status, "Status", class: "form-label" %>
+          <%= f.select :status, Vehicle.statuses.keys.map { |s| [I18n.t("activerecord.attributes.vehicle.statuses.#{s}"), s] }, {}, class: "form-select" %>
+        </div>
+      </div>
+      <div class="mt-3">
+        <%= f.submit "Dodaj pojazd", class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm me-2" %>
+        <%= link_to "Anuluj", dispatcher_vehicles_path, class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm ms-2" %>
+      </div>
+    <% end %>
+  </div>
+</div>

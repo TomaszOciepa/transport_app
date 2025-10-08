@@ -1,0 +1,51 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">Pojazd <span class="text-primary"><%= @vehicle.brand %> (<%= @vehicle.registration_number %>)</span></h2>
+
+  <div class="card shadow-sm rounded-4 p-4 position-relative">
+    <small class="text-muted position-absolute top-0 end-0 m-3">
+      Utworzono: <%= l(@vehicle.created_at, format: :long) %>
+    </small>
+
+    <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-truck me-2"></i>Dane pojazdu</h5>
+
+    <div class="row mb-3">
+      <div class="col-md-6 mb-2">
+        <p><strong>Status:</strong>
+          <% status_class = case @vehicle.status
+            when "available" then "bg-success text-white"
+            when "in_transit" then "bg-warning text-dark"
+            when "maintenance" then "bg-secondary text-white"
+            else "bg-secondary text-white"
+          end %>
+          <span class="badge <%= status_class %> rounded-pill px-3 py-1">
+            <%= @vehicle.status_name  %>
+          </span>
+        </p>
+      </div>
+
+      <div class="col-md-6 mb-2">
+        <p><strong>Marka:</strong> <%= @vehicle.brand %></p>
+      </div>
+
+      <div class="col-md-6 mb-2">
+        <p><strong>Numer rejestracyjny:</strong> <%= @vehicle.registration_number %></p>
+      </div>
+
+      <div class="col-md-6 mb-2">
+        <p><strong>Typ pojazdu:</strong> <%= @vehicle.vehicle_type.name if @vehicle.vehicle_type %></p>
+      </div>
+
+      <div class="col-md-6 mb-2">
+        <p><strong>Wymagana kategoria prawa jazdy:</strong> <%= @vehicle.required_license %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-3 d-flex justify-content-start">
+    <%= link_to "Powrót do listy", dispatcher_vehicles_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm me-2" %>
+    <%= link_to "Edytuj", edit_dispatcher_vehicle_path(@vehicle), class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm me-2" %>
+    <%= link_to "Usuń", dispatcher_vehicle_path(@vehicle),
+            data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć ten pojazd?" },
+            class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm me-2" %>
+  </div>
+</div>

@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_08_084541) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_08_135558) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "drivers", force: :cascade do |t|
+    t.string "first_name"
+    t.string "last_name"
+    t.string "email"
+    t.string "phone"
+    t.string "license_category"
+    t.integer "birth_year"
+    t.time "available_from"
+    t.time "available_to"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "orders", force: :cascade do |t|
     t.string "pickup_address"
@@ -33,9 +47,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_08_084541) do
     t.bigint "user_id", null: false
     t.integer "status", default: 0, null: false
     t.string "order_number"
+    t.bigint "driver_id"
+    t.bigint "vehicle_id"
+    t.index ["driver_id"], name: "index_orders_on_driver_id"
     t.index ["order_number"], name: "index_orders_on_order_number", unique: true
     t.index ["service_type_id"], name: "index_orders_on_service_type_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
+    t.index ["vehicle_id"], name: "index_orders_on_vehicle_id"
     t.index ["vehicle_type_id"], name: "index_orders_on_vehicle_type_id"
   end
 
@@ -87,9 +105,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_08_084541) do
     t.decimal "price_per_km"
   end
 
+  create_table "vehicles", force: :cascade do |t|
+    t.string "brand"
+    t.string "registration_number"
+    t.bigint "vehicle_type_id", null: false
+    t.integer "status"
+    t.string "required_license"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["vehicle_type_id"], name: "index_vehicles_on_vehicle_type_id"
+  end
+
+  add_foreign_key "orders", "drivers"
   add_foreign_key "orders", "service_types"
   add_foreign_key "orders", "users"
   add_foreign_key "orders", "vehicle_types"
+  add_foreign_key "orders", "vehicles"
   add_foreign_key "transport_orders", "service_types"
   add_foreign_key "transport_orders", "vehicle_types"
+  add_foreign_key "vehicles", "vehicle_types"
 end

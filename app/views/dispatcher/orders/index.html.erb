@@ -35,7 +35,7 @@
             <td><%= order.service_type.name %></td>
             <td><%= order.vehicle_type.name %></td>
             <td>
-              <%= link_to "Szczegóły", dispatcher_order_path(order), class: "btn btn-sm btn-outline-primary me-1 mb-1" %>
+              <%= link_to "Szczegóły", dispatcher_order_path(order), class: "btn btn-sm btn-outline-secondary me-1 mb-1" %>
               <%= link_to "Usuń", dispatcher_order_path(order),
                           data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zamówienie?" },
                           class: "btn btn-sm btn-outline-danger mb-1" %>
