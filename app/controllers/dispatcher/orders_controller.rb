@@ -19,7 +19,13 @@ module Dispatcher
       @vehicle = Vehicle.find(params[:vehicle_id])
       @driver = Driver.find(params[:driver_id])
 
+      old_vehicle = @order.vehicle
+      old_driver = @order.driver
+
       ActiveRecord::Base.transaction do
+        old_vehicle&.update!(status: :available)
+        old_driver&.update!(status: :available)
+
         @order.update!(vehicle: @vehicle, driver: @driver, status: :scheduled)
         @vehicle.update!(status: :in_transit)
         @driver.update!(status: :busy)
