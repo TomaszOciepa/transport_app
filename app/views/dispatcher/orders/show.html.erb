@@ -53,6 +53,25 @@
       <div class="col-md-6 mb-2">
         <p><strong>klient:</strong> <%= @order.user.email %></p>
       </div>
+       <div class="col-md-6 mb-2">
+        <p><strong>Kierowca:</strong>
+          <% if @order.driver %>
+            <%= link_to "#{@order.driver.first_name} #{@order.driver.last_name}", dispatcher_driver_path(@order.driver), class: "text-decoration-none" %>
+          <% else %>
+            Brak przypisanego kierowcy
+          <% end %>
+        </p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Pojazd:</strong>
+          <% if @order.vehicle %>
+            <%= link_to "#{@order.vehicle.brand} - #{@order.vehicle.registration_number}", dispatcher_vehicle_path(@order.vehicle), class: "text-decoration-none" %>
+          <% else %>
+            Brak przypisanego pojazdu
+          <% end %>
+        </p>
+      </div>
+
     </div>
   </div>
 
