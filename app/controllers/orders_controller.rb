@@ -1,5 +1,6 @@
 class OrdersController < ApplicationController
   before_action :set_order, only: [:show]
+  before_action :authenticate_user!, only: [:create]
 
   def new
     @order = Order.new
@@ -34,7 +35,8 @@ class OrdersController < ApplicationController
   def create
     if session[:preview_order]
       @order = Order.new(session[:preview_order])
-  
+      @order.user = current_user
+      
       if @order.save
         session.delete(:preview_order)
         redirect_to @order, notice: "The order has been saved."

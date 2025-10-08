@@ -1,9 +1,10 @@
 module Client
     class OrdersController < ApplicationController
+      before_action :authenticate_user!
       before_action :set_order, only: [:show, :edit, :update, :destroy]
   
       def index
-        @orders = Order.order(pickup_date: :asc)
+        @orders = current_user.orders.order(pickup_date: :asc)
       end
   
       def show
@@ -28,7 +29,7 @@ module Client
       private
   
       def set_order
-        @order = Order.find(params[:id])
+        @order = current_user.orders.find(params[:id])
       end
   
       def order_params
