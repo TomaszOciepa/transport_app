@@ -8,7 +8,7 @@ module Client
         sort_direction = params[:direction].in?(%w[asc desc]) ? params[:direction] : "asc"
       
         @orders = current_user.orders
-                              .where.not(status: :canceled)  # <-- wykluczamy anulowane
+                              .where.not(status: :canceled) 
                               .includes(:service_type, :vehicle_type)
                               .order("#{sort_column} #{sort_direction}")
       end

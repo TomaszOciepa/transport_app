@@ -10,13 +10,13 @@ module Admin
       end
   
       def update
-        # nie próbujemy aktualizować hasła jeśli pola puste
+        # we don't try to update the password if the fields are empty
         if params[:user][:password].blank?
           params[:user].delete(:password)
           params[:user].delete(:password_confirmation)
         end
   
-        # zabezpieczenie: admin nie może odebrać sobie roli admin
+        # security: admin cannot take away the admin role
         if @user == current_user && params[:user][:role].present? && params[:user][:role] != "admin"
           redirect_to admin_users_path, alert: "Nie możesz odebrać sobie roli administratora." and return
         end
@@ -29,12 +29,12 @@ module Admin
       end
   
       def destroy
-        # zabezpieczenie: nie usuwamy siebie
+        # security: we do not delete ourselves
         if @user == current_user
           redirect_to admin_users_path, alert: "Nie możesz usunąć własnego konta przez panel admina." and return
         end
   
-        # zabezpieczenie: nie usuwamy ostatniego admina
+        # security: we do not remove the last admin
         if @user.admin? && User.admin.count <= 1
           redirect_to admin_users_path, alert: "Nie można usunąć ostatniego administratora." and return
         end

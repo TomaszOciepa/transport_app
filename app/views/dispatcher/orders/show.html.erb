@@ -40,35 +40,34 @@
         </p>
       </div>
       <div class="col-md-6 mb-2">
-        <p><strong>Typ usługi:</strong> <%= @order.service_type.name %></p>
-      </div>
-      <div class="col-md-6 mb-2">
         <p><strong>Typ pojazdu:</strong> <%= @order.vehicle_type.name %></p>
       </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Data dostawy:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Czas przejazdu:</strong> <%= @order.travel_time.round(2) if @order.travel_time %> h</p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Odległość:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Adres załadunku:</strong> <%= @order.pickup_address %></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN ", precision: 2) %></p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Klient:</strong> <%= @order.user.email %></p>
-      </div>
+      
+        <div class="col-md-6 mb-2">
+          <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
+        </div>
+        <div class="col-md-6 mb-2">
+          <p><strong>Data dostawy:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
+        </div>
+        <div class="col-md-6 mb-2">
+          <p><strong>Adres załadunku:</strong> <%= @order.pickup_address %></p>
+        </div>
+        <div class="col-md-6 mb-2">
+          <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
+        </div>
+   
+        <div class="col-md-6 mb-2">
+          <p><strong>Czas przejazdu:</strong> <%= @order.travel_time.round(2) if @order.travel_time %> h</p>
+        </div>
+        <div class="col-md-6 mb-2">
+          <p><strong>Odległość:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
+        </div>
+        <div class="col-md-6 mb-2">
+          <p><strong>Typ usługi:</strong> <%= @order.service_type.name %></p>
+        </div>
+        <div class="col-md-6 mb-2">
+          <p><strong>Klient:</strong> <%= @order.user.email %></p>
+        </div>
       <div class="col-md-6 mb-2">
         <p><strong>Kierowca:</strong>
           <% if @order.driver %>
@@ -86,6 +85,9 @@
             Brak przypisanego pojazdu
           <% end %>
         </p>
+      </div>
+       <div class="col-md-6 mb-2">
+        <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN ", precision: 2) %></p>
       </div>
     </div>
   </div>

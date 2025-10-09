@@ -4,25 +4,14 @@
   <link href="https://api.mapbox.com/search-js/v1.0.0/web.css" rel="stylesheet" />
 <% end %>
 
-<div class="container py-5" data-controller="autocomplete"
-    data-autocomplete-pickup-target="pickup"
-    data-autocomplete-pickup-lat-target="pickupLat"
-    data-autocomplete-pickup-lon-target="pickupLon"
-    data-autocomplete-pickup-city-target="pickupCity"
-    data-autocomplete-pickup-postcode-target="pickupPostcode"
-    data-autocomplete-delivery-target="delivery"
-    data-autocomplete-delivery-lat-target="deliveryLat"
-    data-autocomplete-delivery-lon-target="deliveryLon"
-    data-autocomplete-delivery-city-target="deliveryCity"
-    data-autocomplete-delivery-postcode-target="deliveryPostcode">
-
   <div class="row justify-content-center">
     <div class="col-lg-10">
       <h3 class="mb-4 fw-bold text-start">Oblicz cenę transportu</h3>
 
       <div class="card shadow-lg rounded-4 border-0">
         <div class="card-body p-5">
-          <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form", data: { turbo: false }) do |f| %>
+          <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form",
+              data: { turbo: false, controller: "autocomplete" }) do |f| %>
 
           <!-- Pickup and delivery details -->
             <div class="bg-light rounded-3 p-4 mb-4">
@@ -31,16 +20,17 @@
               <!-- Pickup -->
               <div class="mb-4">
                 <%= f.label :pickup_address, "Odbiór", class: "form-label fw-bold" %>
+        
                 <mapbox-address-autofill
                   access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
                   language="pl"
                   data-autocomplete-target="pickup">
-                    <input type="text"
-                          id="pickup_address"
-                          name="order[pickup_address]"
-                          class="form-control form-control-lg"
-                          placeholder="Wyszukaj adres odbioru"
-                          required>
+                          <%= f.text_field :pickup_address, 
+                                     id: "pickup_address",  
+                                     autocomplete: "address-line1",
+                                     class: "form-control form-control-lg",
+                                     placeholder: "Wyszukaj adres odbioru",
+                                     required: true %>
                 </mapbox-address-autofill>
 
                 <div class="row mt-2 g-2">
@@ -64,8 +54,7 @@
                   </div>
                 </div>
 
-                <%= f.hidden_field :pickup_lat, id: "pickup_lat", data: { autocomplete_target: "pickupLat" } %>
-                <%= f.hidden_field :pickup_lon, id: "pickup_lon", data: { autocomplete_target: "pickupLon" } %>
+    
               </div>
 
               <!-- Delivery -->
@@ -75,12 +64,12 @@
                   access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
                   language="pl"
                   data-autocomplete-target="delivery">
-                  <input  type="text"
-                          id="delivery_address"
-                          name="order[delivery_address]"
-                          class="form-control form-control-lg"
-                          placeholder="Wyszukaj adres dostawy"
-                          required>
+                  <%= f.text_field :delivery_address, 
+                                     id: "delivery_address",  
+                                     autocomplete: "address-line1",
+                                     class: "form-control form-control-lg",
+                                     placeholder: "Wyszukaj adres dostawy",
+                                     required: true %>
                 </mapbox-address-autofill>
 
                 <div class="row mt-2 g-2">
@@ -104,8 +93,7 @@
                   </div>
                 </div>
 
-                <%= f.hidden_field :delivery_lat, id: "delivery_lat", data: { autocomplete_target: "deliveryLat" } %>
-                <%= f.hidden_field :delivery_lon, id: "delivery_lon", data: { autocomplete_target: "deliveryLon" } %>
+  
               </div>
             </div>
 
@@ -153,4 +141,3 @@
       </div>
     </div>
   </div>
-</div>
