@@ -1,0 +1,30 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4 text-center">
+    Wybierz kierowcę dla pojazdu <span class="text-primary"><%= @vehicle.brand %> - <%= @vehicle.registration_number %></span>
+  </h2>
+
+  <% if @available_drivers.any? %>
+    <div class="row g-3">
+      <% @available_drivers.each do |driver| %>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+          <div class="card h-100 p-3 shadow-sm d-flex flex-column">
+            <p><strong>Kierowca:</strong> <%= driver.first_name %> <%= driver.last_name %></p>
+            <p><strong>Status:</strong> <%= driver.status %></p>
+            <p><strong>Kategoria prawa jazdy:</strong> <%= driver.license_category %></p>
+            <%= link_to "Przypisz", assign_finalize_dispatcher_order_path(@order, vehicle_id: @vehicle.id, driver_id: driver.id), method: :patch, class: "btn btn-success mt-auto" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-muted">Brak dostępnych kierowców z wymaganą kategorią prawa jazdy.</p>
+  <% end %>
+
+  <!-- Przycisk powrotu na dole -->
+  <div class="mt-4 d-flex justify-content-start">
+    <%= link_to dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-lg rounded-pill d-flex align-items-center gap-2" do %>
+      <i class="bi bi-arrow-left-circle-fill fs-4"></i>
+      Powrót do zamówienia
+    <% end %>
+  </div>
+</div>

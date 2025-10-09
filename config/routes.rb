@@ -17,7 +17,14 @@ Rails.application.routes.draw do
 
   namespace :dispatcher do
     root "dashboard#index"
-    resources :orders, only: [:index, :show, :edit, :update, :destroy]
+    resources :orders do
+      member do
+        get :assign               
+        get :assign_driver        
+        get :assign_finalize 
+        patch :unassign   
+      end
+    end
     resources :drivers
     resources :vehicles
     get "calendar", to: "dashboard#calendar"

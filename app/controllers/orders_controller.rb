@@ -8,15 +8,29 @@ class OrdersController < ApplicationController
   end
 
   def preview
+
     @ors_api_key = ENV["ORS_API_KEY"]
   
     if request.post?
+      
       @order = Order.new(order_params)
+      
+      if params[:order][:pickup_address][" address-search"].present? &&
+        params[:order][:delivery_address][" address-search"].present?
+       
+        pickup_address = params[:order][:pickup_address][" address-search"]
+        delivery_address = params[:order][:delivery_address][" address-search"]
+
+        @order.pickup_address = pickup_address
+        @order.delivery_address = delivery_address
+
+     end
+      
       @order.combine_full_addresses
       @order.geocode_addresses
       @order.calculate_price_and_delivery
   
-      session[:preview_order] = order_params
+      session[:preview_order] = @order
     elsif session[:preview_order]
       
       @order = Order.new(session[:preview_order])
@@ -67,28 +81,15 @@ class OrdersController < ApplicationController
       :pickup_address,
       :pickup_postcode,
       :pickup_city,
-      :pickup_lat,
-      :pickup_lon,
       :delivery_address,
       :delivery_postcode,
       :delivery_city,
-      :delivery_lat,
-      :delivery_lon,
       :vehicle_type_id,
       :service_type_id,
       :pickup_date,
-      pickup_address: ["address-search"],
-      delivery_address: ["address-search"]
+      pickup_address: [" address-search"],
+      delivery_address: [" address-search"]
     )
-  
-    # jeśli pickup_address przyszło jako hash, wyciągnij wartość
-    if permitted[:pickup_address].is_a?(Hash)
-      permitted[:pickup_address] = permitted[:pickup_address]["address-search"]
-    end
-  
-    if permitted[:delivery_address].is_a?(Hash)
-      permitted[:delivery_address] = permitted[:delivery_address]["address-search"]
-    end
   
     permitted
   end

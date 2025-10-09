@@ -1,4 +1,3 @@
-// app/javascript/controllers/flash.js
 import * as bootstrap from "bootstrap";
 
 document.addEventListener("turbo:load", () => {
