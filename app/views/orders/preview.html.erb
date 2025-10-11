@@ -21,19 +21,14 @@
             </div>
           </div>
 
-       <!-- Map -->
-      <div div id="map" class="mb-4 rounded-3" style="height: 400px;"
-          data-controller="order-map"
-          data-order-map-pickup-lat-value="<%= @order.pickup_lat %>"
-          data-order-map-pickup-lon-value="<%= @order.pickup_lon %>"
-          data-order-map-delivery-lat-value="<%= @order.delivery_lat %>"
-          data-order-map-delivery-lon-value="<%= @order.delivery_lon %>"
-          data-order-map-ors-api-key-value="<%= @ors_api_key %>">
-      </div>
-
-      <!-- Leaflet CSS/JS -->
-      <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+       <!-- Leaflet Map  -->
+          <%= render(MapComponent.new(
+                pickup_lat: @order.pickup_lat,
+                pickup_lon: @order.pickup_lon,
+                delivery_lat: @order.delivery_lat,
+                delivery_lon: @order.delivery_lon,
+              )) 
+        %>
 
           <!-- Order Form -->
           <div class="d-flex justify-content-end mt-4">

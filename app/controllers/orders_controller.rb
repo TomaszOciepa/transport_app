@@ -8,8 +8,6 @@ class OrdersController < ApplicationController
   end
 
   def preview
-
-    @ors_api_key = ENV["ORS_API_KEY"]
   
     if request.post?
       
@@ -67,7 +65,7 @@ class OrdersController < ApplicationController
   
 
   def show
-    @ors_api_key = ENV["ORS_API_KEY"]
+
   end
 
   private
