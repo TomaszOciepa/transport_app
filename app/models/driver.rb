@@ -1,4 +1,5 @@
 class Driver < ApplicationRecord
+    belongs_to :license_category, optional: true
     has_many :orders
 
     enum :status, [ :available, :busy, :off_duty ]

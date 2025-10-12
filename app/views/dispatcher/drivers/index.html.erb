@@ -24,7 +24,7 @@
             <td><%= driver.last_name %></td>
             <td><%= driver.email %></td>
             <td><%= driver.phone %></td>
-            <td><%= driver.license_category %></td>
+            <td><%= driver.license_category.name %></td>
             <td>
               <% status_class = case driver.status
                 when "available" then "bg-success text-white"
