@@ -24,10 +24,6 @@
           <%= f.collection_select :vehicle_type_id, VehicleType.order(:name), :id, :name, {}, class: "form-select" %>
         </div>
         <div class="col-md-6 mb-2">
-          <%= f.label :required_license, "Wymagana kategoria prawa jazdy", class: "form-label fw-bold" %>
-          <%= f.text_field :required_license, class: "form-control" %>
-        </div>
-        <div class="col-md-6 mb-2">
           <%= f.label :status, "Status", class: "form-label fw-bold" %>
           <%= f.select :status,
               Vehicle.statuses.keys.map { |s| [I18n.t("activerecord.attributes.vehicle.statuses.#{s}"), s] },

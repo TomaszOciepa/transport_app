@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_12_102354) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_12_114344) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,6 +36,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_102354) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_license_categories_on_name", unique: true
+  end
+
+  create_table "license_categories_vehicle_types", id: false, force: :cascade do |t|
+    t.bigint "vehicle_type_id", null: false
+    t.bigint "license_category_id", null: false
+    t.index ["license_category_id", "vehicle_type_id"], name: "index_license_category_vehicle_type"
+    t.index ["vehicle_type_id", "license_category_id"], name: "index_vehicle_type_license_category", unique: true
   end
 
   create_table "orders", force: :cascade do |t|
@@ -108,11 +115,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_102354) do
 
   create_table "vehicle_types", force: :cascade do |t|
     t.string "name"
-    t.integer "capacity"
     t.integer "max_speed"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "price_per_km"
+    t.integer "capacity_weight"
+    t.integer "capacity_volume"
   end
 
   create_table "vehicles", force: :cascade do |t|
@@ -120,7 +128,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_102354) do
     t.string "registration_number"
     t.bigint "vehicle_type_id", null: false
     t.integer "status"
-    t.string "required_license"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["vehicle_type_id"], name: "index_vehicles_on_vehicle_type_id"

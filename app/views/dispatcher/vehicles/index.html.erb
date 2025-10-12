@@ -11,7 +11,6 @@
           <th>Marka</th>
           <th>Numer rejestracyjny</th>
           <th>Typ pojazdu</th>
-          <th>Wymagana kategoria prawa jazdy</th>
           <th>Status</th>
           <th>Akcje</th>
         </tr>
@@ -22,7 +21,6 @@
             <td><%= vehicle.brand %></td>
             <td><%= vehicle.registration_number %></td>
             <td><%= vehicle.vehicle_type&.name %></td>
-            <td><%= vehicle.required_license %></td>
             <td>
               <% status_class = case vehicle.status
                 when "available" then "bg-success text-white"

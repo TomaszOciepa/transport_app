@@ -53,8 +53,7 @@ module Dispatcher
         :brand,
         :registration_number,
         :vehicle_type_id,
-        :status,
-        :required_license
+        :status
       )
     end
   end

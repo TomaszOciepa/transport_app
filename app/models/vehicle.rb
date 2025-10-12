@@ -4,7 +4,7 @@ class Vehicle < ApplicationRecord
 
    enum :status, [ :available, :in_transit, :maintenance]
 
-   validates :brand, :registration_number, :vehicle_type_id, :required_license, presence: true
+   validates :brand, :registration_number, :vehicle_type_id, presence: true
    validates :registration_number, uniqueness: true
 
    def status_name
