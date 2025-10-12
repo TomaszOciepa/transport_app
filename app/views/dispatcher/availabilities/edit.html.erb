@@ -1,0 +1,42 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">
+    <% if @availability.persisted? %>
+      Edytuj dostępność dla
+    <% else %>
+      Dodaj dostępność dla
+    <% end %>
+
+    <% if @availableable.is_a?(Driver) %>
+      kierowcy: <%= @availableable.first_name %> <%= @availableable.last_name %>
+    <% else %>
+      pojazdu: <%= @availableable.brand %> (<%= @availableable.registration_number %>)
+    <% end %>
+  </h2>
+
+  <div class="card shadow-sm rounded-4 p-4">
+    <%= form_with model: [:dispatcher, @availability], local: true do |f| %>
+      
+      <%= hidden_field_tag :availableable_id, @availableable.id %>
+      <%= hidden_field_tag :availableable_type, @availableable.class.name %>
+
+      <div class="row mb-3">
+        <div class="col-md-6 mb-3">
+          <%= f.label :start_time, "Dostępny od", class: "form-label" %>
+          <%= f.datetime_local_field :start_time, value: @availability.start_time&.strftime("%Y-%m-%dT%H:%M"), class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :end_time, "Dostępny do", class: "form-label" %>
+          <%= f.datetime_local_field :end_time, value: @availability.end_time&.strftime("%Y-%m-%dT%H:%M"), class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex">
+        <%= f.submit @availability.persisted? ? "Zapisz zmiany" : "Zapisz dostępność", 
+              class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm me-2" %>
+        <%= link_to "Anuluj", request.referer || dispatcher_root_path, 
+            class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm ms-2" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

@@ -10,9 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_12_114344) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_12_163539) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "availabilities", force: :cascade do |t|
+    t.datetime "start_time", null: false
+    t.datetime "end_time", null: false
+    t.string "availableable_type", null: false
+    t.bigint "availableable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["availableable_type", "availableable_id"], name: "idx_on_availableable_type_availableable_id_5acfd8ecd9"
+    t.index ["availableable_type", "availableable_id"], name: "index_availabilities_on_availableable"
+    t.index ["start_time", "end_time"], name: "index_availabilities_on_start_time_and_end_time"
+  end
 
   create_table "drivers", force: :cascade do |t|
     t.string "first_name"
@@ -20,9 +32,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_114344) do
     t.string "email"
     t.string "phone"
     t.integer "birth_year"
-    t.time "available_from"
-    t.time "available_to"
-    t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "license_category_id"

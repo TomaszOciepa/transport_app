@@ -1,0 +1,26 @@
+<div class="container my-4">
+  <h2 class="fw-bold mb-4">Dodaj dostępność</h2>
+
+  <div class="card shadow-sm rounded-4 p-4">
+    <%= form_with model: [:dispatcher, @availability], local: true do |f| %>
+      
+    <%= hidden_field_tag :availableable_id, @availableable.id %>
+    <%= hidden_field_tag :availableable_type, @availableable.class.name %>
+
+      <div class="row mb-3">
+        <div class="col-md-6 mb-3">
+          <%= f.label :start_time, "Dostępny od", class: "form-label" %>
+          <%= f.datetime_local_field :start_time, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= f.label :end_time, "Dostępny do", class: "form-label" %>
+          <%= f.datetime_local_field :end_time, class: "form-control" %>
+        </div>
+      </div>
+      <div class="mt-3">
+        <%= f.submit "Zapisz dostępność", class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm me-2" %>
+        <%= link_to "Anuluj", dispatcher_driver_path(@availableable), class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm ms-2" %>
+      </div>
+    <% end %>
+  </div>
+</div>

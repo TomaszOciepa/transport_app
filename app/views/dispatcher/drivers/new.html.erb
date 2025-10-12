@@ -29,18 +29,7 @@
           <%= f.label :birth_year, "Rok urodzenia", class: "form-label" %>
           <%= f.number_field :birth_year, class: "form-control" %>
         </div>
-        <div class="col-md-6 mb-3">
-          <%= f.label :available_from, "Dostępny od", class: "form-label" %>
-          <%= f.time_field :available_from, class: "form-control" %>
-        </div>
-        <div class="col-md-6 mb-3">
-          <%= f.label :available_to, "Dostępny do", class: "form-label" %>
-          <%= f.time_field :available_to, class: "form-control" %>
-        </div>
-        <div class="col-md-6 mb-3">
-          <%= f.label :status, "Status", class: "form-label" %>
-          <%= f.select :status, Driver.statuses.keys.map { |s| [s.humanize, s] }, {}, class: "form-select" %>
-        </div>
+
       </div>
 
       <div class="mt-3">

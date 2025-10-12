@@ -1,5 +1,6 @@
 pl:
   date:
+    order: [day, month, year]
     day_names:
       [niedziela, poniedziałek, wtorek, środa, czwartek, piątek, sobota]
     abbr_day_names: [nd, pn, wt, śr, cz, pt, sb]

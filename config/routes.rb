@@ -27,6 +27,7 @@ Rails.application.routes.draw do
     end
     resources :drivers
     resources :vehicles
+    resources :availabilities
     get "calendar", to: "dashboard#calendar"
     get "notifications", to: "dashboard#notifications"
   end
