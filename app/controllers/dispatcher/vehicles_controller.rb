@@ -52,8 +52,7 @@ module Dispatcher
       params.require(:vehicle).permit(
         :brand,
         :registration_number,
-        :vehicle_type_id,
-        :status
+        :vehicle_type_id
       )
     end
   end

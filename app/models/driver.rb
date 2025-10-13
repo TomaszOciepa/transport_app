@@ -11,7 +11,7 @@ class Driver < ApplicationRecord
       if availabilities.any? { |a| a.start_time <= now && a.end_time >= now }
         "available"
       else
-        "off_duty"
+        "unavailable"
       end
     end
     

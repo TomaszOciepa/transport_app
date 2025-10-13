@@ -22,14 +22,14 @@
             <td><%= vehicle.registration_number %></td>
             <td><%= vehicle.vehicle_type&.name %></td>
             <td>
-              <% status_class = case vehicle.status
+              <% status_class = case vehicle.current_status
                 when "available" then "bg-success text-white"
-                when "busy" then "bg-warning text-dark"
-                when "off_duty" then "bg-secondary text-white"
+                when "in_transit" then "bg-warning text-dark"
+                when "unavailable" then "bg-danger text-white"
                 else "bg-secondary text-white"
               end %>
               <span class="badge <%= status_class %> rounded-pill px-3 py-1">
-                <%= I18n.t("activerecord.attributes.vehicle.statuses.#{vehicle.status}") %>
+                <%= vehicle.current_status %>
               </span>
             </td>
             <td>

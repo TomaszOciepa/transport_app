@@ -64,26 +64,22 @@
 #     {
 #       brand: "Dacia",
 #       registration_number: "GD12345",
-#       vehicle_type: VehicleType.find_by(name: "Samochód osobowy"),
-#       status: :available
+#       vehicle_type: VehicleType.find_by(name: "Samochód osobowy")
 #     },
 #     {
 #       brand: "Mercedes Sprinter",
 #       registration_number: "GD54321",
-#       vehicle_type: VehicleType.find_by(name: "Bus"),
-#       status: :available
+#       vehicle_type: VehicleType.find_by(name: "Bus")
 #     },
 #     {
 #       brand: "Scania R450",
 #       registration_number: "GD11223",
-#       vehicle_type: VehicleType.find_by(name: "Ciężarówka solo"),
-#       status: :available
+#       vehicle_type: VehicleType.find_by(name: "Ciężarówka solo")
 #     },
 #     {
 #       brand: "Scania S770",
 #       registration_number: "GD44556",
-#       vehicle_type: VehicleType.find_by(name: "Ciężarówka z naczepą"),
-#       status: :maintenance
+#       vehicle_type: VehicleType.find_by(name: "Ciężarówka z naczepą")
 #     }
 #   ])
   

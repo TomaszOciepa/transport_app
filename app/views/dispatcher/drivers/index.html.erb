@@ -29,7 +29,7 @@
                 <% status_class = case driver.current_status
                   when "available" then "bg-success text-white"
                   when "busy" then "bg-primary text-white"
-                  when "off_duty" then "bg-danger text-white"
+                  when "unavailable" then "bg-danger text-white"
                   else "bg-light text-dark"
                 end %>
                 <span class="badge <%= status_class %> rounded-pill px-3 py-1">

@@ -8,12 +8,20 @@ module Dispatcher
 
         def create
             @availability = @availableable.availabilities.new(availability_params)
+          
             if @availability.save
-              redirect_to dispatcher_driver_path(@availableable), notice: "Dostępność została dodana."
+              if @availableable.is_a?(Driver)
+                redirect_to dispatcher_driver_path(@availableable), notice: "Dostępność została dodana."
+              elsif @availableable.is_a?(Vehicle)
+                redirect_to dispatcher_vehicle_path(@availableable), notice: "Dostępność została dodana."
+              else
+                redirect_to dispatcher_root_path, notice: "Dostępność została dodana."
+              end
             else
               render :new
             end
-          end
+        end
+          
           
 
         def edit

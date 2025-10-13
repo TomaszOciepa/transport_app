@@ -29,17 +29,18 @@
     <div class="row mb-3">
       <div class="col-md-6 mb-2">
         <p><strong>Status:</strong>
-          <% status_class = case @vehicle.status
+          <% status_class = case @vehicle.current_status
             when "available" then "bg-success text-white"
             when "in_transit" then "bg-warning text-dark"
-            when "maintenance" then "bg-secondary text-white"
+            when "unavailable" then "bg-danger text-white"
             else "bg-secondary text-white"
           end %>
           <span class="badge <%= status_class %> rounded-pill px-3 py-1">
-            <%= @vehicle.status_name %>
+            <%= @vehicle.current_status %>
           </span>
         </p>
       </div>
+
 
       <div class="col-md-6 mb-2">
         <p><strong>Marka:</strong> <%= @vehicle.brand %></p>
@@ -54,6 +55,67 @@
       </div>
     </div>
   </div>
+
+
+  <!-- card for available -->
+  <div class="card shadow-sm rounded-4 p-4 mt-4">
+  <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-calendar2-check me-2"></i>Dostępność pojazdu</span>
+    <%= link_to new_dispatcher_availability_path(
+          availableable_id: @vehicle.id,
+          availableable_type: "Vehicle"
+        ),
+        class: "btn btn-outline-secondary btn-sm p-2",
+        title: "Dodaj dostępność" do %>
+      <i class="bi bi-calendar2-check me-2 text-secondary"></i> Dodaj
+    <% end %>
+  </h5>
+
+  <% if @vehicle.availabilities.any? %>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Od</th>
+          <th>Do</th>
+          <th class="text-center">Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @vehicle.availabilities.each do |availability| %>
+          <tr>
+            <td><%= l(availability.start_time, format: :short) %></td>
+            <td><%= l(availability.end_time, format: :short) %></td>
+            <td class="text-center">
+              <%= link_to edit_dispatcher_availability_path(
+                    availability,
+                    availableable_id: @vehicle.id,
+                    availableable_type: "Vehicle"
+                  ),
+                  class: "btn btn-outline-secondary btn-sm p-2",
+                  title: "Edytuj dostępność" do %>
+                <i class="bi bi-pencil"></i>
+              <% end %>
+
+            <%= link_to dispatcher_availability_path(availability,
+                availableable_id: @vehicle.id,
+                availableable_type: "Vehicle"),
+            data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć tę dostępność?" },
+            class: "btn btn-outline-secondary btn-sm p-2",
+            title: "Usuń dostępność" do %>
+  <i class="bi bi-trash"></i>
+<% end %>
+
+
+
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="text-muted">Brak dostępności dla tego pojazdu.</p>
+  <% end %>
+</div>
 
   <div class="mt-3">
     <%= link_to "Powrót do listy", dispatcher_vehicles_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
