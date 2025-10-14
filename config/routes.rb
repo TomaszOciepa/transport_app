@@ -18,11 +18,8 @@ Rails.application.routes.draw do
   namespace :dispatcher do
     root "dashboard#index"
     resources :orders do
-      member do
-        get :assign               
-        get :assign_driver        
-        get :assign_finalize 
-        patch :unassign   
+      resources :tasks do
+        resources :task_assignments, except: [:show]
       end
     end
     resources :drivers

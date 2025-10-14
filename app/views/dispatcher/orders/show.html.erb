@@ -1,11 +1,10 @@
 <div class="container my-4">
   <h2 class="fw-bold mb-2">
-  Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
-</h2>
+    Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
+  </h2>
   <small class="text-muted mb-4 d-block">
     Utworzono: <%= l(@order.created_at, format: :long) %>
   </small>
-
 
   <div class="card shadow-sm rounded-4 p-4 position-relative">
 
@@ -28,11 +27,11 @@
         <p><strong>Status:</strong> 
           <span class="badge <%= case @order.status
                                    when 'pending' then 'bg-warning text-dark'
-                                   when 'scheduled' then 'bg-primary'
+                                   when 'scheduled' then 'bg-primary text-white'
                                    when 'in_transit' then 'bg-info text-dark'
-                                   when 'completed' then 'bg-success'
-                                   when 'canceled' then 'bg-danger'
-                                   else 'bg-secondary'
+                                   when 'completed' then 'bg-success text-white'
+                                   when 'canceled' then 'bg-danger text-white'
+                                   else 'bg-secondary text-white'
                                  end %>">
             <%= @order.status_name || "Brak statusu" %>
           </span>
@@ -42,91 +41,111 @@
         <p><strong>Typ pojazdu:</strong> <%= @order.vehicle_type.name %></p>
       </div>
       
-        <div class="col-md-6 mb-2">
-          <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Data dostawy:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Adres załadunku:</strong> <%= @order.pickup_address %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
-        </div>
-   
-        <div class="col-md-6 mb-2">
-          <p><strong>Czas przejazdu:</strong> <%= @order.travel_time.round(2) if @order.travel_time %> h</p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Odległość:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Typ usługi:</strong> <%= @order.service_type.name %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Klient:</strong> <%= @order.user.email %></p>
-        </div>
       <div class="col-md-6 mb-2">
-        <p><strong>Kierowca:</strong>
-          <% if @order.driver %>
-            <%= link_to "#{@order.driver.first_name} #{@order.driver.last_name}", dispatcher_driver_path(@order.driver), class: "text-decoration-none" %>
-          <% else %>
-            Brak przypisanego kierowcy
-          <% end %>
-        </p>
+        <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
       </div>
       <div class="col-md-6 mb-2">
-        <p><strong>Pojazd:</strong>
-          <% if @order.vehicle %>
-            <%= link_to "#{@order.vehicle.brand} - #{@order.vehicle.registration_number}", dispatcher_vehicle_path(@order.vehicle), class: "text-decoration-none" %>
-          <% else %>
-            Brak przypisanego pojazdu
-          <% end %>
-        </p>
+        <p><strong>Data dostawy:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
       </div>
-       <div class="col-md-6 mb-2">
+      <div class="col-md-6 mb-2">
+        <p><strong>Adres załadunku:</strong> <%= @order.pickup_address %></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Czas przejazdu:</strong> <%= @order.travel_time.round(2) if @order.travel_time %> h</p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Odległość:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Typ usługi:</strong> <%= @order.service_type.name %></p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <p><strong>Klient:</strong> <%= @order.user.email %></p>
+      </div>
+      <div class="col-md-6 mb-2">
         <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN ", precision: 2) %></p>
       </div>
     </div>
   </div>
 
 
-<div class="mt-3 d-flex gap-2">
+  <<!-- card for tasks -->
+<div class="card shadow-sm rounded-4 p-4 mt-4">
+  <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-list-task me-2"></i>Taski dla zamówienia</span>
+    <%= link_to new_dispatcher_order_task_path(@order),
+        class: "btn btn-outline-secondary btn-sm p-2",
+        title: "Dodaj nowy task" do %>
+      <i class="bi bi-plus me-1"></i> Dodaj
+    <% end %>
+  </h5>
 
-  <%= link_to "Powrót do listy", dispatcher_orders_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
-
-  <% if @order.status == "pending" %>
-    <%= link_to "Przypisz pojazd i kierowcę",
-                assign_dispatcher_order_path(@order),
-                class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
-  <% elsif @order.status == "scheduled" %>
-    <%= link_to "Usuń przypisanie pojazdu i kierowcy",
-                unassign_dispatcher_order_path(@order),
-                data: { turbo_method: :patch, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie?" },
-                class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
+  <% if @order.tasks.any? %>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nazwa</th>
+          <th>Planowany czas</th>
+          <th>Status</th>
+          <th class="text-center">Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @order.tasks.each do |task| %>
+          <tr>
+            <td><%= task.name %></td>
+            <td><%= l(task.planned_start_time, format: :short) %> - <%= l(task.planned_end_time, format: :short) %></td>
+            <td>
+              <% status_class = case task.status
+                 when "planned" then "bg-warning text-dark"
+                 when "in_progress" then "bg-primary text-white"
+                 when "completed" then "bg-success text-white"
+                 when "canceled" then "bg-danger text-white"
+                 else "bg-secondary text-white"
+              end %>
+              <span class="badge <%= status_class %> rounded-pill px-3 py-1">
+                <%= task.current_status_i18n %>
+              </span>
+            </td>
+            <td class="text-center">
+              <%= link_to "Pokaż", dispatcher_order_task_path(@order, task), class: "btn btn-sm btn-outline-secondary me-1" %>
+              <%= link_to "Edytuj", edit_dispatcher_order_task_path(@order, task), class: "btn btn-sm btn-outline-secondary me-1" %>
+              <%= link_to "Usuń", dispatcher_order_task_path(@order, task),
+                    data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć ten task?" },
+                    class: "btn btn-sm btn-outline-danger" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="text-muted">Brak tasków dla tego zamówienia.</p>
   <% end %>
-
-
 </div>
 
-      <!-- Leaflet Map  -->
-<div class="mt-4">
-  <div class="card shadow-sm rounded-4 p-3">
-    <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Trasa zamówienia</h5>
-    <div class="map-container" style="width: 100%; max-width: 800px; margin: 0 auto;">
-      <%= render(MapComponent.new(
-            pickup_lat: @order.pickup_lat,
-            pickup_lon: @order.pickup_lon,
-            delivery_lat: @order.delivery_lat,
-            delivery_lon: @order.delivery_lon
-          )) 
-      %>
+  
+
+  <!-- Leaflet Map  -->
+  <div class="mt-4">
+    <div class="card shadow-sm rounded-4 p-3">
+      <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Trasa zamówienia</h5>
+      <div class="map-container" style="width: 100%; max-width: 800px; margin: 0 auto;">
+        <%= render(MapComponent.new(
+              pickup_lat: @order.pickup_lat,
+              pickup_lon: @order.pickup_lon,
+              delivery_lat: @order.delivery_lat,
+              delivery_lon: @order.delivery_lon
+            )) 
+        %>
+      </div>
     </div>
   </div>
+
+
+  <div class="mt-4">
+    <%= link_to "Powrót do listy", dispatcher_orders_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
+  </div>
 </div>
-
-     
-
-
-

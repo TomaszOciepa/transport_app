@@ -4,6 +4,7 @@ class Order < ApplicationRecord
   belongs_to :service_type
   belongs_to :driver, optional: true
   belongs_to :vehicle, optional: true
+  has_many :tasks, dependent: :destroy
 
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 

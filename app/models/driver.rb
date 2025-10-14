@@ -20,4 +20,8 @@ class Driver < ApplicationRecord
       I18n.t("activerecord.attributes.driver.statuses.#{current_status}")
     end
 
+    def full_name
+      "#{first_name} #{last_name}"
+    end
+
 end

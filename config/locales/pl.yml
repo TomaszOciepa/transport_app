@@ -50,3 +50,15 @@ pl:
           available: "Dostępny"
           in_transit: "W trasie"
           unavailable: "Niedostępny"
+      task:
+        statuses:
+          planned: "Zaplanowane"
+          in_progress: "W trakcie"
+          completed: "Zakończone"
+          canceled: "Anulowane"
+      task_assignment:
+        statuses:
+          planned: "Zaplanowane"
+          in_progress: "W trakcie"
+          completed: "Zakończone"
+          canceled: "Anulowane"

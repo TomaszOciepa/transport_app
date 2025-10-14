@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_13_181355) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_14_184609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_13_181355) do
     t.decimal "multiplier"
   end
 
+  create_table "task_assignments", force: :cascade do |t|
+    t.bigint "task_id", null: false
+    t.bigint "driver_id", null: false
+    t.bigint "vehicle_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["driver_id"], name: "index_task_assignments_on_driver_id"
+    t.index ["task_id"], name: "index_task_assignments_on_task_id"
+    t.index ["vehicle_id"], name: "index_task_assignments_on_vehicle_id"
+  end
+
+  create_table "tasks", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.string "name"
+    t.datetime "planned_start_time"
+    t.datetime "planned_end_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0, null: false
+    t.index ["order_id"], name: "index_tasks_on_order_id"
+  end
+
   create_table "transport_orders", force: :cascade do |t|
     t.string "pickup_address"
     t.float "pickup_lat"
@@ -147,6 +170,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_13_181355) do
   add_foreign_key "orders", "users"
   add_foreign_key "orders", "vehicle_types"
   add_foreign_key "orders", "vehicles"
+  add_foreign_key "task_assignments", "drivers"
+  add_foreign_key "task_assignments", "tasks"
+  add_foreign_key "task_assignments", "vehicles"
+  add_foreign_key "tasks", "orders"
   add_foreign_key "transport_orders", "service_types"
   add_foreign_key "transport_orders", "vehicle_types"
   add_foreign_key "vehicles", "vehicle_types"

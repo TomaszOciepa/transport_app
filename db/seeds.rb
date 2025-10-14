@@ -81,7 +81,7 @@
 #       registration_number: "GD44556",
 #       vehicle_type: VehicleType.find_by(name: "Ciężarówka z naczepą")
 #     }
-#   ])
+#   ])  
   
 
 # VehicleType.create!([
