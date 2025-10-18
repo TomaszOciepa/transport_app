@@ -1,12 +1,16 @@
 class Task < ApplicationRecord
     belongs_to :order
     has_many :task_assignments, dependent: :destroy
-  
-    enum :status, [ :planned, :in_progress, :completed, :canceled ]
 
+    after_save :update_order_status
+  
+    enum :status, [ :pending, :planned, :in_progress, :completed, :canceled ]
+  
     def update_status_from_assignments!
       new_status =
-        if task_assignments.all?(&:planned?)
+        if task_assignments.empty?
+          :pending
+        elsif task_assignments.all?(&:planned?)
           :planned
         elsif task_assignments.any?(&:in_progress?)
           :in_progress
@@ -15,7 +19,7 @@ class Task < ApplicationRecord
         elsif task_assignments.all?(&:canceled?)
           :canceled
         else
-          :planned
+          :pending
         end
   
       update!(status: new_status)
@@ -23,6 +27,17 @@ class Task < ApplicationRecord
 
     def current_status_i18n
       I18n.t("activerecord.attributes.task.statuses.#{status}")
+    end
+
+    def refresh_statuses!
+      task_assignments.each do |ta|
+        ta.check_and_start! 
+      end
+      update_status_from_assignments!
+    end
+
+    def update_order_status
+      order.update_status_from_tasks!
     end
   end
   

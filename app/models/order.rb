@@ -8,13 +8,14 @@ class Order < ApplicationRecord
 
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 
-  enum :status, [ :pending, :scheduled, :in_transit, :completed, :canceled ]
+  enum :status, [ :pending, :planned, :in_progress, :completed, :canceled ]
 
 
   before_validation :combine_full_addresses
   before_validation :geocode_addresses
   before_save :calculate_price_and_delivery
   before_create :generate_order_number
+  after_create :create_initial_task
 
   validates :order_number, uniqueness: true
   validates :pickup_address, :delivery_address, :vehicle_type_id, :service_type_id, :pickup_date, presence: true
@@ -24,6 +25,25 @@ class Order < ApplicationRecord
 
   def status_name
     I18n.t("activerecord.attributes.order.statuses.#{status}")
+  end
+
+  def update_status_from_tasks!
+    new_status =
+      if tasks.all?(&:pending?)
+        :pending
+      elsif tasks.any?(&:in_progress?)
+        :in_progress
+      elsif tasks.all?(&:planned?)
+        :planned
+      elsif tasks.all?(&:completed?)
+        :completed
+      elsif tasks.all?(&:canceled?)
+        :canceled
+      else
+        :planned
+      end
+
+    update!(status: new_status) if status != new_status.to_s
   end
 
   # Geocoding addresses to coordinates
@@ -77,8 +97,21 @@ class Order < ApplicationRecord
       self.delivery_address = [delivery_address, delivery_postcode, delivery_city].compact.join(', ')
     end
   end
+
+  def tasks_with_updated_statuses
+    tasks.each(&:refresh_statuses!)
+  end
   
   private
+
+  def create_initial_task
+    tasks.create!(
+      name: "Odbiór i dostawa ",
+      planned_start_time: pickup_date || Time.current,
+      planned_end_time: delivery_date || (pickup_date || Time.current) + 2.hours,
+      status: :pending
+    )
+  end
 
   def generate_order_number
     date_prefix = Time.current.strftime("%Y-%m-%d") # rrrr-mm-dd
