@@ -35,7 +35,7 @@ class Order < ApplicationRecord
         :in_progress
       elsif tasks.all?(&:planned?)
         :planned
-      elsif tasks.all?(&:completed?)
+      elsif tasks.all?(&:completed?)  
         :completed
       elsif tasks.all?(&:canceled?)
         :canceled

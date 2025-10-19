@@ -18,6 +18,13 @@ class TaskAssignment < ApplicationRecord
         task.update_status_from_assignments!
       end
     end
+
+    def check_and_complete!
+      if in_progress? && task.planned_end_time.present? && task.planned_end_time <= Time.current
+        update!(status: :completed)
+        task.update_status_from_assignments!
+      end
+    end
     
 
     private

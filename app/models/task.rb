@@ -31,7 +31,8 @@ class Task < ApplicationRecord
 
     def refresh_statuses!
       task_assignments.each do |ta|
-        ta.check_and_start! 
+        ta.check_and_start!
+        ta.check_and_complete! 
       end
       update_status_from_assignments!
     end

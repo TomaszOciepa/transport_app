@@ -1,46 +1,47 @@
 <div class="container my-4">
-    <h2 class="fw-bold mb-2">
-        Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
-    </h2>
-    <small class="text-muted mb-4 d-block">
-        Utworzono: <%= l(@order.created_at, format: :long) %>
-    </small>
 
-    <div class="card shadow-sm rounded-4 p-4 position-relative">
+    <!-- Nagłówek zamówienia -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold mb-0">
+            Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
+        </h2>
+        <small class="text-muted">Utworzono: <%= l(@order.created_at, format: :long) %></small>
+    </div>
 
-        <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
-            <%= link_to edit_dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-sm p-2", title: "Edytuj zamówienie" do %>
-            <i class="bi bi-pencil"></i>
-            <% end %>
-            <%= link_to dispatcher_order_path(@order),
-                  data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć zamówienie?" },
-                  class: "btn btn-outline-danger btn-sm p-2",
-                  title: "Usuń zamówienie" do %>
-            <i class="bi bi-trash"></i>
-            <% end %>
-        </div>
+    <!-- Akcje zamówienia -->
+    <div class="mb-4 d-flex gap-2">
+        <%= link_to edit_dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-sm p-2", title: "Edytuj zamówienie" do %>
+        <i class="bi bi-pencil"></i> Edytuj
+        <% end %>
+        <%= link_to dispatcher_order_path(@order),
+                data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć zamówienie?" },
+                class: "btn btn-outline-danger btn-sm p-2",
+                title: "Usuń zamówienie" do %>
+        <i class="bi bi-trash"></i> Usuń
+        <% end %>
+    </div>
 
-        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-info-circle me-2"></i>Dane podstawowe</h5>
-
-        <div class="row mb-3">
+    <!-- Szczegóły zamówienia -->
+    <div class="card shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-info-circle me-2"></i>Szczegóły zamówienia</h5>
+        <div class="row">
             <div class="col-md-6 mb-2">
                 <p><strong>Status:</strong>
                     <span class="badge <%= case @order.status
-                            when "pending" then "bg-secondary text-white"
-                            when "planned" then "bg-warning text-dark"
-                            when "in_progress" then "bg-primary text-white"
-                            when "completed" then "bg-success text-white"
-                            when "canceled" then "bg-danger text-white"
-                            else "bg-dark text-white"
-                        end %>">
+                                   when "pending" then "bg-secondary text-white"
+                                   when "planned" then "bg-warning text-dark"
+                                   when "in_progress" then "bg-primary text-white"
+                                   when "completed" then "bg-success text-white"
+                                   when "canceled" then "bg-danger text-white"
+                                   else "bg-dark text-white"
+                                 end %> rounded-pill px-3 py-1">
                         <%= @order.status_name || "Brak statusu" %>
                     </span>
                 </p>
             </div>
             <div class="col-md-6 mb-2">
-                <p><strong>Typ pojazdu:</strong> <%= @order.vehicle_type.name %></p>
+                <p><strong>Wymagany pojazd:</strong> <%= @order.vehicle_type.name %></p>
             </div>
-
             <div class="col-md-6 mb-2">
                 <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
             </div>
@@ -71,20 +72,19 @@
         </div>
     </div>
 
-
-    <!-- card for tasks -->
-    <div class="card shadow-sm rounded-4 p-4 mt-4">
+    <!-- Zadania zamówienia -->
+    <div class="card shadow-sm rounded-4 p-4 mb-4">
         <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-list-task me-2"></i>Taski dla zamówienia</span>
+            <span><i class="bi bi-list-task me-2"></i>Zadania zamówienia</span>
             <%= link_to new_dispatcher_order_task_path(@order),
-        class: "btn btn-outline-secondary btn-sm p-2",
-        title: "Dodaj nowy task" do %>
-            <i class="bi bi-plus me-1"></i> Dodaj
+                  class: "btn btn-outline-secondary btn-sm p-2",
+                  title: "Dodaj nowe zadanie" do %>
+            <i class="bi bi-plus"></i>
             <% end %>
         </h5>
 
         <% if @order.tasks.any? %>
-        <table class="table table-striped">
+        <table class="table table-striped align-middle">
             <thead>
                 <tr>
                     <th>Nazwa</th>
@@ -99,54 +99,56 @@
                     <td><%= task.name %></td>
                     <td><%= l(task.planned_start_time, format: :short) %> - <%= l(task.planned_end_time, format: :short) %></td>
                     <td>
-                        <% status_class = case task.status
-                            when "pending" then "bg-secondary text-white"
-                            when "planned" then "bg-warning text-dark"
-                            when "in_progress" then "bg-primary text-white"
-                            when "completed" then "bg-success text-white"
-                            when "canceled" then "bg-danger text-white"
-                            else "bg-dark text-white"
-                         end %>
-                        <span class="badge <%= status_class %> rounded-pill px-3 py-1">
+                        <span class="badge <%= case task.status
+                                         when "pending" then "bg-secondary text-white"
+                                         when "planned" then "bg-warning text-dark"
+                                         when "in_progress" then "bg-primary text-white"
+                                         when "completed" then "bg-success text-white"
+                                         when "canceled" then "bg-danger text-white"
+                                         else "bg-dark text-white"
+                                       end %> rounded-pill px-3 py-1">
                             <%= task.current_status_i18n %>
                         </span>
                     </td>
                     <td class="text-center">
-                        <%= link_to "Pokaż", dispatcher_order_task_path(@order, task), class: "btn btn-sm btn-outline-secondary me-1" %>
-                        <%= link_to "Edytuj", edit_dispatcher_order_task_path(@order, task), class: "btn btn-sm btn-outline-secondary me-1" %>
-                        <%= link_to "Usuń", dispatcher_order_task_path(@order, task),
-                    data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć ten task?" },
-                    class: "btn btn-sm btn-outline-danger" %>
+                        <%= link_to dispatcher_order_task_path(@order, task), class: "btn btn-sm btn-outline-secondary me-1", title: "Pokaż zadanie" do %>
+                        <i class="bi bi-eye"></i>
+                        <% end %>
+                        <%= link_to edit_dispatcher_order_task_path(@order, task), class: "btn btn-sm btn-outline-secondary me-1", title: "Edytuj zadanie" do %>
+                        <i class="bi bi-pencil"></i>
+                        <% end %>
+                        <%= link_to dispatcher_order_task_path(@order, task),
+                            data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zadanie?" },
+                            class: "btn btn-sm btn-outline-danger", title: "Usuń zadanie" do %>
+                        <i class="bi bi-trash"></i>
+                        <% end %>
                     </td>
                 </tr>
                 <% end %>
             </tbody>
         </table>
         <% else %>
-        <p class="text-muted">Brak tasków dla tego zamówienia.</p>
+        <p class="text-muted">Brak zadań dla tego zamówienia.</p>
         <% end %>
     </div>
 
-
-
-    <!-- Leaflet Map  -->
-    <div class="mt-4">
-        <div class="card shadow-sm rounded-4 p-3">
-            <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Trasa zamówienia</h5>
-            <div class="map-container" style="width: 100%; max-width: 800px; margin: 0 auto;">
-                <%= render(MapComponent.new(
-              pickup_lat: @order.pickup_lat,
-              pickup_lon: @order.pickup_lon,
-              delivery_lat: @order.delivery_lat,
-              delivery_lon: @order.delivery_lon
-            )) 
-        %>
-            </div>
+    <!-- Mapa trasy -->
+    <div class="card shadow-sm rounded-4 p-3 mb-4">
+        <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Mapa realizacji</h5>
+        <div class="map-container" style="width: 100%; max-width: 900px; height: 400px; margin: 0 auto;">
+            <%= render(MapComponent.new(
+            pickup_lat: @order.pickup_lat,
+            pickup_lon: @order.pickup_lon,
+            delivery_lat: @order.delivery_lat,
+            delivery_lon: @order.delivery_lon
+          )) 
+      %>
         </div>
     </div>
 
-
+    <!-- Powrót do listy -->
     <div class="mt-4">
         <%= link_to "Powrót do listy", dispatcher_orders_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
     </div>
+
 </div>

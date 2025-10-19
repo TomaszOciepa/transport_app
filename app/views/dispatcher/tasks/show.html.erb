@@ -1,17 +1,23 @@
 <div class="container my-4">
+
+    <!-- Karta zadania -->
     <div class="card shadow-sm rounded-4 p-4">
         <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
             <span><i class="bi bi-list-task me-2"></i>Zadanie: <%= @task.name %></span>
             <div class="btn-group">
-                <%= link_to "Edytuj", edit_dispatcher_order_task_path(@task.order, @task), class: "btn btn-outline-secondary btn-sm" %>
-                <%= link_to "Usuń", dispatcher_order_task_path(@task.order, @task),
-                    method: :delete,
-                    data: { turbo_confirm: "Czy na pewno chcesz usunąć to zadanie?" },
-                    class: "btn btn-outline-danger btn-sm" %>
+                <%= link_to edit_dispatcher_order_task_path(@task.order, @task), class: "btn btn-outline-secondary btn-sm", title: "Edytuj zadanie" do %>
+                <i class="bi bi-pencil"></i> Edytuj
+                <% end %>
+                <%= link_to dispatcher_order_task_path(@task.order, @task),
+                    data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zadanie?" },
+                    class: "btn btn-outline-danger btn-sm",
+                    title: "Usuń zadanie" do %>
+                <i class="bi bi-trash"></i> Usuń
+                <% end %>
             </div>
         </h5>
 
-        <div class="row mb-3">
+        <div class="row">
             <div class="col-md-6 mb-2">
                 <p><strong>Planowany start:</strong> <%= l(@task.planned_start_time, format: :short) %></p>
             </div>
@@ -21,26 +27,27 @@
             <div class="col-md-6 mb-2">
                 <p><strong>Status:</strong>
                     <span class="badge <%= case @task.status
-                            when "pending" then "bg-secondary text-white"
-                            when "planned" then "bg-warning text-dark"
-                            when "in_progress" then "bg-primary text-white"
-                            when "completed" then "bg-success text-white"
-                            when "canceled" then "bg-danger text-white"
-                            else "bg-dark text-white"
-                          end %> rounded-pill px-3 py-1">
+                                  when "pending" then "bg-secondary text-white"
+                                  when "planned" then "bg-warning text-dark"
+                                  when "in_progress" then "bg-primary text-white"
+                                  when "completed" then "bg-success text-white"
+                                  when "canceled" then "bg-danger text-white"
+                                  else "bg-dark text-white"
+                                end %> rounded-pill px-3 py-1">
                         <%= @task.current_status_i18n %>
                     </span>
                 </p>
-
             </div>
         </div>
     </div>
 
+    <!-- Karta przypisań -->
     <div class="card shadow-sm rounded-4 p-4 mt-4">
         <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-person-lines-fill me-2"></i>Przypisania (TaskAssignments)</span>
+            <span><i class="bi bi-person-lines-fill me-2"></i>Przypisania do zadania</span>
             <%= link_to new_dispatcher_order_task_task_assignment_path(@task.order, @task),
-                  class: "btn btn-outline-primary btn-sm" do %>
+                  class: "btn btn-outline-primary btn-sm",
+                  title: "Dodaj przypisanie" do %>
             <i class="bi bi-plus-lg"></i>
             <% end %>
         </h5>
@@ -58,11 +65,12 @@
             <tbody>
                 <% @task.task_assignments.each do |assignment| %>
                 <% status_class = case assignment.status
+               when "pending" then "bg-secondary text-white"
                when "planned" then "bg-warning text-dark"
                when "in_progress" then "bg-primary text-white"
                when "completed" then "bg-success text-white"
                when "canceled" then "bg-danger text-white"
-               else "bg-secondary text-white"
+               else "bg-dark text-white"
             end %>
                 <tr>
                     <td><%= assignment.driver ? "#{assignment.driver.first_name} #{assignment.driver.last_name}" : "-" %></td>
@@ -73,21 +81,27 @@
                         </span>
                     </td>
                     <td>
-                        <%= link_to "Edytuj", edit_dispatcher_order_task_task_assignment_path(@task.order, @task, assignment), class: "btn btn-sm btn-outline-secondary me-1" %>
-                        <%= link_to "Usuń", dispatcher_order_task_task_assignment_path(@task.order, @task, assignment),
-                      data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie?" },
-                      class: "btn btn-sm btn-outline-danger" %>
+                        <%= link_to edit_dispatcher_order_task_task_assignment_path(@task.order, @task, assignment), class: "btn btn-sm btn-outline-secondary me-1", title: "Edytuj przypisanie" do %>
+                        <i class="bi bi-pencil"></i>
+                        <% end %>
+                        <%= link_to dispatcher_order_task_task_assignment_path(@task.order, @task, assignment),
+                            data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie?" },
+                            class: "btn btn-sm btn-outline-danger",
+                            title: "Usuń przypisanie" do %>
+                        <i class="bi bi-trash"></i>
+                        <% end %>
                     </td>
                 </tr>
                 <% end %>
             </tbody>
         </table>
         <% else %>
-        <p class="text-muted">Brak przypisań dla tego zadania.</p>
+        <p class="text-muted">Brak przypisań do tego zadania.</p>
         <% end %>
     </div>
 
-    <div class="mt-3">
+    <!-- Powrót do zamówienia -->
+    <div class="mt-4">
         <%= link_to "Powrót do zamówienia", dispatcher_order_path(@task.order), class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
     </div>
 </div>
