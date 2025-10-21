@@ -2,13 +2,14 @@
     <h3>Historia przypisań kierowców dla zamówienia #<%= @order.order_number %></h3>
 
     <% if @order_drivers.any? %>
-    <table class="table table-striped">
+    <table class="table table-striped align-middle">
         <thead>
             <tr>
                 <th>Kierowca</th>
                 <th>Data zmiany</th>
                 <th>Zmienione przez</th>
                 <th>Aktualny</th>
+                <th>Akcja</th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +25,13 @@
                     <span class="badge bg-success">Aktualny</span>
                     <% else %>
                     <span class="badge bg-secondary">Poprzedni</span>
+                    <% end %>
+                </td>
+                <td>
+                    <% if od.current %>
+                    <%= link_to "🗑️", unset_current_dispatcher_order_order_driver_path(@order, od),
+                            data: { turbo_method: :patch, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie?" },
+                            class: "btn btn-sm btn-outline-danger" %>
                     <% end %>
                 </td>
             </tr>

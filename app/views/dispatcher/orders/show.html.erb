@@ -1,6 +1,6 @@
 <div class="container my-4">
 
-    <!-- Nagłówek zamówienia -->
+    <!-- Order Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="fw-bold mb-0">
             Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
@@ -8,7 +8,7 @@
         <small class="text-muted">Utworzono: <%= l(@order.created_at, format: :long) %></small>
     </div>
 
-    <!-- Akcje zamówienia -->
+    <!-- Order Actions -->
     <div class="mb-4 d-flex gap-2">
         <%= link_to edit_dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-sm p-2", title: "Edytuj zamówienie" do %>
         <i class="bi bi-pencil"></i> Edytuj
@@ -21,7 +21,7 @@
         <% end %>
     </div>
 
-    <!-- Szczegóły zamówienia -->
+    <!-- Order Details -->
     <div class="card shadow-sm rounded-4 p-4 mb-4">
         <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-info-circle me-2"></i>Szczegóły zamówienia</h5>
         <div class="row">
@@ -72,12 +72,12 @@
         </div>
     </div>
 
-    <!-- Postęp zamówienia (oś czasu dla dyspozytora) -->
+    <!-- Order progress (timeline for dispatcher) -->
     <div class="card shadow-sm rounded-4 p-4 mb-4">
         <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-list-task me-2"></i>Postęp zamówienia</h5>
 
         <ul class="timeline list-unstyled position-relative m-0 p-0">
-            <!-- Krok 1: Przypisanie pojazdu -->
+            <!-- Step 1: Vehicle Assignment -->
             <% vehicle_assigned = @order.current_vehicle.present? %>
             <li class="timeline-item mb-5 position-relative ps-4">
                 <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
@@ -88,8 +88,8 @@
                     <p>
                         Aktualnie przypisany pojazd:
                         <%= link_to "#{@order.current_vehicle.brand} - #{@order.current_vehicle.registration_number}", 
-                        dispatcher_vehicle_path(@order.current_vehicle), 
-                        class: "text-decoration-underline" %>
+                    dispatcher_vehicle_path(@order.current_vehicle), 
+                    class: "text-decoration-underline fw-semibold" %>
                     </p>
 
                     <% current_order_vehicle = @order.order_vehicles.find_by(vehicle: @order.current_vehicle, current: true) %>
@@ -102,13 +102,19 @@
                     <% else %>
                     <p class="text-muted fst-italic">Brak przypisanego pojazdu</p>
                     <% end %>
-                    <%= link_to "Dodaj/zmień pojazd", new_dispatcher_order_order_vehicle_path(@order), class: "btn btn-sm btn-outline-primary mt-2" %>
-                    <%= link_to "Historia / Ustawienia", dispatcher_order_order_vehicles_path(@order), class: "btn btn-sm btn-outline-secondary ms-2" %>
 
+                    <div class="mt-2 d-flex gap-2">
+                        <%= link_to new_dispatcher_order_order_vehicle_path(@order), class: "btn btn-secondary btn-sm d-flex align-items-center gap-1 shadow-sm rounded" do %>
+                        <i class="bi bi-plus-lg"></i> Dodaj/zmień pojazd
+                        <% end %>
+                        <%= link_to dispatcher_order_order_vehicles_path(@order), class: "btn btn-secondary btn-sm d-flex align-items-center gap-1 shadow-sm rounded" do %>
+                        <i class="bi bi-gear-fill"></i> Historia / Ustawienia
+                        <% end %>
+                    </div>
                 </div>
             </li>
 
-            <!-- Krok 2: Przypisanie kierowcy -->
+            <!-- Step 2: Driver Assignment -->
             <% driver_assigned = @order.current_driver.present? %>
             <li class="timeline-item mb-5 position-relative ps-4">
                 <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
@@ -118,8 +124,9 @@
                     <% if driver_assigned %>
                     <p>
                         Aktualnie przypisany kierowca:
-                        <%= link_to @order.current_driver.full_name, dispatcher_driver_path(@order.current_driver), class: "text-decoration-underline" %>
+                        <%= link_to @order.current_driver.full_name, dispatcher_driver_path(@order.current_driver), class: "text-decoration-underline fw-semibold" %>
                     </p>
+
                     <% current_order_driver = @order.order_drivers.find_by(driver: @order.current_driver, current: true) %>
                     <% if current_order_driver %>
                     <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
@@ -130,13 +137,20 @@
                     <% else %>
                     <p class="text-muted fst-italic">Brak przypisanego kierowcy</p>
                     <% end %>
-                    <%= link_to "Dodaj/zmień kierowcę", new_dispatcher_order_order_driver_path(@order), class: "btn btn-sm btn-outline-primary mt-2" %>
-                    <%= link_to "Historia przypisań", dispatcher_order_order_drivers_path(@order), class: "btn btn-sm btn-outline-secondary" %>
 
+                    <div class="mt-2 d-flex gap-2">
+                        <%= link_to new_dispatcher_order_order_driver_path(@order), class: "btn btn-secondary btn-sm d-flex align-items-center gap-1 shadow-sm rounded" do %>
+                        <i class="bi bi-plus-lg"></i> Dodaj/zmień kierowcę
+                        <% end %>
+                        <%= link_to dispatcher_order_order_drivers_path(@order), class: "btn btn-secondary btn-sm d-flex align-items-center gap-1 shadow-sm rounded" do %>
+                        <i class="bi bi-gear-fill"></i> Historia przypisań
+                        <% end %>
+                    </div>
                 </div>
             </li>
 
-            <!-- Krok 3: Odbiór -->
+
+            <!-- Step 3: Pickup -->
             <li class="timeline-item mb-5 position-relative ps-4">
                 <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
                 <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; 
@@ -155,7 +169,7 @@
                 </div>
             </li>
 
-            <!-- Krok 4: Dostawa -->
+            <!-- Step 4: Delivery -->
             <li class="timeline-item mb-5 position-relative ps-4">
                 <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
                 <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; 
@@ -212,7 +226,7 @@
 
 
 
-    <!-- Mapa trasy -->
+    <!-- Route Map -->
     <div class="card shadow-sm rounded-4 p-3 mb-4">
         <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Mapa realizacji</h5>
         <div class="map-container" style="width: 100%; max-width: 900px; height: 400px; margin: 0 auto;">
@@ -226,7 +240,7 @@
         </div>
     </div>
 
-    <!-- Powrót do listy -->
+    <!-- Back to list -->
     <div class="mt-4">
         <%= link_to "Powrót do listy", dispatcher_orders_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
     </div>

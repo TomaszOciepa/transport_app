@@ -17,16 +17,25 @@ Rails.application.routes.draw do
 
   namespace :dispatcher do
     root "dashboard#index"
+    
     resources :orders do
-      resources :order_vehicles, only: [:index, :new, :create, :edit, :update]
-      resources :order_drivers, only: [:index, :new, :create, :edit, :update]
+      resources :order_vehicles, only: [:index, :new, :create, :edit, :update] do
+        patch :unset_current, on: :member
+      end
+  
+      resources :order_drivers, only: [:index, :new, :create, :edit, :update] do
+        patch :unset_current, on: :member
+      end
     end
+  
     resources :drivers
     resources :vehicles
     resources :availabilities
+  
     get "calendar", to: "dashboard#calendar"
     get "notifications", to: "dashboard#notifications"
   end
+  
   
   namespace :client do
     root "dashboard#index"

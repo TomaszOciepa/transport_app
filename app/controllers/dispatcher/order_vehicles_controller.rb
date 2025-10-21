@@ -42,6 +42,12 @@ module Dispatcher
           render :edit
         end
       end
+
+      def unset_current
+        @order_vehicle = OrderVehicle.find(params[:id])
+        @order_vehicle.update!(current: false, user: current_user)
+        redirect_to dispatcher_order_order_vehicles_path(@order_vehicle.order), notice: "Przypisanie pojazdu zostało usunięte."
+      end
   
       private
   
