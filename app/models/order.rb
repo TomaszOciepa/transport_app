@@ -2,9 +2,13 @@ class Order < ApplicationRecord
   belongs_to :user
   belongs_to :vehicle_type
   belongs_to :service_type
-  belongs_to :driver, optional: true
-  belongs_to :vehicle, optional: true
-  has_many :tasks, dependent: :destroy
+
+
+  has_many :order_drivers, dependent: :destroy
+  has_many :driver_history, through: :order_drivers, source: :driver
+
+  has_many :order_vehicles, dependent: :destroy
+  has_many :vehicle_history, through: :order_vehicles, source: :vehicle
 
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 
@@ -15,7 +19,6 @@ class Order < ApplicationRecord
   before_validation :geocode_addresses
   before_save :calculate_price_and_delivery
   before_create :generate_order_number
-  after_create :create_initial_task
 
   validates :order_number, uniqueness: true
   validates :pickup_address, :delivery_address, :vehicle_type_id, :service_type_id, :pickup_date, presence: true
@@ -27,23 +30,20 @@ class Order < ApplicationRecord
     I18n.t("activerecord.attributes.order.statuses.#{status}")
   end
 
-  def update_status_from_tasks!
-    new_status =
-      if tasks.all?(&:pending?)
-        :pending
-      elsif tasks.any?(&:in_progress?)
-        :in_progress
-      elsif tasks.all?(&:planned?)
-        :planned
-      elsif tasks.all?(&:completed?)  
-        :completed
-      elsif tasks.all?(&:canceled?)
-        :canceled
-      else
-        :planned
-      end
+  def current_order_driver
+    order_drivers.find_by(current: true)
+  end
 
-    update!(status: new_status) if status != new_status.to_s
+  def current_driver
+    current_order_driver&.driver
+  end
+
+  def current_order_vehicle
+    order_vehicles.find_by(current: true)
+  end
+
+  def current_vehicle
+    current_order_vehicle&.vehicle
   end
 
   # Geocoding addresses to coordinates
@@ -98,20 +98,8 @@ class Order < ApplicationRecord
     end
   end
 
-  def tasks_with_updated_statuses
-    tasks.each(&:refresh_statuses!)
-  end
   
   private
-
-  def create_initial_task
-    tasks.create!(
-      name: "Odbiór i dostawa ",
-      planned_start_time: pickup_date || Time.current,
-      planned_end_time: delivery_date || (pickup_date || Time.current) + 2.hours,
-      status: :pending
-    )
-  end
 
   def generate_order_number
     date_prefix = Time.current.strftime("%Y-%m-%d") # rrrr-mm-dd

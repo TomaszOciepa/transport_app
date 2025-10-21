@@ -1,7 +1,8 @@
 class Vehicle < ApplicationRecord
   belongs_to :vehicle_type
-  has_many :orders
   has_many :availabilities, as: :availableable, dependent: :destroy
+  has_many :order_vehicles, dependent: :restrict_with_error
+  has_many :orders, through: :order_vehicles
 
    validates :brand, :registration_number, :vehicle_type_id, presence: true
    validates :registration_number, uniqueness: true

@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  order: one
+  task_type: MyString
+  status: 1
+  driver: one
+  vehicle: one
+  planned_start_time: 2025-10-19 19:04:56
+  planned_end_time: 2025-10-19 19:04:56
+  executed_at: 2025-10-19 19:04:56
+  actor_id: 1
+  notes: MyText
+
+two:
+  order: two
+  task_type: MyString
+  status: 1
+  driver: two
+  vehicle: two
+  planned_start_time: 2025-10-19 19:04:56
+  planned_end_time: 2025-10-19 19:04:56
+  executed_at: 2025-10-19 19:04:56
+  actor_id: 1
+  notes: MyText

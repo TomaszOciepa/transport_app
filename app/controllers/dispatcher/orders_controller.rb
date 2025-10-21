@@ -4,18 +4,10 @@ module Dispatcher
 
     def index
       @orders = Order.order(pickup_date: :asc)
-      
-      @orders.each do |order|
-        order.tasks.each(&:refresh_statuses!) 
-        order.update_status_from_tasks!       
-      end
     end
 
     def show
       @order = Order.find(params[:id])
-  
-      @order.tasks.each(&:refresh_statuses!) 
-      @order.update_status_from_tasks!
     end
     
 

@@ -18,9 +18,8 @@ Rails.application.routes.draw do
   namespace :dispatcher do
     root "dashboard#index"
     resources :orders do
-      resources :tasks do
-        resources :task_assignments, except: [:show]
-      end
+      resources :order_vehicles, only: [:new, :create, :edit, :update]
+      resources :order_drivers, only: [:new, :create, :edit, :update]
     end
     resources :drivers
     resources :vehicles

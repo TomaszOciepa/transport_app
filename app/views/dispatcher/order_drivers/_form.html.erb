@@ -1,0 +1,14 @@
+<div class="container my-4">
+    <h3><%= title %> #<%= @order.order_number %></h3>
+    <%= form_with(model: [@order, @order_driver], url: dispatcher_order_order_drivers_path(@order), local: true) do |f| %>
+    <div class="mb-3">
+        <%= f.label :driver_id, "Wybierz kierowcę" %>
+
+        <%= f.select :driver_id, @drivers.map { |d| [d.full_name, d.id] }, prompt: "Wybierz kierowcę", class: "form-select" %>
+
+
+    </div>
+
+    <%= f.submit "Zapisz", class: "btn btn-primary" %>
+    <% end %>
+</div>
