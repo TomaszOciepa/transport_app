@@ -87,8 +87,11 @@
                     <% if vehicle_assigned %>
                     <p>
                         Aktualnie przypisany pojazd:
-                        <%= link_to @order.current_vehicle.registration_number, dispatcher_vehicle_path(@order.current_vehicle), class: "text-decoration-underline" %>
+                        <%= link_to "#{@order.current_vehicle.brand} - #{@order.current_vehicle.registration_number}", 
+                        dispatcher_vehicle_path(@order.current_vehicle), 
+                        class: "text-decoration-underline" %>
                     </p>
+
                     <% current_order_vehicle = @order.order_vehicles.find_by(vehicle: @order.current_vehicle, current: true) %>
                     <% if current_order_vehicle %>
                     <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
@@ -100,6 +103,8 @@
                     <p class="text-muted fst-italic">Brak przypisanego pojazdu</p>
                     <% end %>
                     <%= link_to "Dodaj/zmień pojazd", new_dispatcher_order_order_vehicle_path(@order), class: "btn btn-sm btn-outline-primary mt-2" %>
+                    <%= link_to "Historia / Ustawienia", dispatcher_order_order_vehicles_path(@order), class: "btn btn-sm btn-outline-secondary ms-2" %>
+
                 </div>
             </li>
 
@@ -126,6 +131,8 @@
                     <p class="text-muted fst-italic">Brak przypisanego kierowcy</p>
                     <% end %>
                     <%= link_to "Dodaj/zmień kierowcę", new_dispatcher_order_order_driver_path(@order), class: "btn btn-sm btn-outline-primary mt-2" %>
+                    <%= link_to "Historia przypisań", dispatcher_order_order_drivers_path(@order), class: "btn btn-sm btn-outline-secondary" %>
+
                 </div>
             </li>
 

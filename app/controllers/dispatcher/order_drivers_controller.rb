@@ -1,7 +1,13 @@
 module Dispatcher
     class OrderDriversController < ApplicationController
         before_action :set_order
+        
 
+        def index
+            @order = Order.find(params[:order_id])
+            @order_drivers = @order.order_drivers.order(updated_at: :desc)
+          end
+          
         def new
             @order_driver = @order.order_drivers.new
             @drivers = Driver.all.select { |d| d.can_drive?(@order.vehicle_type) }

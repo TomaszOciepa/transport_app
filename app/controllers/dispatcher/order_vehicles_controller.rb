@@ -2,7 +2,11 @@ module Dispatcher
     class OrderVehiclesController < ApplicationController
       before_action :set_order
       before_action :set_order_vehicle, only: [:edit, :update]
-  
+      
+      def index
+        @order_vehicles = @order.order_vehicles.includes(:vehicle, :user).order(updated_at: :desc)
+      end
+
       def new
         @order_vehicle = @order.order_vehicles.new
         @vehicles = Vehicle.where(vehicle_type_id: @order.vehicle_type_id)

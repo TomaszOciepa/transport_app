@@ -18,8 +18,8 @@ Rails.application.routes.draw do
   namespace :dispatcher do
     root "dashboard#index"
     resources :orders do
-      resources :order_vehicles, only: [:new, :create, :edit, :update]
-      resources :order_drivers, only: [:new, :create, :edit, :update]
+      resources :order_vehicles, only: [:index, :new, :create, :edit, :update]
+      resources :order_drivers, only: [:index, :new, :create, :edit, :update]
     end
     resources :drivers
     resources :vehicles

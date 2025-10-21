@@ -1,0 +1,38 @@
+<div class="container my-4">
+    <h3>Historia przypisań kierowców dla zamówienia #<%= @order.order_number %></h3>
+
+    <% if @order_drivers.any? %>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Kierowca</th>
+                <th>Data zmiany</th>
+                <th>Zmienione przez</th>
+                <th>Aktualny</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% @order_drivers.each do |od| %>
+            <tr>
+                <td>
+                    <%= link_to od.driver.full_name, dispatcher_driver_path(od.driver), class: "text-decoration-underline" %>
+                </td>
+                <td><%= l(od.updated_at, format: :long) %></td>
+                <td><%= od.user ? od.user.email : "System" %></td>
+                <td>
+                    <% if od.current %>
+                    <span class="badge bg-success">Aktualny</span>
+                    <% else %>
+                    <span class="badge bg-secondary">Poprzedni</span>
+                    <% end %>
+                </td>
+            </tr>
+            <% end %>
+        </tbody>
+    </table>
+    <% else %>
+    <p class="text-muted">Brak przypisań kierowców dla tego zamówienia.</p>
+    <% end %>
+
+    <%= link_to "Powrót", dispatcher_order_path(@order), class: "btn btn-secondary mt-3" %>
+</div>
