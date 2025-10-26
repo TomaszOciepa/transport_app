@@ -1,0 +1,2 @@
+module Dispatcher::AvailabilitiesHelper
+end

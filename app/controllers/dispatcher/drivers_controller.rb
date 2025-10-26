@@ -53,7 +53,7 @@ module Dispatcher
         :last_name,
         :email,
         :phone,
-        :license_category,
+        :license_category_id,
         :birth_year,
         :available_from,
         :available_to,

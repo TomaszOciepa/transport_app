@@ -2,12 +2,17 @@ class Order < ApplicationRecord
   belongs_to :user
   belongs_to :vehicle_type
   belongs_to :service_type
-  belongs_to :driver, optional: true
-  belongs_to :vehicle, optional: true
+
+
+  has_many :order_drivers, dependent: :destroy
+  has_many :driver_history, through: :order_drivers, source: :driver
+
+  has_many :order_vehicles, dependent: :destroy
+  has_many :vehicle_history, through: :order_vehicles, source: :vehicle
 
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 
-  enum :status, [ :pending, :scheduled, :in_transit, :completed, :canceled ]
+  enum :status, [ :pending, :planned, :in_progress, :completed, :canceled ]
 
 
   before_validation :combine_full_addresses
@@ -22,7 +27,31 @@ class Order < ApplicationRecord
   validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: true
 
   def status_name
-    I18n.t("activerecord.attributes.order.statuses.#{status}")
+    I18n.t("activerecord.attributes.order.statuses.#{current_status}")
+  end
+
+  def current_status
+    return :canceled if canceled?
+    return :completed if delivery_date.present? && Time.current >= delivery_date
+    return :in_progress if pickup_date.present? && Time.current >= pickup_date
+    return :planned if current_driver.present? && current_vehicle.present?
+    :pending
+  end
+
+  def current_order_driver
+    order_drivers.find_by(current: true)
+  end
+
+  def current_driver
+    current_order_driver&.driver
+  end
+
+  def current_order_vehicle
+    order_vehicles.find_by(current: true)
+  end
+
+  def current_vehicle
+    current_order_vehicle&.vehicle
   end
 
   # Geocoding addresses to coordinates
@@ -76,6 +105,7 @@ class Order < ApplicationRecord
       self.delivery_address = [delivery_address, delivery_postcode, delivery_city].compact.join(', ')
     end
   end
+
   
   private
 

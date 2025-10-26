@@ -22,25 +22,14 @@
           <%= f.text_field :phone, class: "form-control" %>
         </div>
         <div class="col-md-6 mb-3">
-          <%= f.label :license_category, "Kategoria prawa jazdy", class: "form-label" %>
-          <%= f.text_field :license_category, class: "form-control" %>
+          <%= f.label :license_category_id, "Kategoria prawa jazdy", class: "form-label" %>
+          <%= f.collection_select :license_category_id, LicenseCategory.all, :id, :name, { prompt: "Wybierz kategorię" }, { class: "form-select" } %>
         </div>
         <div class="col-md-6 mb-3">
           <%= f.label :birth_year, "Rok urodzenia", class: "form-label" %>
           <%= f.number_field :birth_year, class: "form-control" %>
         </div>
-        <div class="col-md-6 mb-3">
-          <%= f.label :available_from, "Dostępny od", class: "form-label" %>
-          <%= f.time_field :available_from, class: "form-control" %>
-        </div>
-        <div class="col-md-6 mb-3">
-          <%= f.label :available_to, "Dostępny do", class: "form-label" %>
-          <%= f.time_field :available_to, class: "form-control" %>
-        </div>
-        <div class="col-md-6 mb-3">
-          <%= f.label :status, "Status", class: "form-label" %>
-          <%= f.select :status, Driver.statuses.keys.map { |s| [s.humanize, s] }, {}, class: "form-select" %>
-        </div>
+
       </div>
 
       <div class="mt-3">

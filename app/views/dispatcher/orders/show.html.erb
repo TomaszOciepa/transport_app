@@ -1,133 +1,208 @@
 <div class="container my-4">
-  <h2 class="fw-bold mb-2">
-  Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
-</h2>
-  <small class="text-muted mb-4 d-block">
-    Utworzono: <%= l(@order.created_at, format: :long) %>
-  </small>
 
-
-  <div class="card shadow-sm rounded-4 p-4 position-relative">
-
-    <!-- Ikony Edycji i Usuwania w prawym górnym rogu -->
-    <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
-      <%= link_to edit_dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-sm p-2", title: "Edytuj zamówienie" do %>
-        <i class="bi bi-pencil"></i>
-      <% end %>
-      <%= link_to dispatcher_order_path(@order),
-                  data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć zamówienie?" },
-                  class: "btn btn-outline-danger btn-sm p-2",
-                  title: "Usuń zamówienie" do %>
-        <i class="bi bi-trash"></i>
-      <% end %>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold mb-0">
+            Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
+        </h2>
+        <small class="text-muted">Utworzono: <%= l(@order.created_at, format: :long) %></small>
     </div>
-    
-    <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-info-circle me-2"></i>Dane podstawowe</h5>
 
-    <div class="row mb-3">
-      <div class="col-md-6 mb-2">
-        <p><strong>Status:</strong> 
-          <span class="badge <%= case @order.status
-                                   when 'pending' then 'bg-warning text-dark'
-                                   when 'scheduled' then 'bg-primary'
-                                   when 'in_transit' then 'bg-info text-dark'
-                                   when 'completed' then 'bg-success'
-                                   when 'canceled' then 'bg-danger'
-                                   else 'bg-secondary'
-                                 end %>">
-            <%= @order.status_name || "Brak statusu" %>
-          </span>
-        </p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Typ pojazdu:</strong> <%= @order.vehicle_type.name %></p>
-      </div>
-      
-        <div class="col-md-6 mb-2">
-          <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Data dostawy:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Adres załadunku:</strong> <%= @order.pickup_address %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
-        </div>
-   
-        <div class="col-md-6 mb-2">
-          <p><strong>Czas przejazdu:</strong> <%= @order.travel_time.round(2) if @order.travel_time %> h</p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Odległość:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Typ usługi:</strong> <%= @order.service_type.name %></p>
-        </div>
-        <div class="col-md-6 mb-2">
-          <p><strong>Klient:</strong> <%= @order.user.email %></p>
-        </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Kierowca:</strong>
-          <% if @order.driver %>
-            <%= link_to "#{@order.driver.first_name} #{@order.driver.last_name}", dispatcher_driver_path(@order.driver), class: "text-decoration-none" %>
-          <% else %>
-            Brak przypisanego kierowcy
-          <% end %>
-        </p>
-      </div>
-      <div class="col-md-6 mb-2">
-        <p><strong>Pojazd:</strong>
-          <% if @order.vehicle %>
-            <%= link_to "#{@order.vehicle.brand} - #{@order.vehicle.registration_number}", dispatcher_vehicle_path(@order.vehicle), class: "text-decoration-none" %>
-          <% else %>
-            Brak przypisanego pojazdu
-          <% end %>
-        </p>
-      </div>
-       <div class="col-md-6 mb-2">
-        <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN ", precision: 2) %></p>
-      </div>
+    <!-- Actions -->
+    <div class="mb-4 d-flex gap-2">
+        <%= link_to edit_dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-sm p-2 shadow-sm rounded-pill" do %>
+        <i class="bi bi-pencil"></i> Edytuj
+        <% end %>
+
+        <%= link_to dispatcher_order_path(@order),
+      data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć zamówienie?" },
+      class: "btn btn-outline-danger btn-sm p-2 shadow-sm rounded-pill" do %>
+        <i class="bi bi-trash"></i> Usuń
+        <% end %>
     </div>
-  </div>
+
+    <!-- Szczegóły zamówienia -->
+    <div class="card pastel-box pastel-box-blue p-4 mb-4">
+        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-info-circle me-2"></i>Szczegóły zamówienia</h5>
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <p><strong>Status:</strong>
+                    <span class="badge status-badge <%= @order.current_status %> rounded-pill px-3 py-1">
+                        <%= @order.status_name || "Brak statusu" %>
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Wymagany pojazd:</strong> <%= @order.vehicle_type.name %></p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Data dostawy:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Adres załadunku:</strong> <%= @order.pickup_address %></p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Czas przejazdu:</strong> <%= @order.travel_time&.round(2) %> h</p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Odległość:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Typ usługi:</strong> <%= @order.service_type.name %></p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Klient:</strong> <%= @order.user.email %></p>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN ", precision: 2) %></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Postęp zamówienia -->
+    <div class="card pastel-box pastel-box-green p-4 mb-4">
+        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-list-task me-2"></i>Postęp zamówienia</h5>
+
+        <ul class="timeline list-unstyled position-relative m-0 p-0">
+
+            <!-- Vehicle Assignment -->
+            <% vehicle_assigned = @order.current_vehicle.present? %>
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color: <%= vehicle_assigned ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">Przypisanie pojazdu</h6>
+                    <% if vehicle_assigned %>
+                    <p>Aktualnie przypisany pojazd:
+                        <%= link_to "#{@order.current_vehicle.brand} - #{@order.current_vehicle.registration_number}",
+                dispatcher_vehicle_path(@order.current_vehicle),
+                class: "text-decoration-underline fw-semibold" %>
+                    </p>
+
+                    <% current_order_vehicle = @order.order_vehicles.find_by(vehicle: @order.current_vehicle, current: true) %>
+                    <% if current_order_vehicle %>
+                    <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                        <%= l(current_order_vehicle.updated_at, format: :short) %><br>
+                        <%= current_order_vehicle.user&.email || "system" %>
+                    </small>
+                    <% end %>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak przypisanego pojazdu</p>
+                    <% end %>
+
+                    <div class="mt-2 d-flex gap-2">
+
+                        <%= link_to new_dispatcher_order_order_vehicle_path(@order),
+        class: "ios-fab-btn", title: "Dodaj/zmień pojazd" do %>
+                        <i class="bi bi-plus-lg"></i><i class="bi bi-truck me-1"></i> Pojazd
+                        <% end %>
 
 
-<div class="mt-3 d-flex gap-2">
+                        <%= link_to dispatcher_order_order_vehicles_path(@order),
+        class: "ios-fab-btn", title: "Historia pojazdu" do %>
+                        <i class="bi bi-clock-history me-1"></i> Historia
+                        <% end %>
+                    </div>
+                </div>
+            </li>
 
-  <%= link_to "Powrót do listy", dispatcher_orders_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
+            <!-- Driver Assignment -->
+            <% driver_assigned = @order.current_driver.present? %>
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color: <%= driver_assigned ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">Przypisanie kierowcy</h6>
+                    <% if driver_assigned %>
+                    <p>Aktualnie przypisany kierowca:
+                        <%= link_to @order.current_driver.full_name,
+                dispatcher_driver_path(@order.current_driver),
+                class: "text-decoration-underline fw-semibold" %>
+                    </p>
 
-  <% if @order.status == "pending" %>
-    <%= link_to "Przypisz pojazd i kierowcę",
-                assign_dispatcher_order_path(@order),
-                class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
-  <% elsif @order.status == "scheduled" %>
-    <%= link_to "Usuń przypisanie pojazdu i kierowcy",
-                unassign_dispatcher_order_path(@order),
-                data: { turbo_method: :patch, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie?" },
-                class: "btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" %>
-  <% end %>
+                    <% current_order_driver = @order.order_drivers.find_by(driver: @order.current_driver, current: true) %>
+                    <% if current_order_driver %>
+                    <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                        <%= l(current_order_driver.updated_at, format: :short) %><br>
+                        <%= current_order_driver.user&.email || "system" %>
+                    </small>
+                    <% end %>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak przypisanego kierowcy</p>
+                    <% end %>
 
+                    <div class="mt-2 d-flex gap-2">
+                        <%= link_to new_dispatcher_order_order_driver_path(@order),
+        class: "ios-fab-btn", title: "Dodaj/zmień kierowcę" do %>
+                        <i class="bi bi-plus-lg"></i><i class="bi bi-person me-1"></i> Kierowca
+                        <% end %>
+
+
+                        <%= link_to dispatcher_order_order_drivers_path(@order),
+        class: "ios-fab-btn", title: "Historia kierowcy" do %>
+                        <i class="bi bi-clock-history me-1"></i> Historia
+                        <% end %>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Pickup -->
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px;
+              background-color: <%= @order.pickup_date.present? && @order.pickup_date <= Time.current ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">Odbiór</h6>
+                    <% if @order.pickup_date.present? && @order.pickup_address.present? %>
+                    <p>Data: <%= l(@order.pickup_date, format: :long) %><br>Lokalizacja: <%= @order.pickup_address %></p>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak informacji o odbiorze</p>
+                    <% end %>
+                </div>
+            </li>
+
+            <!-- Delivery -->
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px;
+              background-color: <%= @order.delivery_date.present? && @order.delivery_date <= Time.current ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">Dostawa</h6>
+                    <% if @order.delivery_date.present? && @order.delivery_address.present? %>
+                    <p>Data: <%= l(@order.delivery_date, format: :long) %><br>Lokalizacja: <%= @order.delivery_address %></p>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak informacji o dostawie</p>
+                    <% end %>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- Mapa -->
+    <div class="card pastel-box pastel-box-pink p-3 mb-4">
+        <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Mapa realizacji</h5>
+        <div class="map-container" style="width: 100%; max-width: 900px; height: 400px; margin: 0 auto;">
+            <%= render(MapComponent.new(
+        pickup_lat: @order.pickup_lat,
+        pickup_lon: @order.pickup_lon,
+        delivery_lat: @order.delivery_lat,
+        delivery_lon: @order.delivery_lon
+      )) %>
+        </div>
+    </div>
+
+    <!-- Back -->
+    <div class="mt-4">
+        <%= link_to dispatcher_orders_path, class: "ios-back-btn ios-btn-back mt-3" do %>
+        <i class="bi bi-arrow-left me-2"></i> Powrót
+        <% end %>
+    </div>
 
 </div>
-
-      <!-- Leaflet Map  -->
-<div class="mt-4">
-  <div class="card shadow-sm rounded-4 p-3">
-    <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Trasa zamówienia</h5>
-    <div class="map-container" style="width: 100%; max-width: 800px; margin: 0 auto;">
-      <%= render(MapComponent.new(
-            pickup_lat: @order.pickup_lat,
-            pickup_lon: @order.pickup_lon,
-            delivery_lat: @order.delivery_lat,
-            delivery_lon: @order.delivery_lon
-          )) 
-      %>
-    </div>
-  </div>
-</div>
-
-     
-
-
-

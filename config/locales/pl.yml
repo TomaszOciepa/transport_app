@@ -1,5 +1,6 @@
 pl:
   date:
+    order: [day, month, year]
     day_names:
       [niedziela, poniedziałek, wtorek, środa, czwartek, piątek, sobota]
     abbr_day_names: [nd, pn, wt, śr, cz, pt, sb]
@@ -35,17 +36,17 @@ pl:
       order:
         statuses:
           pending: "Oczekujące"
-          scheduled: "Zaplanowane"
-          in_transit: "W trasie"
+          planned: "Zaplanowane"
+          in_progress: "W drodze"
           completed: "Zakończone"
           canceled: "Anulowane"
       driver:
         statuses:
           available: "Dostępny"
           busy: "Zajęty"
-          off_duty: "Nieaktywny"
+          unavailable: "Niedostępny"
       vehicle:
         statuses:
           available: "Dostępny"
-          in_transit: "W trasie"
-          maintenance: "W serwisie"
+          in_transit: "W drodze"
+          unavailable: "Niedostępny"

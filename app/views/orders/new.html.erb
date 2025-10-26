@@ -1,144 +1,138 @@
 <% content_for :head do %>
-  <!-- Mapbox Search JS Web -->
-  <script src="https://api.mapbox.com/search-js/v1.0.0/web.js"></script>
-  <link href="https://api.mapbox.com/search-js/v1.0.0/web.css" rel="stylesheet" />
+<!-- Mapbox Search JS Web -->
+<script src="https://api.mapbox.com/search-js/v1.0.0/web.js"></script>
+<link href="https://api.mapbox.com/search-js/v1.0.0/web.css" rel="stylesheet" />
 <% end %>
 <div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      <h3 class="mb-4 fw-bold text-start">Oblicz cenę transportu</h3>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h3 class="mb-4 fw-bold text-start">Oblicz cenę transportu</h3>
 
-      <div class="card shadow-lg rounded-4 border-0">
-        <div class="card-body p-5">
-          <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form",
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-body p-5">
+                    <%= form_with(model: @order, url: preview_orders_path, local: true, id: "order-form",
               data: { turbo: false, controller: "autocomplete" }) do |f| %>
 
-          <!-- Pickup and delivery details -->
-            <div class="bg-light rounded-3 p-4 mb-4">
-              <h5 class="fw-bold mb-4">Dane odbioru i dostawy</h5>
+                    <!-- Pickup and delivery details -->
+                    <div class="bg-light rounded-3 p-4 mb-4">
+                        <h5 class="fw-bold mb-4">Dane odbioru i dostawy</h5>
 
-              <!-- Pickup -->
-              <div class="mb-4">
-                <%= f.label :pickup_address, "Odbiór", class: "form-label fw-bold" %>
-        
-                <mapbox-address-autofill
-                  access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
-                  language="pl"
-                  data-autocomplete-target="pickup">
-                          <%= f.text_field :pickup_address, 
+                        <!-- Pickup -->
+                        <div class="mb-4">
+                            <%= f.label :pickup_address, "Odbiór", class: "form-label fw-bold" %>
+
+                            <mapbox-address-autofill access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>" language="pl" data-autocomplete-target="pickup">
+                                <%= f.text_field :pickup_address, 
                                      id: "pickup_address",  
                                      autocomplete: "address-line1",
                                      class: "form-control form-control-lg",
                                      placeholder: "Wyszukaj adres odbioru",
                                      required: true %>
-                </mapbox-address-autofill>
+                            </mapbox-address-autofill>
 
-                <div class="row mt-2 g-2">
-                  <div class="col-md-6">
-                    <%= f.text_field :pickup_postcode, 
+                            <div class="row mt-2 g-2">
+                                <div class="col-md-6">
+                                    <%= f.text_field :pickup_postcode, 
                                      id: "pickup_postcode", 
                                      data: { autocomplete_target: "pickupPostcode" }, 
                                      autocomplete: "postal-code",
                                      class: "form-control form-control-lg",
                                      placeholder: "Kod pocztowy",
                                      readonly: true %>
-                  </div>
-                  <div class="col-md-6">
-                    <%= f.text_field :pickup_city, 
+                                </div>
+                                <div class="col-md-6">
+                                    <%= f.text_field :pickup_city, 
                                      id: "pickup_city", 
                                      data: { autocomplete_target: "pickupCity" }, 
                                      autocomplete: "address-level2",
                                      class: "form-control form-control-lg",
                                      placeholder: "Miasto",
                                      readonly: true %>
-                  </div>
-                </div>
+                                </div>
+                            </div>
 
-    
-              </div>
 
-              <!-- Delivery -->
-              <div class="mb-4">
-                <%= f.label :delivery_address, "Dostawa", class: "form-label fw-bold" %>
-                <mapbox-address-autofill
-                  access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
-                  language="pl"
-                  data-autocomplete-target="delivery">
-                  <%= f.text_field :delivery_address, 
+                        </div>
+
+                        <!-- Delivery -->
+                        <div class="mb-4">
+                            <%= f.label :delivery_address, "Dostawa", class: "form-label fw-bold" %>
+                            <mapbox-address-autofill access-token="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>" language="pl" data-autocomplete-target="delivery">
+                                <%= f.text_field :delivery_address, 
                                      id: "delivery_address",  
                                      autocomplete: "address-line1",
                                      class: "form-control form-control-lg",
                                      placeholder: "Wyszukaj adres dostawy",
                                      required: true %>
-                </mapbox-address-autofill>
+                            </mapbox-address-autofill>
 
-                <div class="row mt-2 g-2">
-                  <div class="col-md-6">
-                    <%= f.text_field :delivery_postcode, 
+                            <div class="row mt-2 g-2">
+                                <div class="col-md-6">
+                                    <%= f.text_field :delivery_postcode, 
                                      id: "delivery_postcode", 
                                      data: { autocomplete_target: "deliveryPostcode" }, 
                                      autocomplete: "postal-code",
                                      class: "form-control form-control-lg",
                                      placeholder: "Kod pocztowy",
                                      readonly: true %>
-                  </div>
-                  <div class="col-md-6">
-                    <%= f.text_field :delivery_city, 
+                                </div>
+                                <div class="col-md-6">
+                                    <%= f.text_field :delivery_city, 
                                      id: "delivery_city", 
                                      data: { autocomplete_target: "deliveryCity" }, 
                                      autocomplete: "address-level2",
                                      class: "form-control form-control-lg",
                                      placeholder: "Miasto",
                                      readonly: true %>
-                  </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <!-- Select vehicle type -->
+                    <div class="bg-light rounded-3 p-4 mb-4">
+                        <h5 class="fw-bold mb-4">Wybierz typ pojazdu</h5>
+                        <div class="d-flex flex-wrap gap-3 mb-4">
+                            <% @vehicle_types.each do |vehicle| %>
+                            <label>
+                                <%= f.radio_button :vehicle_type_id, vehicle.id, class: "btn-check", autocomplete: "off", required: true %>
+                                <span class="btn vehicle-btn p-4 text-center" style="min-width: 120px;">
+                                    <i class="bi bi-truck display-5"></i>
+                                    <div class="mt-2"><%= vehicle.name %></div>
+                                    <small><%= number_to_currency(vehicle.price_per_km, unit: "PLN") %>/km</small>
+                                </span>
+                            </label>
+                            <% end %>
+                        </div>
+                    </div>
+
+                    <!-- Select service type -->
+                    <div class="bg-light rounded-3 p-4 mb-4">
+                        <h5 class="fw-bold mb-4">Wybierz typ usługi</h5>
+                        <div class="d-flex flex-wrap gap-3 mb-4">
+                            <% @service_types.each do |service| %>
+                            <label>
+                                <%= f.radio_button :service_type_id, service.id, class: "btn-check", autocomplete: "off", required: true %>
+                                <span class="btn btn-outline-secondary rounded-pill px-4 py-2"><%= service.name %></span>
+                            </label>
+                            <% end %>
+                        </div>
+
+                        <div class="mb-4">
+                            <%= f.label :pickup_date, "Data i godzina odbioru", class: "form-label fw-bold" %>
+                            <%= f.datetime_local_field :pickup_date, class: "form-control form-control-lg", required: true %>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <%= f.submit "Oblicz koszt", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
+                        </div>
+                    </div>
+
+                    <% end %>
                 </div>
-
-  
-              </div>
             </div>
-
-            <!-- Select vehicle type -->
-            <div class="bg-light rounded-3 p-4 mb-4">
-              <h5 class="fw-bold mb-4">Wybierz typ pojazdu</h5>
-              <div class="d-flex flex-wrap gap-3 mb-4">
-                <% @vehicle_types.each do |vehicle| %>
-                  <label>
-                    <%= f.radio_button :vehicle_type_id, vehicle.id, class: "btn-check", autocomplete: "off", required: true %>
-                    <span class="btn vehicle-btn p-4 text-center" style="min-width: 120px;">
-                      <i class="bi bi-truck display-5"></i>
-                      <div class="mt-2"><%= vehicle.name %></div>
-                      <small><%= number_to_currency(vehicle.price_per_km, unit: "PLN") %>/km</small>
-                    </span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-
-            <!-- Select service type -->
-            <div class="bg-light rounded-3 p-4 mb-4">
-              <h5 class="fw-bold mb-4">Wybierz typ usługi</h5>
-              <div class="d-flex flex-wrap gap-3 mb-4">
-                <% @service_types.each do |service| %>
-                  <label>
-                    <%= f.radio_button :service_type_id, service.id, class: "btn-check", autocomplete: "off", required: true %>
-                    <span class="btn btn-outline-secondary rounded-pill px-4 py-2"><%= service.name %></span>
-                  </label>
-                <% end %>
-              </div>
-
-              <div class="mb-4">
-                <%= f.label :pickup_date, "Data i godzina odbioru", class: "form-label fw-bold" %>
-                <%= f.datetime_local_field :pickup_date, class: "form-control form-control-lg", required: true %>
-              </div>
-
-              <div class="d-flex justify-content-end mt-4">
-                <%= f.submit "Oblicz koszt", class: "btn btn-lg btn-dark px-5 rounded-pill shadow-sm custom-submit" %>
-              </div>
-            </div>
-
-          <% end %>
         </div>
-      </div>
     </div>
-  </div>
 </div>

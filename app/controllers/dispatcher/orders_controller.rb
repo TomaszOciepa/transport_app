@@ -1,65 +1,29 @@
 module Dispatcher
   class OrdersController < ApplicationController
-    before_action :set_order, only: [:show, :edit, :update, :destroy, :assign, :assign_driver, :assign_finalize, :unassign]
-
-
-    def assign
-      @available_vehicles = Vehicle.where(vehicle_type_id: @order.vehicle_type_id, status: :available)
-    end
-
-    
-    def assign_driver
-      @vehicle = Vehicle.find(params[:vehicle_id])
-      @available_drivers = Driver.where(status: :available)
-                                 .where("license_category = ?", @vehicle.required_license)
-    end
-
-    
-    def assign_finalize
-      @vehicle = Vehicle.find(params[:vehicle_id])
-      @driver = Driver.find(params[:driver_id])
-
-      old_vehicle = @order.vehicle
-      old_driver = @order.driver
-
-      ActiveRecord::Base.transaction do
-        old_vehicle&.update!(status: :available)
-        old_driver&.update!(status: :available)
-
-        @order.update!(vehicle: @vehicle, driver: @driver, status: :scheduled)
-        @vehicle.update!(status: :in_transit)
-        @driver.update!(status: :busy)
-      end
-
-      redirect_to dispatcher_order_path(@order), notice: "Kierowca i pojazd zostały przypisane do zamówienia."
-    rescue ActiveRecord::RecordInvalid => e
-      redirect_to dispatcher_order_path(@order), alert: "Nie udało się przypisać pojazdu lub kierowcy: #{e.message}"
-    end
-
-    def unassign
-      ActiveRecord::Base.transaction do
-        if @order.driver
-          @order.driver.update!(status: :available)
-        end
-    
-        if @order.vehicle
-          @order.vehicle.update!(status: :available)
-        end
-    
-        @order.update!(driver: nil, vehicle: nil, status: :pending)
-      end
-    
-      redirect_to dispatcher_order_path(@order), notice: "Kierowca i pojazd zostali odłączeni od zamówienia."
-    rescue ActiveRecord::RecordInvalid => e
-      redirect_to dispatcher_order_path(@order), alert: "Nie udało się odłączyć: #{e.message}"
-    end
+    before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
-      @orders = Order.order(pickup_date: :asc)
+      @orders = Order.all
+    
+      if params[:sort].present?
+        case params[:sort]
+        when "status"
+          status_order = %i[pending planned in_progress completed canceled]
+    
+          @orders = @orders.sort_by { |o| status_order.index(o.current_status) }
+          @orders.reverse! if params[:direction] == "desc"
+        else
+          @orders = @orders.order("#{sort_column} #{sort_direction}")
+        end
+      end
     end
+    
 
     def show
+      @order = Order.find(params[:id])
+
     end
+    
 
     def edit
       @service_types = ServiceType.all
@@ -80,6 +44,14 @@ module Dispatcher
     end
 
     private
+    
+    def sort_column
+      %w[status pickup_date delivery_date service_type_id vehicle_type_id order_number].include?(params[:sort]) ? params[:sort] : "order_number"
+    end
+
+    def sort_direction
+      %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+    end
 
     def set_order
       @order = Order.find(params[:id])
