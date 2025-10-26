@@ -27,7 +27,15 @@ class Order < ApplicationRecord
   validates :pickup_lat, :pickup_lon, :delivery_lat, :delivery_lon, numericality: true
 
   def status_name
-    I18n.t("activerecord.attributes.order.statuses.#{status}")
+    I18n.t("activerecord.attributes.order.statuses.#{current_status}")
+  end
+
+  def current_status
+    return :canceled if canceled?
+    return :completed if delivery_date.present? && Time.current >= delivery_date
+    return :in_progress if pickup_date.present? && Time.current >= pickup_date
+    return :planned if current_driver.present? && current_vehicle.present?
+    :pending
   end
 
   def current_order_driver

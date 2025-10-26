@@ -27,18 +27,12 @@
         <div class="row">
             <div class="col-md-6 mb-2">
                 <p><strong>Status:</strong>
-                    <span class="badge <%= case @order.status
-                                   when "pending" then "bg-secondary text-white"
-                                   when "planned" then "bg-warning text-dark"
-                                   when "in_progress" then "bg-primary text-white"
-                                   when "completed" then "bg-success text-white"
-                                   when "canceled" then "bg-danger text-white"
-                                   else "bg-dark text-white"
-                                 end %> rounded-pill px-3 py-1">
+                    <span class="badge status-badge <%= @order.current_status %> rounded-pill px-3 py-1">
                         <%= @order.status_name || "Brak statusu" %>
                     </span>
                 </p>
             </div>
+
             <div class="col-md-6 mb-2">
                 <p><strong>Wymagany pojazd:</strong> <%= @order.vehicle_type.name %></p>
             </div>

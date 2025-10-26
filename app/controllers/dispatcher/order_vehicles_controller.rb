@@ -9,7 +9,10 @@ module Dispatcher
 
       def new
         @order_vehicle = @order.order_vehicles.new
-        @vehicles = Vehicle.where(vehicle_type_id: @order.vehicle_type_id)
+        
+        @vehicles = Vehicle.all.select do |v|
+          v.vehicle_type_id == @order.vehicle_type_id && v.available_for?(@order)
+        end
       end
       
 

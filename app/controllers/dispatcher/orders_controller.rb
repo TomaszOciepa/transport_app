@@ -3,11 +3,25 @@ module Dispatcher
     before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
-      @orders = Order.order(pickup_date: :asc)
+      @orders = Order.all
+    
+      if params[:sort].present?
+        case params[:sort]
+        when "status"
+          status_order = %i[pending planned in_progress completed canceled]
+    
+          @orders = @orders.sort_by { |o| status_order.index(o.current_status) }
+          @orders.reverse! if params[:direction] == "desc"
+        else
+          @orders = @orders.order("#{sort_column} #{sort_direction}")
+        end
+      end
     end
+    
 
     def show
       @order = Order.find(params[:id])
+
     end
     
 
@@ -30,6 +44,14 @@ module Dispatcher
     end
 
     private
+    
+    def sort_column
+      %w[status pickup_date delivery_date service_type_id vehicle_type_id order_number].include?(params[:sort]) ? params[:sort] : "order_number"
+    end
+
+    def sort_direction
+      %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+    end
 
     def set_order
       @order = Order.find(params[:id])

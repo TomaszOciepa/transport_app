@@ -11,7 +11,10 @@ module Dispatcher
 
         def new
             @order_driver = @order.order_drivers.new
-            @drivers = Driver.all.select { |d| d.can_drive?(@order.vehicle_type) }
+            
+            @drivers = Driver.all.select do |d|
+              d.can_drive?(@order.vehicle_type) && d.available_for?(@order)
+            end
 
         end
 
