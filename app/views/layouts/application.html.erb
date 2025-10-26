@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title><%= content_for(:title) || "Transport App" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    
-        <!-- Leaflet Map  -->
+
+    <!-- Leaflet Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -22,70 +23,89 @@
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
-  </head>
-  <body>
-            <!-- Flash messages -->
-              <% flash.each do |type, message| %>
-          <% bootstrap_class = case type
-               when "notice" then "alert-success"
-               when "alert" then "alert-danger"
-               else "alert-info"
-             end %>
-          <div class="alert <%= bootstrap_class %> alert-dismissible fade show" role="alert">
-            <%= message %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        <% end %>
 
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
 
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-outline-secondary,
+        .btn-dark {
+            min-width: 120px;
+        }
+
+        footer {
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            max-width: 900px;
+            margin: 1rem auto;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Flash messages -->
+    <% flash.each do |type, message| %>
+    <% bootstrap_class = case type
+        when "notice" then "alert-success"
+        when "alert" then "alert-danger"
+        else "alert-info"
+      end %>
+    <div class="alert <%= bootstrap_class %> alert-dismissible fade show" role="alert">
+        <%= message %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% end %>
+
+    <!-- Navbar -->
     <nav class="navbar navbar-light bg-light shadow-sm mb-4">
-          <div class="container d-flex justify-content-between align-items-center">
-            <a class="navbar-brand d-flex align-items-center" href="<%= root_path %>">
-              <i class="bi bi-house-door-fill fs-4 me-2"></i>
-              Transport App
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand d-flex align-items-center fw-bold" href="<%= root_path %>">
+                <i class="bi bi-house-door-fill fs-4 me-2"></i> Transport App
             </a>
-            <div>
-            
-            <% if user_signed_in? && current_user.admin? %>
-                <%= link_to "Panel admina", admin_root_path, class: "btn btn-outline-secondary me-2" %>
-            <% end %>
-
-            <% if user_signed_in? && current_user.dispatcher? %>
-                <%= link_to "Panel dyspoztora", dispatcher_root_path, class: "btn btn-outline-secondary me-2" %>
-            <% end %>
-
-            <% if user_signed_in? && current_user.client? %>
-                <%= link_to "Panel klienta", client_root_path, class: "btn btn-outline-secondary me-2" %>
-            <% end %>
-
-              <% if user_signed_in? %>
-                <span class="me-3 fw-bold">Witaj, <%= current_user.email %> (<%= current_user.role %>)</span>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <% if user_signed_in? %>
+                <% if current_user.admin? %>
+                <%= link_to "Panel admina", admin_root_path, class: "btn btn-outline-secondary" %>
+                <% elsif current_user.dispatcher? %>
+                <%= link_to "Panel dyspozytora", dispatcher_root_path, class: "btn btn-outline-secondary" %>
+                <% elsif current_user.client? %>
+                <%= link_to "Panel klienta", client_root_path, class: "btn btn-outline-secondary" %>
+                <% end %>
+                <span class="fw-bold mx-2">Witaj, <%= current_user.email %> (<%= current_user.role.capitalize %>)</span>
                 <%= link_to "Wyloguj", destroy_user_session_path, 
-                            data: { turbo_method: :delete }, 
-                            class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
-              <% else %>
-                <%= link_to "Zaloguj", new_user_session_path, 
-                            class: "btn btn-outline-dark rounded-pill px-4 py-2 me-2 shadow-sm" %>
-                <%= link_to "Zarejestruj się", new_user_registration_path, 
-                            class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
-              <% end %>
+                        data: { turbo_method: :delete }, 
+                        class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
+                <% else %>
+                <%= link_to "Zaloguj", new_user_session_path, class: "btn btn-outline-dark rounded-pill px-4 py-2 shadow-sm" %>
+                <%= link_to "Zarejestruj się", new_user_registration_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
+                <% end %>
             </div>
         </div>
-
     </nav>
-        
-    <%= yield %>
 
-      <footer class="bg-dark text-white text-center py-4 mt-5">
+    <!-- Main content -->
+    <main class="container-fluid px-3">
+        <%= yield %>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-          <span>&copy; <%= Time.current.year %> TransportApp. Wszystkie prawa zastrzeżone.</span>
-          <div class="mt-2 mt-md-0">
-            <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-5"></i></a>
-            <a href="#" class="text-white me-3"><i class="bi bi-twitter fs-5"></i></a>
-            <a href="#" class="text-white"><i class="bi bi-instagram fs-5"></i></a>
-          </div>
+            <span>&copy; <%= Time.current.year %> TransportApp. Wszystkie prawa zastrzeżone.</span>
+            <div class="mt-2 mt-md-0">
+                <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-5"></i></a>
+                <a href="#" class="text-white me-3"><i class="bi bi-twitter fs-5"></i></a>
+                <a href="#" class="text-white"><i class="bi bi-instagram fs-5"></i></a>
+            </div>
         </div>
     </footer>
-  </body>
-</html>
+</body>
 
+</html>

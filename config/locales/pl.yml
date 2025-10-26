@@ -37,7 +37,7 @@ pl:
         statuses:
           pending: "Oczekujące"
           planned: "Zaplanowane"
-          in_progress: "W trakcie"
+          in_progress: "W drodze"
           completed: "Zakończone"
           canceled: "Anulowane"
       driver:
@@ -48,5 +48,5 @@ pl:
       vehicle:
         statuses:
           available: "Dostępny"
-          in_transit: "W trasie"
+          in_transit: "W drodze"
           unavailable: "Niedostępny"

@@ -7,6 +7,13 @@ class Vehicle < ApplicationRecord
    validates :brand, :registration_number, :vehicle_type_id, presence: true
    validates :registration_number, uniqueness: true
 
+
+   def current_orders
+    Order.joins(:order_vehicles)
+         .where(order_vehicles: { vehicle_id: id, current: true })
+         .distinct
+  end
+
    def current_status
     now = Time.current
     

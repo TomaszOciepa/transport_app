@@ -12,6 +12,7 @@
                     <th><%= sortable "delivery_date", "Data dostawy" %></th>
                     <th><%= sortable "service_type_id", "Usługa" %></th>
                     <th><%= sortable "order_number", "Nr zamówienia" %></th>
+                    <th><%= sortable "vehicle_type_id", "typ pojazdu" %></th>
                     <th>Akcje</th>
                 </tr>
             </thead>
@@ -29,6 +30,7 @@
                     <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
                     <td><%= order.service_type.name %></td>
                     <td class="fw-bold text-dark"><%= order.order_number %></td>
+                    <td><%= order.vehicle_type.name %></td>
                     <td>
                         <div class="d-flex gap-2">
                             <%= link_to dispatcher_order_path(order),

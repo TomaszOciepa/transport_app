@@ -7,6 +7,12 @@ class Driver < ApplicationRecord
     validates :first_name, :last_name, :email, :license_category, presence: true
     validates :email, uniqueness: true
 
+    def current_orders
+      Order.joins(:order_drivers)
+           .where(order_drivers: { driver_id: id, current: true })
+           .distinct
+    end
+
     def current_status
       now = Time.current
       if availabilities.any? { |a| a.start_time <= now && a.end_time >= now }
