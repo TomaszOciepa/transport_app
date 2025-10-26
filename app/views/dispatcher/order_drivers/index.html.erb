@@ -1,46 +1,50 @@
 <div class="container my-4">
-    <h3>Historia przypisań kierowców dla zamówienia #<%= @order.order_number %></h3>
+    <h3 class="mb-4">Historia przypisań kierowców dla zamówienia #<%= @order.order_number %></h3>
 
     <% if @order_drivers.any? %>
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>Kierowca</th>
-                <th>Data zmiany</th>
-                <th>Zmienione przez</th>
-                <th>Aktualny</th>
-                <th>Akcja</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% @order_drivers.each do |od| %>
-            <tr>
-                <td>
-                    <%= link_to od.driver.full_name, dispatcher_driver_path(od.driver), class: "text-decoration-underline" %>
-                </td>
-                <td><%= l(od.updated_at, format: :long) %></td>
-                <td><%= od.user ? od.user.email : "System" %></td>
-                <td>
-                    <% if od.current %>
-                    <span class="badge bg-success">Aktualny</span>
-                    <% else %>
-                    <span class="badge bg-secondary">Poprzedni</span>
-                    <% end %>
-                </td>
-                <td>
-                    <% if od.current %>
-                    <%= link_to "🗑️", unset_current_dispatcher_order_order_driver_path(@order, od),
-                            data: { turbo_method: :patch, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie?" },
-                            class: "btn btn-sm btn-outline-danger" %>
-                    <% end %>
-                </td>
-            </tr>
-            <% end %>
-        </tbody>
-    </table>
+    <div class="table-responsive shadow-sm rounded pastel-box p-3">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="pastel-thead">
+                <tr>
+                    <th>Kierowca</th>
+                    <th>Data zmiany</th>
+                    <th>Zmienione przez</th>
+                    <th>Aktualny</th>
+                    <th>Akcja</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @order_drivers.each do |od| %>
+                <tr>
+                    <td>
+                        <%= link_to od.driver.full_name, dispatcher_driver_path(od.driver), class: "text-decoration-underline fw-semibold" %>
+                    </td>
+                    <td><%= l(od.updated_at, format: :long) %></td>
+                    <td><%= od.user ? od.user.email : "System" %></td>
+                    <td>
+                        <% if od.current %>
+                        <span class="status-badge completed rounded-pill px-3 py-1">Aktualny</span>
+                        <% else %>
+                        <span class="status-badge canceled rounded-pill px-3 py-1">Poprzedni</span>
+                        <% end %>
+                    </td>
+                    <td>
+                        <% if od.current %>
+                        <%= link_to "🗑️", unset_current_dispatcher_order_order_driver_path(@order, od),
+                      data: { turbo_method: :patch, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie?" },
+                      class: "ios-btn-back btn-sm" %>
+                        <% end %>
+                    </td>
+                </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
     <% else %>
-    <p class="text-muted">Brak przypisań kierowców dla tego zamówienia.</p>
+    <p class="text-muted mt-3">Brak przypisań kierowców dla tego zamówienia.</p>
     <% end %>
 
-    <%= link_to "Powrót", dispatcher_order_path(@order), class: "btn btn-secondary mt-3" %>
+    <%= link_to dispatcher_order_path(@order), class: "ios-back-btn ios-btn-back mt-3" do %>
+    <i class="bi bi-arrow-left me-2"></i> Powrót
+    <% end %>
 </div>

@@ -1,123 +1,122 @@
 <div class="container my-4">
-  <h2 class="fw-bold mb-2">
-    Pojazd <span class="text-primary"><%= @vehicle.brand %> (<%= @vehicle.registration_number %>)</span>
-  </h2>
 
-  <small class="text-muted mb-4 d-block">
-    Utworzono: <%= l(@vehicle.created_at, format: :long) %>
-  </small>
-
-  <div class="card shadow-sm rounded-4 p-4 position-relative">
-    <!-- Przyciski edycji i usuwania w prawym górnym rogu -->
-    <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">
-      <%= link_to edit_dispatcher_vehicle_path(@vehicle),
-                  class: "btn btn-outline-secondary btn-sm p-2",
-                  title: "Edytuj" do %>
-        <i class="bi bi-pencil"></i>
-      <% end %>
-
-      <%= link_to dispatcher_vehicle_path(@vehicle),
-                  data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć ten pojazd?" },
-                  class: "btn btn-outline-secondary btn-sm p-2",
-                  title: "Usuń" do %>
-        <i class="bi bi-trash"></i>
-      <% end %>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold mb-0">
+            Pojazd <span class="text-primary"><%= @vehicle.brand %> (<%= @vehicle.registration_number %>)</span>
+        </h2>
+        <small class="text-muted">Utworzono: <%= l(@vehicle.created_at, format: :long) %></small>
     </div>
 
-    <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-truck me-2"></i>Dane pojazdu</h5>
+    <!-- Actions -->
+    <div class="mb-4 d-flex gap-2">
+        <%= link_to edit_dispatcher_vehicle_path(@vehicle), class: "ios-fab-btn", title: "Edytuj" do %>
+        <i class="bi bi-pencil"></i> Edytuj
+        <% end %>
 
-    <div class="row mb-3">
-      <div class="col-md-6 mb-2">
-        <p><strong>Status:</strong>
-          <% status_class = case @vehicle.current_status
+        <%= link_to dispatcher_vehicle_path(@vehicle),
+        data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć ten pojazd?" },
+        class: "ios-fab-btn", title: "Usuń" do %>
+        <i class="bi bi-trash"></i> Usuń
+        <% end %>
+    </div>
+
+    <!-- Dane pojazdu -->
+    <div class="card pastel-box pastel-box-blue p-4 mb-4">
+        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-truck me-2"></i>Dane pojazdu</h5>
+
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <p><strong>Status:</strong>
+                    <% status_class = case @vehicle.current_status
             when "available" then "bg-success text-white"
             when "in_transit" then "bg-warning text-dark"
             when "unavailable" then "bg-danger text-white"
             else "bg-secondary text-white"
           end %>
-          <span class="badge <%= status_class %> rounded-pill px-3 py-1">
-            <%= @vehicle.current_status %>
-          </span>
-        </p>
-      </div>
+                    <span class="badge <%= status_class %> rounded-pill px-3 py-1">
+                        <%= @vehicle.current_status %>
+                    </span>
+                </p>
+            </div>
 
+            <div class="col-md-6 mb-2">
+                <p><strong>Marka:</strong> <%= @vehicle.brand %></p>
+            </div>
 
-      <div class="col-md-6 mb-2">
-        <p><strong>Marka:</strong> <%= @vehicle.brand %></p>
-      </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Numer rejestracyjny:</strong> <%= @vehicle.registration_number %></p>
+            </div>
 
-      <div class="col-md-6 mb-2">
-        <p><strong>Numer rejestracyjny:</strong> <%= @vehicle.registration_number %></p>
-      </div>
-
-      <div class="col-md-6 mb-2">
-        <p><strong>Typ pojazdu:</strong> <%= @vehicle.vehicle_type.name if @vehicle.vehicle_type %></p>
-      </div>
+            <div class="col-md-6 mb-2">
+                <p><strong>Typ pojazdu:</strong> <%= @vehicle.vehicle_type&.name %></p>
+            </div>
+        </div>
     </div>
-  </div>
 
+    <!-- Dostępność pojazdu -->
+    <div class="card pastel-box pastel-box-green p-4 mb-4">
+        <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-calendar2-check me-2"></i>Dostępność pojazdu</span>
+            <%= link_to new_dispatcher_availability_path(
+            availableable_id: @vehicle.id,
+            availableable_type: "Vehicle"
+          ),
+          class: "ios-fab-btn", title: "Dodaj dostępność" do %>
+            <i class="bi bi-plus-lg me-1"></i> Dodaj
+            <% end %>
+        </h5>
 
-  <!-- card for available -->
-  <div class="card shadow-sm rounded-4 p-4 mt-4">
-  <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
-    <span><i class="bi bi-calendar2-check me-2"></i>Dostępność pojazdu</span>
-    <%= link_to new_dispatcher_availability_path(
-          availableable_id: @vehicle.id,
-          availableable_type: "Vehicle"
-        ),
-        class: "btn btn-outline-secondary btn-sm p-2",
-        title: "Dodaj dostępność" do %>
-      <i class="bi bi-calendar2-check me-2 text-secondary"></i> Dodaj
-    <% end %>
-  </h5>
+        <% if @vehicle.availabilities.any? %>
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="pastel-thead">
+                    <tr>
+                        <th>Od</th>
+                        <th>Do</th>
+                        <th class="text-center">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% @vehicle.availabilities.each do |availability| %>
+                    <tr>
+                        <td><%= l(availability.start_time, format: :short) %></td>
+                        <td><%= l(availability.end_time, format: :short) %></td>
+                        <td class="text-center">
+                            <%= link_to edit_dispatcher_availability_path(
+                        availability,
+                        availableable_id: @vehicle.id,
+                        availableable_type: "Vehicle"
+                      ),
+                      class: "ios-fab-btn btn-sm me-1 mb-1",
+                      title: "Edytuj dostępność" do %>
+                            <i class="bi bi-pencil"></i>
+                            <% end %>
 
-  <% if @vehicle.availabilities.any? %>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Od</th>
-          <th>Do</th>
-          <th class="text-center">Akcje</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @vehicle.availabilities.each do |availability| %>
-          <tr>
-            <td><%= l(availability.start_time, format: :short) %></td>
-            <td><%= l(availability.end_time, format: :short) %></td>
-            <td class="text-center">
-              <%= link_to edit_dispatcher_availability_path(
-                    availability,
-                    availableable_id: @vehicle.id,
-                    availableable_type: "Vehicle"
-                  ),
-                  class: "btn btn-outline-secondary btn-sm p-2",
-                  title: "Edytuj dostępność" do %>
-                <i class="bi bi-pencil"></i>
-              <% end %>
-
-            <%= link_to dispatcher_availability_path(availability,
-                availableable_id: @vehicle.id,
-                availableable_type: "Vehicle"),
-            data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć tę dostępność?" },
-            class: "btn btn-outline-secondary btn-sm p-2",
-            title: "Usuń dostępność" do %>
-  <i class="bi bi-trash"></i>
-<% end %>
-
-
-
-            </td>
-          </tr>
+                            <%= link_to dispatcher_availability_path(availability,
+                      availableable_id: @vehicle.id,
+                      availableable_type: "Vehicle"),
+                    data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć tę dostępność?" },
+                    class: "ios-fab-btn btn-sm mb-1",
+                    title: "Usuń dostępność" do %>
+                            <i class="bi bi-trash"></i>
+                            <% end %>
+                        </td>
+                    </tr>
+                    <% end %>
+                </tbody>
+            </table>
+        </div>
+        <% else %>
+        <p class="text-muted fst-italic">Brak dostępności dla tego pojazdu.</p>
         <% end %>
-      </tbody>
-    </table>
-  <% else %>
-    <p class="text-muted">Brak dostępności dla tego pojazdu.</p>
-  <% end %>
-</div>
+    </div>
 
-  <div class="mt-3">
-    <%= link_to "Powrót do listy", dispatcher_vehicles_path, class: "btn btn-dark rounded-pill px-4 py-2 shadow-sm" %>
-  </div>
+    <!-- Powrót -->
+    <div class="mt-3">
+        <%= link_to dispatcher_vehicles_path, class: "ios-back-btn ios-btn-back" do %>
+        <i class="bi bi-arrow-left me-2"></i> Powrót do listy
+        <% end %>
+    </div>
+
 </div>

@@ -1,9 +1,11 @@
-<div class="container-fluid">
-    <h2 class="fw-bold mb-4">Lista zamówień</h2>
+<div class="container-fluid py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold mb-0" style="color: #2c2c2c;">📦 Lista zamówień</h2>
+    </div>
 
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-hover mb-0">
-            <thead class="table-dark">
+    <div class="table-responsive shadow-sm rounded-4 pastel-table">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="pastel-thead">
                 <tr>
                     <th><%= sortable "status", "Status" %></th>
                     <th><%= sortable "pickup_date", "Data załadunku" %></th>
@@ -16,24 +18,33 @@
 
             <tbody>
                 <% @orders.each do |order| %>
-                <tr class="align-middle">
+                <tr>
                     <td>
                         <% status = order.current_status %>
-                        <span class="badge status-badge <%= status %> rounded-pill px-3 py-1">
+                        <span class="badge status-badge <%= status %> rounded-pill px-3 py-2 fw-semibold">
                             <%= order.status_name %>
                         </span>
                     </td>
                     <td><%= l(order.pickup_date, format: :short) if order.pickup_date %></td>
                     <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
                     <td><%= order.service_type.name %></td>
-                    <td class="fw-bold"><%= order.order_number %></td>
+                    <td class="fw-bold text-dark"><%= order.order_number %></td>
                     <td>
-                        <%= link_to "Szczegóły", dispatcher_order_path(order), class: "btn btn-sm btn-pastel-secondary me-1 mb-1" %>
-                        <%= link_to "Usuń", dispatcher_order_path(order),
-        data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zamówienie?" },
-        class: "btn btn-sm btn-pastel-danger mb-1" %>
-                    </td>
+                        <div class="d-flex gap-2">
+                            <%= link_to dispatcher_order_path(order),
+                    class: "btn btn-icon btn-pastel-secondary shadow-sm rounded-circle",
+                    title: "Szczegóły" do %>
+                            <i class="bi bi-gear"></i>
+                            <% end %>
 
+                            <%= link_to dispatcher_order_path(order),
+                    data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zamówienie?" },
+                    class: "btn btn-icon btn-pastel-danger shadow-sm rounded-circle",
+                    title: "Usuń" do %>
+                            <i class="bi bi-trash"></i>
+                            <% end %>
+                        </div>
+                    </td>
                 </tr>
                 <% end %>
             </tbody>

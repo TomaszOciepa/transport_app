@@ -1,18 +1,25 @@
 <div class="container my-4">
-    <h3><%= title %> #<%= @order.order_number %></h3>
+    <h3 class="mb-4"> <%= title %> #<%= @order.order_number %> </h3>
 
     <% if @vehicles.any? %>
-    <%= form_with(model: [@order, @order_vehicle], url: dispatcher_order_order_vehicles_path(@order), local: true) do |f| %>
-    <div class="mb-3">
-        <%= f.label :vehicle_id, "Wybierz pojazd" %>
-        <%= f.select :vehicle_id,
-          @vehicles.map { |v| ["#{v.brand} - #{v.registration_number}", v.id] },
-          { prompt: "Wybierz pojazd" },
-          class: "form-select" %>
-    </div>
+    <div class="pastel-box p-4">
+        <%= form_with(model: [@order, @order_vehicle], url: dispatcher_order_order_vehicles_path(@order), local: true) do |f| %>
 
-    <%= f.submit "Zapisz", class: "btn btn-primary" %>
-    <% end %>
+        <div class="mb-4">
+            <%= f.label :vehicle_id, "Wybierz pojazd", class: "form-label fw-semibold" %>
+            <%= f.select :vehicle_id,
+            @vehicles.map { |v| ["#{v.brand} - #{v.registration_number}", v.id] },
+            { prompt: "Wybierz pojazd" },
+            class: "form-select ios-select" %>
+        </div>
+
+        <%= link_to dispatcher_order_path(@order), class: "ios-back-btn ios-btn-back mt-3" do %>
+        <i class="bi bi-arrow-left me-2"></i> Powrót do zamówienia
+        <% end %>
+        <%= f.submit "Zapisz", class: "ios-btn ios-btn-save mb-0" %>
+
+        <% end %>
+    </div>
     <% else %>
     <div class="static-warning mt-4 p-3 rounded-3">
         <div class="d-flex align-items-start">
@@ -27,8 +34,10 @@
                 </p>
             </div>
         </div>
-    </div>
 
-    <%= link_to "Powrót do zamówienia", dispatcher_order_path(@order), class: "btn btn-secondary mt-3" %>
+        <%= link_to dispatcher_order_path(@order), class: "ios-back-btn ios-btn-back mt-3" do %>
+        <i class="bi bi-arrow-left me-2"></i> Powrót do zamówienia
+        <% end %>
+    </div>
     <% end %>
 </div>

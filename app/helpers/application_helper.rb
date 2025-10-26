@@ -14,7 +14,7 @@ module ApplicationHelper
     
         link_to "#{title} #{icon}".html_safe,
                 { sort: column, direction: direction },
-                class: "text-white text-decoration-none fw-bold"
+                class: "text-dark text-decoration-none fw-bold"
       end
 
 end

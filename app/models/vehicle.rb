@@ -18,7 +18,7 @@ class Vehicle < ApplicationRecord
   end
 
    def current_status_i18n
-    I18n.t("activerecord.attributes.vehicle.statuses.#{status}")
+    I18n.t("activerecord.attributes.vehicle.statuses.#{current_status}")
   end
 
 
