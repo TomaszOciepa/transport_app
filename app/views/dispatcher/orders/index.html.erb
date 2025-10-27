@@ -7,6 +7,7 @@
         <table class="table table-hover mb-0 align-middle">
             <thead class="pastel-thead">
                 <tr>
+                    <th class="text-center">Lp</th>
                     <th><%= sortable "status", "Status" %></th>
                     <th><%= sortable "pickup_date", "Data załadunku" %></th>
                     <th><%= sortable "delivery_date", "Data dostawy" %></th>
@@ -18,8 +19,9 @@
             </thead>
 
             <tbody>
-                <% @orders.each do |order| %>
+                <%@orders.each_with_index do |order, index| %>
                 <tr>
+                    <td class="text-center text-muted"><%= index + 1 %></td>
                     <td>
                         <% status = order.current_status %>
                         <span class="badge status-badge <%= status %> rounded-pill px-3 py-2 fw-semibold">

@@ -160,9 +160,32 @@
                 <div class="timeline-content position-relative">
                     <h6 class="mb-2 fw-bold">Odbiór</h6>
                     <% if @order.pickup_date.present? && @order.pickup_address.present? %>
+                    <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                        <%= l(@order.created_at, format: :long) %><br>
+                        <%= "system" %>
+                    </small>
                     <p>Data: <%= l(@order.pickup_date, format: :long) %><br>Lokalizacja: <%= @order.pickup_address %></p>
                     <% else %>
                     <p class="text-muted fst-italic">Brak informacji o odbiorze</p>
+                    <% end %>
+                </div>
+            </li>
+
+            <!-- In progres -->
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px;
+              background-color: <%= @order.pickup_date.present? && @order.pickup_date <= Time.current + 10.minutes ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">W drodze</h6>
+                    <% if @order.travel_time.present? && @order.travel_time.present? %>
+                    <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                        <%= l(@order.created_at, format: :long) %><br>
+                        <%= "system" %>
+                    </small>
+                    <p>Przewidywany czas dostawy około <%= @order.travel_time&.round(2) %> h</p>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak informacji o czasie dostawy</p>
                     <% end %>
                 </div>
             </li>
@@ -175,6 +198,10 @@
                 <div class="timeline-content position-relative">
                     <h6 class="mb-2 fw-bold">Dostawa</h6>
                     <% if @order.delivery_date.present? && @order.delivery_address.present? %>
+                    <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                        <%= l(@order.created_at, format: :long) %><br>
+                        <%= "system" %>
+                    </small>
                     <p>Data: <%= l(@order.delivery_date, format: :long) %><br>Lokalizacja: <%= @order.delivery_address %></p>
                     <% else %>
                     <p class="text-muted fst-italic">Brak informacji o dostawie</p>

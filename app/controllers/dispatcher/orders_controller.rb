@@ -3,17 +3,17 @@ module Dispatcher
     before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
-      @orders = Order.all
+      @orders = Order.order(pickup_date: :asc)
     
       if params[:sort].present?
         case params[:sort]
         when "status"
           status_order = %i[pending planned in_progress completed canceled]
     
-          @orders = @orders.sort_by { |o| status_order.index(o.current_status) }
+          @orders = @orders.sort_by { |o| status_order.index(o.current_status) || 999 }
           @orders.reverse! if params[:direction] == "desc"
         else
-          @orders = @orders.order("#{sort_column} #{sort_direction}")
+          @orders = @orders.reorder("#{sort_column} #{sort_direction}")
         end
       end
     end
