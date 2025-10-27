@@ -3,11 +3,20 @@ module Dispatcher
     before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
 
     def index
-      @vehicles = Vehicle.joins(:vehicle_type)
-                         .order('vehicle_types.name ASC, vehicles.brand ASC')
+      @vehicles = Vehicle.order(brand: :asc)
+    
+      if params[:sort].present?
+        case params[:sort]
+        when "status"
+          status_order = %i[available busy inactive] 
+          @vehicles = @vehicles.sort_by { |v| status_order.index(v.status.to_sym) rescue 999 }
+          @vehicles.reverse! if params[:direction] == "desc"
+        else
+          @vehicles = @vehicles.reorder("#{sort_column} #{sort_direction}")
+        end
+      end
     end
     
-
     def show
     end
 
@@ -43,6 +52,14 @@ module Dispatcher
     end
 
     private
+
+    def sort_column
+      Vehicle.column_names.include?(params[:sort]) ? params[:sort] : "brand"
+    end
+    
+    def sort_direction
+      %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+    end
 
     def set_vehicle
       @vehicle = Vehicle.find(params[:id])

@@ -4,6 +4,17 @@ module Dispatcher
 
     def index
       @drivers = Driver.order(last_name: :asc)
+    
+      if params[:sort].present?
+        case params[:sort]
+        when "status"
+          status_order = %i[available busy inactive]
+          @drivers = @drivers.sort_by { |d| status_order.index(d.status.to_sym) rescue 999 }
+          @drivers.reverse! if params[:direction] == "desc"
+        else
+          @drivers = @drivers.reorder("#{sort_column} #{sort_direction}")
+        end
+      end
     end
 
     def show
@@ -60,5 +71,14 @@ module Dispatcher
         :status
       )
     end
+
+    def sort_column
+      Driver.column_names.include?(params[:sort]) ? params[:sort] : "last_name"
+    end
+    
+    def sort_direction
+      %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+    end
+
   end
 end

@@ -8,7 +8,7 @@
         <div class="mb-4">
             <%= f.label :driver_id, "Wybierz kierowcę", class: "form-label fw-semibold" %>
             <%= f.select :driver_id,
-            @drivers.map { |d| [d.full_name, d.id] },
+            @drivers.map { |d| ["#{d.full_name} (#{d.license_category.name})", d.id] },
             { prompt: "Wybierz kierowcę" },
             class: "form-select ios-select" %>
         </div>
