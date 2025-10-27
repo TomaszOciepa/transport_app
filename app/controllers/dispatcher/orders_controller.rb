@@ -3,7 +3,9 @@ module Dispatcher
     before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
+
       @orders = Order.order(pickup_date: :asc)
+
     
       if params[:sort].present?
         case params[:sort]
@@ -14,6 +16,7 @@ module Dispatcher
           @orders.reverse! if params[:direction] == "desc"
         else
           @orders = @orders.reorder("#{sort_column} #{sort_direction}")
+
         end
       end
     end

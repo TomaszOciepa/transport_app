@@ -103,7 +103,112 @@
                         <i class="bi bi-plus-lg"></i><i class="bi bi-truck me-1"></i> Pojazd
                         <% end %>
 
+                        <%= link_to new_dispatcher_order_order_vehicle_path(@order),
+        class: "ios-fab-btn", title: "Dodaj/zmień pojazd" do %>
+                        <i class="bi bi-plus-lg"></i><i class="bi bi-truck me-1"></i> Pojazd
+                        <% end %>
 
+
+                        <%= link_to dispatcher_order_order_vehicles_path(@order),
+        class: "ios-fab-btn", title: "Historia pojazdu" do %>
+                        <i class="bi bi-clock-history me-1"></i> Historia
+                        <% end %>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Driver Assignment -->
+            <% driver_assigned = @order.current_driver.present? %>
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color: <%= driver_assigned ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">Przypisanie kierowcy</h6>
+                    <% if driver_assigned %>
+                    <p>Aktualnie przypisany kierowca:
+                        <%= link_to @order.current_driver.full_name,
+                dispatcher_driver_path(@order.current_driver),
+                class: "text-decoration-underline fw-semibold" %>
+                    </p>
+
+                    <% current_order_driver = @order.order_drivers.find_by(driver: @order.current_driver, current: true) %>
+                    <% if current_order_driver %>
+                    <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                        <%= l(current_order_driver.updated_at, format: :short) %><br>
+                        <%= current_order_driver.user&.email || "system" %>
+                    </small>
+                    <% end %>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak przypisanego kierowcy</p>
+                    <% end %>
+
+                    <div class="mt-2 d-flex gap-2">
+                        <%= link_to new_dispatcher_order_order_driver_path(@order),
+        class: "ios-fab-btn", title: "Dodaj/zmień kierowcę" do %>
+                        <i class="bi bi-plus-lg"></i><i class="bi bi-person me-1"></i> Kierowca
+                        <% end %>
+
+
+                        <%= link_to dispatcher_order_order_drivers_path(@order),
+        class: "ios-fab-btn", title: "Historia kierowcy" do %>
+                        <i class="bi bi-clock-history me-1"></i> Historia
+                        <% end %>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Pickup -->
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px;
+              background-color: <%= @order.pickup_date.present? && @order.pickup_date <= Time.current ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">Odbiór</h6>
+                    <% if @order.pickup_date.present? && @order.pickup_address.present? %>
+                    <p>Data: <%= l(@order.pickup_date, format: :long) %><br>Lokalizacja: <%= @order.pickup_address %></p>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak informacji o odbiorze</p>
+                    <% end %>
+                </div>
+            </li>
+
+            <!-- Delivery -->
+            <li class="timeline-item mb-5 position-relative ps-4">
+                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px;
+              background-color: <%= @order.delivery_date.present? && @order.delivery_date <= Time.current ? '#28a745' : '#dc3545' %>;"></span>
+                <div class="timeline-content position-relative">
+                    <h6 class="mb-2 fw-bold">Dostawa</h6>
+                    <% if @order.delivery_date.present? && @order.delivery_address.present? %>
+                    <p>Data: <%= l(@order.delivery_date, format: :long) %><br>Lokalizacja: <%= @order.delivery_address %></p>
+                    <% else %>
+                    <p class="text-muted fst-italic">Brak informacji o dostawie</p>
+                    <% end %>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- Mapa -->
+    <div class="card pastel-box pastel-box-pink p-3 mb-4">
+        <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Mapa realizacji</h5>
+        <div class="map-container" style="width: 100%; max-width: 900px; height: 400px; margin: 0 auto;">
+            <%= render(MapComponent.new(
+        pickup_lat: @order.pickup_lat,
+        pickup_lon: @order.pickup_lon,
+        delivery_lat: @order.delivery_lat,
+        delivery_lon: @order.delivery_lon
+      )) %>
+        </div>
+    </div>
+
+    <!-- Back -->
+    <div class="mt-4">
+        <%= link_to dispatcher_orders_path, class: "ios-back-btn ios-btn-back mt-3" do %>
+        <i class="bi bi-arrow-left me-2"></i> Powrót
+        <% end %>
+    </div>
                         <%= link_to dispatcher_order_order_vehicles_path(@order),
         class: "ios-fab-btn", title: "Historia pojazdu" do %>
                         <i class="bi bi-clock-history me-1"></i> Historia
@@ -231,5 +336,4 @@
         <i class="bi bi-arrow-left me-2"></i> Powrót
         <% end %>
     </div>
-
 </div>
