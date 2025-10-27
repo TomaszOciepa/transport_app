@@ -9,14 +9,15 @@ module Dispatcher
             @order_drivers = @order.order_drivers.order(updated_at: :desc)
           end
 
-        def new
+          def new
             @order_driver = @order.order_drivers.new
-            
-            @drivers = Driver.all.select do |d|
-              d.can_drive?(@order.vehicle_type) && d.available_for?(@order)
-            end
-
-        end
+          
+            @drivers = Driver.includes(:license_category)
+                             .select do |d|
+                               d.can_drive?(@order.vehicle_type) && d.available_for?(@order)
+                             end
+                             .sort_by(&:last_name)
+          end
 
         def create
            
