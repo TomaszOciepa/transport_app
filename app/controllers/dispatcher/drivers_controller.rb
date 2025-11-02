@@ -1,6 +1,6 @@
 module Dispatcher
   class DriversController < ApplicationController
-    before_action :set_driver, only: [:show, :edit, :update, :destroy]
+    before_action :set_driver, only: [:show, :edit, :update, :destroy, :driver_history]
 
     def index
       @drivers = Driver.order(last_name: :asc)
@@ -51,6 +51,9 @@ module Dispatcher
       redirect_to dispatcher_drivers_path, notice: "Kierowca został usunięty."
     end
     
+    def driver_history
+      @vehicle_drivers = @driver.vehicle_drivers.order(updated_at: :desc).includes(:vehicle, :user)
+    end
 
     private
 
@@ -66,8 +69,6 @@ module Dispatcher
         :phone,
         :license_category_id,
         :birth_year,
-        :available_from,
-        :available_to,
         :status
       )
     end

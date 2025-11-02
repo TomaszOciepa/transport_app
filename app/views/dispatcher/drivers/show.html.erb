@@ -58,6 +58,56 @@
         </div>
     </div>
 
+    <ul class="timeline list-unstyled position-relative m-0 p-0">
+        <% current_assignment = @driver.vehicle_drivers.find_by(current: true) %>
+        <% vehicle = current_assignment&.vehicle %>
+        <% vehicle_assigned = vehicle.present? %>
+
+        <li class="timeline-item mb-5 position-relative ps-4">
+            <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+
+            <%# 🔵 Kolorowa kropka w zależności od przypisania %>
+            <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color:
+          <%= vehicle_assigned ? '#28a745' : '#dc3545' %>;">
+            </span>
+
+            <div class="timeline-content position-relative">
+                <h6 class="mb-2 fw-bold">
+                    <i class="bi bi-truck me-2"></i>Aktualnie przypisany pojazd
+                </h6>
+
+                <% if vehicle_assigned %>
+                <p>Aktualnie przypisany pojazd:
+                    <%= link_to "#{vehicle.brand} - #{vehicle.registration_number}",
+                      dispatcher_vehicle_path(vehicle),
+                      class: "text-decoration-underline fw-semibold" %>
+                </p>
+
+                <% if current_assignment %>
+                <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                    <%= l(current_assignment.updated_at, format: :short) %><br>
+                    <%= current_assignment.user&.email || "system" %>
+                </small>
+                <% end %>
+                <% else %>
+                <p class="text-muted fst-italic">
+                    Kierowca nie ma aktualnie przypisanego pojazdu.
+                </p>
+                <% end %>
+
+                <div class="mt-2 d-flex gap-2">
+
+                    <%= link_to driver_history_dispatcher_driver_path(@driver),
+            class: "ios-fab-btn", title: "Historia przypisań pojazdów" do %>
+                    <i class="bi bi-clock-history me-1"></i> Historia
+                    <% end %>
+
+                </div>
+            </div>
+        </li>
+    </ul>
+
+
     <!-- Dostępność kierowcy -->
     <div class="card pastel-box pastel-box-green p-4 mb-4">
         <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
@@ -116,61 +166,6 @@
         <% end %>
     </div>
 
-    <!-- Aktualne zamówienia kierowcy -->
-    <div class="card shadow-sm rounded-4 p-4 mt-4">
-        <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-list-check me-2"></i>Aktualne zamówienia kierowcy</span>
-        </h5>
-
-        <% current_orders = @driver.current_orders %>
-
-        <% if current_orders.any? %>
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="pastel-thead">
-                    <tr>
-                        <th><%= sortable "status", "Status" %></th>
-                        <th><%= sortable "pickup_date", "Data załadunku" %></th>
-                        <th><%= sortable "delivery_date", "Data dostawy" %></th>
-                        <th><%= sortable "service_type_id", "Usługa" %></th>
-                        <th><%= sortable "order_number", "Nr zamówienia" %></th>
-                        <th>Akcje</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <% current_orders.each do |order| %>
-                    <tr>
-                        <td>
-                            <span class="badge status-badge <%= order.current_status %> rounded-pill px-3 py-2 fw-semibold">
-                                <%= order.status_name %>
-                            </span>
-                        </td>
-                        <td><%= l(order.pickup_date, format: :short) if order.pickup_date %></td>
-                        <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
-                        <td><%= order.service_type.name %></td>
-                        <td class="fw-bold text-dark"><%= order.order_number %></td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <%= link_to dispatcher_order_path(order),
-                      class: "btn btn-icon btn-pastel-secondary shadow-sm rounded-circle",
-                      title: "Szczegóły" do %>
-                                <i class="bi bi-gear"></i>
-                                <% end %>
-                            </div>
-                        </td>
-                    </tr>
-                    <% end %>
-                </tbody>
-            </table>
-        </div>
-        <% else %>
-        <p class="text-muted">Brak aktualnych zamówień przypisanych do tego kierowcy.</p>
-        <% end %>
-    </div>
-
-
-    <!-- Powrót -->
     <div class="mt-3">
         <%= link_to dispatcher_drivers_path, class: "ios-back-btn ios-btn-back" do %>
         <i class="bi bi-arrow-left me-2"></i> Powrót do listy

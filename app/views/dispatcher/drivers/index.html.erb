@@ -14,13 +14,14 @@
                     <th><%= sortable "email", "Email" %></th>
                     <th>Telefon</th>
                     <th><%= sortable "license_category_id", "Prawo jazdy" %></th>
+                    <th>Pojazd</th>
                     <th><%= sortable "status", "Status" %></th>
-
                     <th>Akcje</th>
                 </tr>
             </thead>
+
             <tbody>
-                <%@drivers.each_with_index do |driver, index| %>
+                <% @drivers.each_with_index do |driver, index| %>
                 <tr>
                     <td class="text-center text-muted"><%= index + 1 %></td>
                     <td><%= driver.first_name %></td>
@@ -28,6 +29,20 @@
                     <td><%= driver.email %></td>
                     <td><%= driver.phone %></td>
                     <td><%= driver.license_category.name %></td>
+
+                    <!-- NOWA KOLUMNA: Aktualny pojazd -->
+                    <td>
+                        <% if driver.current_vehicles.any? %>
+                        <% vehicle = driver.current_vehicles.first %>
+                        <%= link_to dispatcher_vehicle_path(vehicle),
+                    class: "text-decoration-underline fw-semibold" do %>
+                        <%= vehicle.brand %>
+                        <% end %>
+                        <% else %>
+                        <span class="text-muted fst-italic">Brak przypisania</span>
+                        <% end %>
+                    </td>
+
                     <td>
                         <% status_class = case driver.current_status
                 when "available" then "status-badge completed"
@@ -39,8 +54,10 @@
                             <%= driver.current_status_i18n %>
                         </span>
                     </td>
+
                     <td>
-                        <%= link_to dispatcher_driver_path(driver), class: "ios-btn btn-sm shadow-sm d-flex align-items-center justify-content-center" do %>
+                        <%= link_to dispatcher_driver_path(driver),
+                          class: "ios-btn btn-sm shadow-sm d-flex align-items-center justify-content-center" do %>
                         <i class="bi bi-gear me-1"></i> Szczegóły
                         <% end %>
                     </td>

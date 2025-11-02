@@ -22,14 +22,19 @@ Rails.application.routes.draw do
       resources :order_vehicles, only: [:index, :new, :create, :edit, :update] do
         patch :unset_current, on: :member
       end
+    end
   
-      resources :order_drivers, only: [:index, :new, :create, :edit, :update] do
+    resources :drivers do
+      member do
+        get :driver_history 
+      end
+    end
+
+    resources :vehicles do
+      resources :vehicle_drivers, only: [:index, :new, :create, :edit, :update] do
         patch :unset_current, on: :member
       end
     end
-  
-    resources :drivers
-    resources :vehicles
     resources :availabilities
   
     get "calendar", to: "dashboard#calendar"

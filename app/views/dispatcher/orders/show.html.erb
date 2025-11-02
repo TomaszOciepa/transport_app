@@ -65,27 +65,45 @@
         </div>
     </div>
 
-    <!-- Postęp zamówienia -->
+    <!-- Order Progress -->
     <div class="card pastel-box pastel-box-green p-4 mb-4">
         <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-list-task me-2"></i>Postęp zamówienia</h5>
 
         <ul class="timeline list-unstyled position-relative m-0 p-0">
 
             <!-- Vehicle Assignment -->
-            <% vehicle_assigned = @order.current_vehicle.present? %>
+            <% vehicle = @order.current_vehicle %>
+            <% vehicle_assigned = vehicle.present? %>
+            <% vehicle_has_driver = vehicle_assigned && vehicle.vehicle_drivers.exists?(current: true) %>
+
             <li class="timeline-item mb-5 position-relative ps-4">
                 <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
-                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color: <%= vehicle_assigned ? '#28a745' : '#dc3545' %>;"></span>
+
+                <%# Icon: red, yellow or green %>
+                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color: 
+      <%= if !vehicle_assigned
+            '#dc3545'  # no vehicle - red
+          elsif vehicle_has_driver
+            '#28a745' # assigned vehicle with driver – green
+          else
+            '#ffc107'  # assigned driverless vehicle – yellow
+          end %>;">
+                </span>
+
                 <div class="timeline-content position-relative">
                     <h6 class="mb-2 fw-bold">Przypisanie pojazdu</h6>
-                    <% if vehicle_assigned %>
+
+                    <% if !vehicle_assigned %>
+                    <p class="text-muted fst-italic">Brak przypisanego pojazdu</p>
+
+                    <% elsif vehicle_has_driver %>
                     <p>Aktualnie przypisany pojazd:
-                        <%= link_to "#{@order.current_vehicle.brand} - #{@order.current_vehicle.registration_number}",
-                dispatcher_vehicle_path(@order.current_vehicle),
-                class: "text-decoration-underline fw-semibold" %>
+                        <%= link_to "#{vehicle.brand} - #{vehicle.registration_number}",
+                    dispatcher_vehicle_path(vehicle),
+                    class: "text-decoration-underline fw-semibold" %>
                     </p>
 
-                    <% current_order_vehicle = @order.order_vehicles.find_by(vehicle: @order.current_vehicle, current: true) %>
+                    <% current_order_vehicle = @order.order_vehicles.find_by(vehicle: vehicle, current: true) %>
                     <% if current_order_vehicle %>
                     <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
                         <%= l(current_order_vehicle.updated_at, format: :short) %><br>
@@ -93,63 +111,42 @@
                     </small>
                     <% end %>
                     <% else %>
-                    <p class="text-muted fst-italic">Brak przypisanego pojazdu</p>
-                    <% end %>
-
-                    <div class="mt-2 d-flex gap-2">
-                        <%= link_to new_dispatcher_order_order_vehicle_path(@order),
-        class: "ios-fab-btn", title: "Dodaj/zmień pojazd" do %>
-                        <i class="bi bi-plus-lg"></i><i class="bi bi-truck me-1"></i> Pojazd
-                        <% end %>
-
-
-                        <%= link_to dispatcher_order_order_vehicles_path(@order),
-        class: "ios-fab-btn", title: "Historia pojazdu" do %>
-                        <i class="bi bi-clock-history me-1"></i> Historia
-                        <% end %>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Driver Assignment -->
-            <% driver_assigned = @order.current_driver.present? %>
-            <li class="timeline-item mb-5 position-relative ps-4">
-                <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
-                <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color: <%= driver_assigned ? '#28a745' : '#dc3545' %>;"></span>
-                <div class="timeline-content position-relative">
-                    <h6 class="mb-2 fw-bold">Przypisanie kierowcy</h6>
-                    <% if driver_assigned %>
-                    <p>Aktualnie przypisany kierowca:
-                        <%= link_to @order.current_driver.full_name,
-                dispatcher_driver_path(@order.current_driver),
-                class: "text-decoration-underline fw-semibold" %>
+                    <p>Aktualnie przypisany pojazd:
+                        <%= link_to "#{vehicle.brand} - #{vehicle.registration_number}",
+                    dispatcher_vehicle_path(vehicle),
+                    class: "text-decoration-underline fw-semibold" %>
+                    </p>
+                    <p class="text-warning fst-italic">
+                        Pojazd nie ma przypisanego kierowcy.
                     </p>
 
-                    <% current_order_driver = @order.order_drivers.find_by(driver: @order.current_driver, current: true) %>
-                    <% if current_order_driver %>
+                    <% current_order_vehicle = @order.order_vehicles.find_by(vehicle: vehicle, current: true) %>
+                    <% if current_order_vehicle %>
                     <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
-                        <%= l(current_order_driver.updated_at, format: :short) %><br>
-                        <%= current_order_driver.user&.email || "system" %>
+                        <%= l(current_order_vehicle.updated_at, format: :short) %><br>
+                        <%= current_order_vehicle.user&.email || "system" %>
                     </small>
                     <% end %>
-                    <% else %>
-                    <p class="text-muted fst-italic">Brak przypisanego kierowcy</p>
                     <% end %>
-
                     <div class="mt-2 d-flex gap-2">
-                        <%= link_to new_dispatcher_order_order_driver_path(@order),
-        class: "ios-fab-btn", title: "Dodaj/zmień kierowcę" do %>
-                        <i class="bi bi-plus-lg"></i><i class="bi bi-person me-1"></i> Kierowca
+                        <% current_order_vehicle = @order.order_vehicles.find_by(current: true) %>
+
+                        <%= link_to new_dispatcher_order_order_vehicle_path(@order),
+      class: "ios-fab-btn",
+      title: (current_order_vehicle ? "Zmień pojazd" : "Dodaj pojazd") do %>
+                        <i class="bi bi-plus-lg"></i>
+                        <i class="bi bi-truck me-1"></i>
+                        <%= current_order_vehicle ? "Zmień pojazd" : "Pojazd" %>
                         <% end %>
-
-
-                        <%= link_to dispatcher_order_order_drivers_path(@order),
-        class: "ios-fab-btn", title: "Historia kierowcy" do %>
+                        <%= link_to dispatcher_order_order_vehicles_path(@order),
+                  class: "ios-fab-btn", title: "Historia pojazdu" do %>
                         <i class="bi bi-clock-history me-1"></i> Historia
                         <% end %>
                     </div>
                 </div>
             </li>
+
+
 
             <!-- Pickup -->
             <li class="timeline-item mb-5 position-relative ps-4">
