@@ -265,3 +265,65 @@ body {
 h5 i {
   color: #6c63ff;
 }
+
+/* iOS-style cards */
+.pastel-box-ios {
+  background-color: #f9f9f9;
+  border: 1px solid #e3e3e3;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pastel-box-ios:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* iOS-style button */
+.ios-btn-ios {
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.8rem;
+  background: linear-gradient(145deg, #0d6efd, #0b5ed7);
+  border: none;
+  color: #fff;
+}
+
+.ios-btn-ios:hover {
+  background: linear-gradient(145deg, #0b5ed7, #0a58ca);
+  text-decoration: none;
+  color: #fff;
+}
+
+.ios-back-btn {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+}
+
+/* iOS-style box for selected vehicle */
+.pastel-box-ios {
+  background-color: #f9f9f9;
+  border: 1px solid #e3e3e3;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pastel-box-ios:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* iOS-style select */
+.pastel-select {
+  background-color: #f9f9f9;
+  border: 1px solid #d1d1d1;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pastel-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  outline: none;
+}

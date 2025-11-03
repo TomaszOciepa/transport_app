@@ -64,7 +64,12 @@ class Order < ApplicationRecord
  
   def calculate_price_and_delivery
     if pickup_lat.present? && pickup_lon.present? && delivery_lat.present? && delivery_lon.present?
-      self.distance_km = fetch_distance_from_ors
+      self.distance_km = OpenRouteService.distance_km(
+        start_lon: pickup_lon,
+        start_lat: pickup_lat,
+        end_lon: delivery_lon,
+        end_lat: delivery_lat
+      )
     else
       self.distance_km ||= 0
     end
@@ -114,26 +119,7 @@ class Order < ApplicationRecord
     end
   end
 
-  def fetch_distance_from_ors
-    api_key = ENV['ORS_API_KEY']
-    return 0 unless api_key.present?
 
-    url = URI("https://api.openrouteservice.org/v2/directions/driving-car?api_key=#{api_key}&start=#{pickup_lon},#{pickup_lat}&end=#{delivery_lon},#{delivery_lat}")
-
-    begin
-      res = Net::HTTP.get(url)
-      data = JSON.parse(res)
-
-      if data['features'] && data['features'][0] && data['features'][0]['properties'] && data['features'][0]['properties']['summary']
-        distance_m = data['features'][0]['properties']['summary']['distance']
-        return distance_m / 1000.0
-      end
-    rescue => e
-      Rails.logger.error("Błąd ORS: #{e.message}")
-    end
-
-    0
-  end
 
  
 end

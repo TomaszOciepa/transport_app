@@ -21,6 +21,7 @@ Rails.application.routes.draw do
     resources :orders do
       resources :order_vehicles, only: [:index, :new, :create, :edit, :update] do
         patch :unset_current, on: :member
+        get :suggest, on: :collection
       end
     end
   

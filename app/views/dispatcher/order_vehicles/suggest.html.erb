@@ -1,0 +1,76 @@
+<div class="container my-4">
+    <h3 class="mb-4 fw-bold">
+        <i class="bi bi-truck me-2 text-primary"></i>
+        Sugerowane pojazdy dla zamówienia #<%= @order.order_number %>
+    </h3>
+
+    <p class="mb-3 text-muted fst-italic">
+        <i class="bi bi-geo-alt-fill me-2 text-success"></i>
+        Miejsce odbioru: <strong><%= @order.pickup_address %></strong>
+        (<%= l(@order.pickup_date, format: :short) %>)
+    </p>
+
+    <% if @vehicles.any? %>
+    <div class="row g-4">
+        <% @vehicles.each do |vehicle| %>
+        <% distance = vehicle.distance_to_order(@order) %>
+        <% eta = vehicle.eta_to_order(@order) %>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card pastel-box-ios shadow-sm rounded-4 p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold mb-1">
+                        <i class="bi bi-car-front-fill me-2 text-primary"></i>
+                        <%= vehicle.brand %>
+                    </h5>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-card-text me-1"></i>
+                        <%= link_to vehicle.registration_number, dispatcher_vehicle_path(vehicle), class: "text-decoration-none text-muted fw-semibold" %>
+                    </p>
+
+                    <p class="mb-1">
+                        <i class="bi bi-geo-alt-fill me-2 text-success"></i>
+                        Dystans: <strong><%= distance %> km</strong>
+                    </p>
+
+                    <% if eta %>
+                    <p class="mb-1">
+                        <i class="bi bi-clock me-2 text-warning"></i>
+                        Czas przybycia: <strong><%= l(eta, format: :short) %></strong>
+                    </p>
+                    <% end %>
+
+                    <p class="mb-1">
+                        <i class="bi bi-speedometer2 me-2 text-info"></i>
+                        Typ pojazdu: <%= vehicle.vehicle_type.name %>
+                    </p>
+                </div>
+
+                <div class="mt-3">
+                    <%= link_to "Wybierz ten pojazd",
+                new_dispatcher_order_order_vehicle_path(@order, vehicle_id: vehicle.id),
+                class: "btn btn-primary w-100 shadow-sm rounded-pill ios-btn-ios" %>
+                </div>
+            </div>
+        </div>
+        <% end %>
+    </div>
+    <% else %>
+    <div class="alert alert-warning rounded-3 shadow-sm d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill fs-2 me-3 text-warning"></i>
+        <div>
+            <h6 class="fw-bold mb-1 text-dark">Brak dostępnych pojazdów</h6>
+            <p class="mb-0 text-muted small">
+                Żaden pojazd nie jest dostępny w wybranym okresie lub spełniający wymagania.
+            </p>
+        </div>
+    </div>
+    <% end %>
+
+    <div class="mt-3">
+        <%= link_to dispatcher_order_path(@order),
+      class: "btn btn-outline-secondary ios-back-btn w-auto" do %>
+        <i class="bi bi-arrow-left me-2"></i> Powrót do zamówienia
+        <% end %>
+    </div>
+</div>

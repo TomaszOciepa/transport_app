@@ -131,7 +131,7 @@
                     <div class="mt-2 d-flex gap-2">
                         <% current_order_vehicle = @order.order_vehicles.find_by(current: true) %>
 
-                        <%= link_to new_dispatcher_order_order_vehicle_path(@order),
+                        <%= link_to suggest_dispatcher_order_order_vehicles_path(@order),
       class: "ios-fab-btn",
       title: (current_order_vehicle ? "Zmień pojazd" : "Dodaj pojazd") do %>
                         <i class="bi bi-plus-lg"></i>
