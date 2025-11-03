@@ -3,11 +3,16 @@ module Dispatcher
     before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
-
-
+      @orders = Order.all
+      @pending_orders     = @orders.count { |o| o.current_status == :pending }
+      @planned_orders     = @orders.count { |o| o.current_status == :planned }
+      @in_progress_orders = @orders.count { |o| o.current_status == :in_progress }
+      @completed_orders   = @orders.count { |o| o.current_status == :completed }
+      @total_orders       = @orders.size
     end
     
-
+    
+    
     def show
       @order = Order.find(params[:id])
 
