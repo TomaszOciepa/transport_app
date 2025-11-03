@@ -338,3 +338,21 @@ h5 i {
   text-decoration: none;
   color: #2c2c2c !important;
 }
+
+.stat-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Height limit and scrolling with more suggestions */
+.suggestions-container {
+  max-height: 700px;
+  /* adjust height as needed */
+  overflow-y: auto;
+  padding-right: 5px;
+  /* so it doesn't overlap the scroll */
+}

@@ -132,7 +132,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% @driver.availabilities.each do |availability| %>
+                    <% @availabilities.each do |availability| %>
+
                     <tr>
                         <td><%= l(availability.start_time, format: :short) %></td>
                         <td><%= l(availability.end_time, format: :short) %></td>

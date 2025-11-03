@@ -38,6 +38,12 @@ Rails.application.routes.draw do
       member do
         get :driver_history 
       end
+
+      collection do
+        get :all_drivers
+        get :available_drivers
+        get :unavailable_drivers
+      end
     end
 
     resources :vehicles do
