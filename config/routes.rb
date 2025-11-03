@@ -50,6 +50,13 @@ Rails.application.routes.draw do
       resources :vehicle_drivers, only: [:index, :new, :create, :edit, :update] do
         patch :unset_current, on: :member
       end
+
+      collection do
+        get :all_vehicles
+        get :available_vehicles
+        get :unavailable_vehicles
+      end
+
     end
     resources :availabilities
   

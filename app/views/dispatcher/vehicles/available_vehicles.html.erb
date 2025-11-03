@@ -1,0 +1,16 @@
+<div class="container-fluid py-5">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+
+        <h2 class="fw-bold mb-2" style="color: #2c2c2c;"><%= @page_title %></h2>
+
+        <%= render "vehicles_menu" %>
+    </div>
+
+    <% if @vehicles.any? %>
+    <%= render "vehicles_table" %>
+    <% else %>
+    <div class="alert alert-info rounded-3 shadow-sm mt-3">
+        Brak pojazdów.
+    </div>
+    <% end %>
+</div>

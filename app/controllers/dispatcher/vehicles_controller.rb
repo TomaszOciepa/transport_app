@@ -2,20 +2,27 @@ module Dispatcher
   class VehiclesController < ApplicationController
     before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
 
+
     def index
       @vehicles = Vehicle.order(brand: :asc)
     
-      if params[:sort].present?
-        case params[:sort]
-        when "status"
-          status_order = %i[available busy inactive] 
-          @vehicles = @vehicles.sort_by { |v| status_order.index(v.status.to_sym) rescue 999 }
-          @vehicles.reverse! if params[:direction] == "desc"
+      @total_vehicles     = @vehicles.count
+      @available_vehicles = @vehicles.count { |v| v.current_status == "available" }
+      @busy_vehicles      = @vehicles.count { |v| v.current_status == "busy" }
+      @inactive_vehicles  = @vehicles.count { |v| v.current_status == "inactive" }
+    
+      @page_title = "📋 Pulpit pojazdów"
+    
+      # Sugestie – np. pojazdy niedostępne lub wkrótce nieaktywne
+      @vehicle_status_alerts = @vehicles.flat_map do |vehicle|
+        if vehicle.current_status != "available"
+          [{ vehicle: vehicle, status: vehicle.current_status }]
         else
-          @vehicles = @vehicles.reorder("#{sort_column} #{sort_direction}")
+          []
         end
       end
     end
+    
     
     def show
     end
@@ -50,6 +57,24 @@ module Dispatcher
       @vehicle.destroy
       redirect_to dispatcher_vehicles_path, notice: "Pojazd został usunięty."
     end
+
+    def all_vehicles
+      @vehicles = Vehicle.order(brand: :asc)
+      @page_title = "👤 Wszystkie pojazdy"
+    end
+
+    def available_vehicles
+      @vehicles = Vehicle.all.select { |v| v.current_status == "available" }
+      @vehicles = @vehicles.sort_by(&:brand) # sortowanie po marce rosnąco
+      @page_title = "✅ Dostępne pojazdy"
+    end
+
+    def unavailable_vehicles
+      @vehicles = Vehicle.all.select { |v| v.current_status == "unavailable" }
+      @vehicles = @vehicles.sort_by(&:brand) # sortowanie po marce rosnąco
+      @page_title = "🚫 Niedostępne pojazdy"
+    end
+    
 
     private
 

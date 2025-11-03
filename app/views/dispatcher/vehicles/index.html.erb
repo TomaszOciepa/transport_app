@@ -1,56 +1,100 @@
 <div class="container-fluid py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Lista pojazdów</h2>
-        <%= link_to "Dodaj nowy pojazd", new_dispatcher_vehicle_path, class: "ios-btn shadow-sm rounded-pill px-4 py-2" %>
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-2" style="color: #2c2c2c;"><%= @page_title %></h2>
+        <%= render "vehicles_menu" %>
     </div>
 
-    <div class="table-responsive shadow-sm rounded-4 pastel-box p-3">
-        <table class="table table-hover mb-0 align-middle">
-            <thead class="pastel-thead">
-                <tr>
-                    <th class="text-center">Lp</th>
-                    <th><%= sortable "brand", "Marka" %></th>
-                    <th><%= sortable "registration_number", "Numer rejestracyjny" %></th>
-                    <th><%= sortable "vehicle_type_id", "Typ pojazdu" %></th>
-                    <th>Kierowca</th>
-                    <th><%= sortable "status", "Status" %></th>
-                    <th>Akcje</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% @vehicles.each_with_index do |vehicle, index| %>
-                <tr>
-                    <td class="text-center text-muted"><%= index + 1 %></td>
-                    <td><%= vehicle.brand %></td>
-                    <td><%= vehicle.registration_number %></td>
-                    <td><%= vehicle.vehicle_type&.name %></td>
-                    <td>
-                        <% if vehicle.current_driver %>
-                        <%= link_to vehicle.current_driver.full_name, dispatcher_driver_path(vehicle.current_driver),
-                            class: "text-decoration-underline fw-semibold" %>
-                        <% else %>
-                        <span class="text-muted fst-italic">Brak</span>
-                        <% end %>
-                    </td>
-                    <td>
-                        <% status_class = case vehicle.current_status
-                when "available" then "status-badge completed"
-                when "in_transit" then "status-badge in_progress"
-                when "unavailable" then "status-badge canceled"
-                else "status-badge pending"
-              end %>
-                        <span class="<%= status_class %> rounded-pill px-3 py-1 fw-semibold">
-                            <%= vehicle.current_status_i18n %>
-                        </span>
-                    </td>
-                    <td>
-                        <%= link_to dispatcher_vehicle_path(vehicle), class: "ios-btn btn-sm shadow-sm d-flex align-items-center justify-content-center" do %>
-                        <i class="bi bi-gear me-1"></i> Szczegóły
-                        <% end %>
-                    </td>
-                </tr>
+    <div class="row g-4">
+        <!-- Left Column: Suggestions -->
+        <div class="col-lg-6">
+            <h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center" style="color: #2c2c2c;">
+                🧭 Centrum sugestii
+                <% if @vehicle_status_alerts.any? %>
+                <span class="badge bg-secondary rounded-pill">
+                    <%= @vehicle_status_alerts.size %> pojazdy
+                </span>
                 <% end %>
-            </tbody>
-        </table>
+            </h4>
+
+            <div class="suggestions-container d-flex flex-column gap-3" style="max-height: 600px; overflow-y: auto;">
+                <% if @vehicle_status_alerts.any? %>
+                <% @vehicle_status_alerts.each do |alert| %>
+                <% vehicle = alert[:vehicle] %>
+                <% status = alert[:status] %>
+                <% bg_color, icon = case status
+          when "busy" then ['#FFF6E5', 'bi-truck text-primary']
+          when "inactive" then ['#FFE5E5', 'bi-x-circle text-danger']
+          else ['#E9FBEF', 'bi-check-circle-fill text-success']
+        end %>
+                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: <%= bg_color %>;">
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="bi <%= icon %> fs-3"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">
+                                <%= vehicle.brand %> – <%= vehicle.registration_number %>
+                            </h6>
+                            <p class="text-muted small mb-0">
+                                Status: <strong><%= status.humanize %></strong>
+                            </p>
+                            <%= link_to "Zarządzaj pojazdem", dispatcher_vehicle_path(vehicle), class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
+                        </div>
+                    </div>
+                </div>
+                <% end %>
+                <% else %>
+                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #E9FBEF;">
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Świetna robota!</h6>
+                            <p class="text-muted small mb-0">
+                                Wszystkie pojazdy są dostępne. Możesz spokojnie planować dyspozycje 💪
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+        </div>
+
+
+        <!-- Right Column: Statistics -->
+        <div class="col-lg-6">
+            <h4 class="fw-bold mb-3" style="color: #2c2c2c;">📊 Statystyki pojazdów</h4>
+
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #9AD0EC;">
+                        <i class="bi bi-truck fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">Wszystkie</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @total_vehicles %></p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #B5EAD7;">
+                        <i class="bi bi-check-circle-fill fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">Dostępne</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @available_vehicles %></p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #FFD6A5;">
+                        <i class="bi bi-truck fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">W użyciu</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @busy_vehicles %></p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #FFB7B2;">
+                        <i class="bi bi-x-circle-fill fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">Nieaktywne</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @inactive_vehicles %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
