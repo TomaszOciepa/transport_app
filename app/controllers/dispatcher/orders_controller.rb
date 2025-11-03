@@ -4,21 +4,7 @@ module Dispatcher
 
     def index
 
-      @orders = Order.order(pickup_date: :asc)
 
-    
-      if params[:sort].present?
-        case params[:sort]
-        when "status"
-          status_order = %i[pending planned in_progress completed canceled]
-    
-          @orders = @orders.sort_by { |o| status_order.index(o.current_status) || 999 }
-          @orders.reverse! if params[:direction] == "desc"
-        else
-          @orders = @orders.reorder("#{sort_column} #{sort_direction}")
-
-        end
-      end
     end
     
 
@@ -44,6 +30,34 @@ module Dispatcher
     def destroy
       @order.destroy
       redirect_to dispatcher_orders_path, notice: "Zamówienie zostało usunięte."
+    end
+
+    def all_orders
+      @orders = Order.all.order(:pickup_date)
+      @page_title = "📋 Wszystkie zamówienia"
+    end
+
+    def pending_orders
+      @orders = Order.order(pickup_date: :asc).select { |o| o.current_status == :pending }
+      @page_title = "⏳ Zamówienia oczekujące"
+    end
+
+    def planned_orders
+      @orders = Order.all.select { |o| o.current_status == :planned }
+      @orders = @orders.sort_by(&:pickup_date)
+      @page_title = "📅 Zamówienia zaplanowane"
+    end
+
+    def in_progress_orders
+      @orders = Order.all.select { |o| o.current_status == :in_progress }
+      @orders = @orders.sort_by(&:pickup_date)
+      @page_title = "🚚 Zamówienia w drodze"
+    end
+
+    def completed_orders
+      @orders = Order.all.select { |o| o.current_status == :completed }
+      @orders = @orders.sort_by(&:pickup_date)
+      @page_title = "✅ Zamówienia zakończone"
     end
 
     private

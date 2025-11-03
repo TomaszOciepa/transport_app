@@ -327,3 +327,14 @@ h5 i {
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
   outline: none;
 }
+
+.btn-light {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-light:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  color: #2c2c2c !important;
+}

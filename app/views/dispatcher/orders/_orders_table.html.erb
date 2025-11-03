@@ -1,0 +1,51 @@
+<div class="table-responsive shadow-sm rounded-4 pastel-table">
+    <table class="table table-hover mb-0 align-middle">
+        <thead class="pastel-thead">
+            <tr>
+                <th class="text-center">Lp</th>
+                <th><%= sortable "status", "Status" %></th>
+                <th><%= sortable "pickup_date", "Data załadunku" %></th>
+                <th><%= sortable "delivery_date", "Data dostawy" %></th>
+                <th><%= sortable "service_type_id", "Usługa" %></th>
+                <th><%= sortable "order_number", "Nr zamówienia" %></th>
+                <th><%= sortable "vehicle_type_id", "Typ pojazdu" %></th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% @orders.each_with_index do |order, index| %>
+            <tr>
+                <td class="text-center text-muted"><%= index + 1 %></td>
+                <td>
+                    <% status = order.current_status %>
+                    <span class="badge status-badge <%= status %> rounded-pill px-3 py-2 fw-semibold">
+                        <%= order.status_name %>
+                    </span>
+                </td>
+                <td><%= l(order.pickup_date, format: :short) if order.pickup_date %></td>
+                <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
+                <td><%= order.service_type.name %></td>
+                <td class="fw-bold text-dark"><%= order.order_number %></td>
+                <td><%= order.vehicle_type.name %></td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <%= link_to dispatcher_order_path(order),
+                class: "btn btn-icon btn-pastel-secondary shadow-sm rounded-circle",
+                title: "Szczegóły" do %>
+                        <i class="bi bi-gear"></i>
+                        <% end %>
+
+                        <%= link_to dispatcher_order_path(order),
+                data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zamówienie?" },
+                class: "btn btn-icon btn-pastel-danger shadow-sm rounded-circle",
+                title: "Usuń" do %>
+                        <i class="bi bi-trash"></i>
+                        <% end %>
+                    </div>
+                </td>
+            </tr>
+            <% end %>
+        </tbody>
+    </table>
+</div>

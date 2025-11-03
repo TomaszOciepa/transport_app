@@ -23,6 +23,15 @@ Rails.application.routes.draw do
         patch :unset_current, on: :member
         get :suggest, on: :collection
       end
+
+      collection do
+        get :all_orders
+        get :pending_orders
+        get :planned_orders
+        get :in_progress_orders 
+        get :completed_orders
+      end
+
     end
   
     resources :drivers do
