@@ -3,12 +3,61 @@ module Dispatcher
     before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
+      @page_title = "📦 Pulpit zamówień"
+    
       @orders = Order.all
+    
       @pending_orders     = @orders.count { |o| o.current_status == :pending }
       @planned_orders     = @orders.count { |o| o.current_status == :planned }
       @in_progress_orders = @orders.count { |o| o.current_status == :in_progress }
       @completed_orders   = @orders.count { |o| o.current_status == :completed }
       @total_orders       = @orders.size
+    
+      # We ignore completed or canceled orders
+      active_orders = @orders.reject do |o|
+        o.current_status.in?([:completed, :canceled]) ||
+        (o.pickup_date.present? && o.pickup_date < Time.current.beginning_of_day)
+      end
+    
+      # Orders requiring attention (no vehicle or no driver)
+      @orders_needing_attention = active_orders.select do |order|
+        if order.current_order_vehicle.nil?
+          true
+        elsif order.current_order_vehicle.vehicle.present?
+          !order.current_order_vehicle.vehicle.vehicle_drivers.exists?(current: true)
+        else
+          false
+        end
+      end
+    
+      # Orders where the driver's availability is running out (< 7 days)
+      @orders_with_expiring_driver = active_orders.filter_map do |order|
+        vehicle = order.current_order_vehicle&.vehicle
+        next unless vehicle
+    
+        driver = vehicle.vehicle_drivers.find_by(current: true)&.driver
+        next unless driver
+    
+        current_or_upcoming = driver.availabilities
+                                    .where("end_time >= ?", Time.current)
+                                    .order(:end_time)
+                                    .first
+        next unless current_or_upcoming
+    
+        days_left = (current_or_upcoming.end_time.to_date - Date.current).to_i
+        if days_left < 7
+          { order: order, driver: driver, days_left: days_left }
+        end
+      end
+    
+      # Combined alerts (vehicle missing, driver missing, availability ending)
+      @orders_needing_attention += @orders_with_expiring_driver.map { |x| x[:order] }
+      @orders_needing_attention.uniq!
+    
+      # Sort by pickup date - next pickups at the top
+      @orders_needing_attention = @orders_needing_attention.sort_by do |order|
+        order.pickup_date.present? ? (order.pickup_date.to_date - Date.current).to_i : Float::INFINITY
+      end
     end
     
     

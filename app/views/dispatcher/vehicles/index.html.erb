@@ -11,7 +11,7 @@
                 🧭 Centrum sugestii
                 <% if @vehicle_availability_alerts.any? %>
                 <span class="badge bg-secondary rounded-pill">
-                    <%= @vehicle_availability_alerts.size %> pojazdy
+                    <%= @vehicle_availability_alerts.size + @vehicles_without_driver.size  %> zadania
                 </span>
                 <% end %>
             </h4>

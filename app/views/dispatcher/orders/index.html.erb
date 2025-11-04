@@ -1,96 +1,17 @@
 <div class="container-fluid py-5">
-    <!-- Nagłówek -->
+    <!-- Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-        <h2 class="fw-bold mb-2" style="color: #2c2c2c;">📦 Pulpit zamówień</h2>
+        <h2 class="fw-bold mb-2" style="color: #2c2c2c;"><%= @page_title %></h2>
         <%= render "orders_menu" %>
     </div>
 
     <div class="row g-4">
-        <!-- Lewa kolumna: Sugestie -->
+        <!-- Left Column: Suggestions -->
         <div class="col-lg-6">
-            <h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center" style="color: #2c2c2c;">
-                🧭 Centrum sugestii
-                <% total_order_tasks = @pending_orders + @in_progress_orders + @completed_orders %>
-                <% if total_order_tasks > 0 %>
-                <span class="badge bg-secondary rounded-pill">
-                    <%= total_order_tasks %> zadania
-                </span>
-                <% end %>
-            </h4>
-
-            <div class="suggestions-container d-flex flex-column gap-3">
-
-                <% if @pending_orders > 0 %>
-                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #FFF6E5;">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-exclamation-triangle-fill fs-3 text-warning"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Zamówienia oczekujące</h6>
-                            <p class="text-muted small mb-2">
-                                Masz <strong><%= @pending_orders %></strong> zamówień oczekujących na zaplanowanie.
-                            </p>
-                            <%= link_to "Zaplanuj teraz", pending_orders_dispatcher_orders_path, class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
-                        </div>
-                    </div>
-                </div>
-                <% else %>
-                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #E9FBEF;">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Świetna robota!</h6>
-                            <p class="text-muted small mb-0">
-                                Wszystkie zamówienia są zaplanowane. Jesteś na bieżąco ze wszystkim 💪
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <% end %>
-
-                <% if @in_progress_orders > 0 %>
-                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #E8F5FF;">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-truck fs-3 text-primary"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">W drodze</h6>
-                            <p class="text-muted small mb-0">
-                                Obecnie <strong><%= @in_progress_orders %></strong> zamówień jest w realizacji. Monitoruj ich status.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <% end %>
-
-                <% if @completed_orders > 0 %>
-                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #F3E8FF;">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-check2-circle fs-3 text-success"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Zakończone zamówienia</h6>
-                            <p class="text-muted small mb-0">
-                                Dostarczono już <strong><%= @completed_orders %></strong> zamówień. Sprawdź historię, jeśli potrzebujesz raportu.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <% end %>
-
-                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #F8FAFC;">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-lightbulb-fill fs-3 text-info"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Wskazówka</h6>
-                            <p class="text-muted small mb-0">
-                                Regularne aktualizowanie statusów zamówień ułatwi planowanie kolejnych transportów.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            <%= render "app_suggestions" %>
         </div>
 
-        <!-- Prawa kolumna: Statystyki -->
+        <!-- Right column: Statistics -->
         <div class="col-lg-6">
             <h4 class="fw-bold mb-3" style="color: #2c2c2c;">📊 Statystyki</h4>
 

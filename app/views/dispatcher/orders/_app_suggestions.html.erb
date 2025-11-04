@@ -1,0 +1,90 @@
+<h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center" style="color: #2c2c2c;">
+    🧭 Centrum sugestii
+    <% total_order_tasks = @orders_needing_attention.size %>
+    <% if total_order_tasks > 0 %>
+    <span class="badge bg-secondary rounded-pill">
+        <%= total_order_tasks %> zadania
+    </span>
+    <% end %>
+</h4>
+
+<div class="suggestions-container d-flex flex-column gap-3">
+    <% if @orders_needing_attention.any? %>
+    <% @orders_needing_attention.each do |order| %>
+    <% vehicle = order.current_order_vehicle&.vehicle %>
+    <% has_vehicle = vehicle.present? %>
+    <% driver = has_vehicle ? vehicle.vehicle_drivers.find_by(current: true)&.driver : nil %>
+    <% has_driver = driver.present? %>
+    <% days_left_pickup = order.pickup_date.present? ? (order.pickup_date.to_date - Date.current).to_i : nil %>
+
+    <% driver_days_left = if driver&.availabilities&.any?
+          current_or_next = driver.availabilities.where("end_time >= ?", Time.current).order(:end_time).first
+          current_or_next ? (current_or_next.end_time.to_date - Date.current).to_i : nil
+        end %>
+
+    <% bg_color =
+        if !has_vehicle
+          '#FFE5E5'
+        elsif has_vehicle && !has_driver
+          '#FFF6E5'
+        elsif driver_days_left && driver_days_left < 7
+          '#FFF3CD'
+        else
+          '#FFFFFF'
+        end %>
+
+    <div class="card shadow-sm rounded-4 border-0 p-4 mb-3" style="background-color: <%= bg_color %>;">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
+            <div>
+                <h6 class="fw-bold mb-1" style="color: #2c2c2c;">
+                    <%= link_to dispatcher_order_path(order), style: "text-decoration: none; color: #2c2c2c;" do %>
+                    Zamówienie <%= order.order_number.presence || "brak numeru referencyjnego" %>
+                    <% end %>
+                </h6>
+
+                <% if !has_vehicle %>
+                <p class="text-muted small mb-0">
+                    To zamówienie <strong>nie ma przypisanego pojazdu</strong>.
+                    <% if days_left_pickup %><br>Odbiór za <strong><%= days_left_pickup %></strong> dni.<% end %>
+                </p>
+                <%= link_to "Przypisz pojazd", dispatcher_order_path(order),
+                class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
+
+                <% elsif has_vehicle && !has_driver %>
+                <p class="text-muted small mb-0">
+                    Pojazd <strong><%= vehicle.brand %> – <%= vehicle.registration_number %></strong>
+                    nie ma aktualnie przypisanego kierowcy.
+                    <% if days_left_pickup %><br>Odbiór za <strong><%= days_left_pickup %></strong> dni.<% end %>
+                </p>
+                <%= link_to "Zarządzaj pojazdem", dispatcher_vehicle_path(vehicle),
+                class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
+
+                <% elsif driver_days_left && driver_days_left < 7 %>
+                <p class="text-muted small mb-0">
+                    Kierowca <strong><%= driver.full_name %></strong> ma dostępność tylko przez kolejne
+                    <strong><%= driver_days_left %></strong> dni.
+                    <% if days_left_pickup %><br>Odbiór za <strong><%= days_left_pickup %></strong> dni.<% end %>
+                </p>
+                <%= link_to "Zarządzaj kierowcą", dispatcher_driver_path(driver),
+                class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
+                <% end %>
+            </div>
+        </div>
+    </div>
+    <% end %>
+    <% else %>
+
+    <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #E9FBEF;">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+            <div>
+                <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Świetna robota!</h6>
+                <p class="text-muted small mb-0">
+                    Wszystkie zamówienia mają przypisane pojazdy i kierowców 🚛✨
+                </p>
+            </div>
+        </div>
+    </div>
+    <% end %>
+</div>
