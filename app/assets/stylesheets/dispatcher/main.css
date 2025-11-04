@@ -1,12 +1,16 @@
+/* ============================================================
+  GLOBAL STYLE — iOS & Pastel look
+   ============================================================ */
+
 /* ----------------------------
-   Body & Global
+   Body
 ----------------------------- */
 body {
   background-color: #f7f9fb;
 }
 
 /* ----------------------------
-   Pastelowe boxy (iOS style)
+  Pastel boxes
 ----------------------------- */
 .pastel-box {
   background: rgba(255, 255, 255, 0.6);
@@ -15,14 +19,14 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
 }
 
-.pastel-box:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* Kolory boxów */
+/* Color Variations */
 .pastel-box-blue {
   background: rgba(163, 206, 241, 0.2);
 }
@@ -34,120 +38,34 @@ body {
 }
 
 /* ----------------------------
-   Timeline
+   iOS Cards & Map containers
 ----------------------------- */
-.timeline-content {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  border-radius: 1rem;
-  padding: 1rem 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+.ios-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 1.25rem;
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  }
 }
 
-.timeline-line {
-  border-color: rgba(0, 0, 0, 0.1);
+.ios-map-card {
+  background: linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+  border: 1px solid #e5e9f0;
+  border-radius: 1.25rem;
 }
 
 /* ----------------------------
-   Status badges
+   iOS Buttons
 ----------------------------- */
-.status-badge {
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
-  padding: 0.35rem 0.75rem;
-  border-radius: 1rem;
-  border: none;
-}
-
-.status-badge.pending {
-  background-color: #ffe08a;
-  color: #856404;
-}
-.status-badge.planned {
-  background-color: #cfe2ff;
-  color: #084298;
-}
-.status-badge.in_progress {
-  background-color: #8fd3d4;
-  color: #0c5460;
-}
-.status-badge.completed {
-  background-color: #a8e6a2;
-  color: #155724;
-}
-.status-badge.canceled {
-  background-color: #f5a8a8;
-  color: #721c24;
-}
-
-/* ----------------------------
-   Alert / Warning box
------------------------------ */
-.static-warning {
-  background-color: #fff8e1;
-  border: 1px solid #ffe58f;
-  border-left: 5px solid #ffc107;
-  color: #333;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  padding: 1rem;
-  border-radius: 0.5rem;
-}
-
-.static-warning h6 {
-  margin-bottom: 0.25rem;
-  font-weight: 600;
-}
-.static-warning p {
-  margin-bottom: 0;
-  font-size: 0.875rem;
-  color: #555;
-}
-.static-warning i {
-  font-size: 1.5rem;
-  margin-right: 0.5rem;
-}
-
-/* ----------------------------
-   Buttons (pastel / iOS style)
------------------------------ */
-.btn-pastel-secondary {
-  background-color: #e2e3ff;
-  color: #2c2c9c;
-  border: 1px solid #c0c0ff;
-  transition: all 0.2s ease-in-out;
-}
-.btn-pastel-secondary:hover {
-  background-color: #c0c0ff;
-  color: #000080;
-}
-
-.btn-pastel-danger {
-  background-color: #ffc9c9;
-  color: #9d0000;
-  border: 1px solid #ffb3b3;
-  transition: all 0.2s ease-in-out;
-}
-.btn-pastel-danger:hover {
-  background-color: #ffb3b3;
-  color: #700000;
-}
-
-.btn-pastel-dark {
-  background-color: #4a5568;
-  color: #fff;
-  transition: background-color 0.3s, transform 0.2s;
-}
-.btn-pastel-dark:hover {
-  background-color: #2d3748;
-  transform: translateY(-2px);
-}
-
-/* iOS FAB / Back / Save Buttons */
 .ios-btn,
-.ios-back-btn,
 .ios-btn-save,
-.ios-btn-back {
+.ios-btn-back,
+.ios-back-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -156,36 +74,44 @@ body {
   font-size: 0.95rem;
   font-weight: 600;
   border-radius: 14px;
-  text-decoration: none;
   border: none;
   cursor: pointer;
+  text-decoration: none;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
 
-.ios-btn:hover,
-.ios-back-btn:hover,
-.ios-btn-save:hover,
-.ios-btn-back:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+/* Main buttons */
+.ios-btn {
+  background: linear-gradient(135deg, #007bff, #339aff);
+  color: #fff;
+
+  &:hover {
+    background: linear-gradient(135deg, #005fcb, #2788f7);
+    transform: translateY(-1px);
+  }
 }
 
+/* Write / Back */
 .ios-btn-save {
   background: #cfe2ff;
   color: #084298;
 }
-.ios-btn-back {
+
+.ios-btn-back,
+.ios-back-btn {
   background: #e2e3e5;
   color: #495057;
+  border: 1px solid #cfd8e3;
+
+  &:hover {
+    background-color: #f3f6fa;
+    color: #222;
+    transform: translateY(-1px);
+  }
 }
 
-.ios-btn-save:active,
-.ios-btn-back:active {
-  transform: translateY(1px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-}
-
+/* Floating Button (FAB) */
 .ios-fab-btn {
   display: inline-flex;
   align-items: center;
@@ -197,48 +123,153 @@ body {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.85);
   color: #2c2c2c;
-  text-decoration: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
-}
-.ios-fab-btn i {
-  font-size: 1.1rem;
-}
-.ios-fab-btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 1);
+
+  i {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 1);
+  }
 }
 
 /* ----------------------------
-   Cards
+   Cards general
 ----------------------------- */
 .card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .pastel-card {
   background: rgba(255, 255, 255, 0.8);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.pastel-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
 
-.card-title i {
-  transition: transform 0.2s;
-}
-.card:hover .card-title i {
-  transform: scale(1.2);
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
 }
 
 /* ----------------------------
-   Icon wrapper
+   Badges (statusy)
+----------------------------- */
+.status-badge {
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.75rem;
+  border-radius: 1rem;
+  border: none;
+
+  &.pending {
+    background-color: #ffe08a;
+    color: #856404;
+  }
+  &.planned {
+    background-color: #cfe2ff;
+    color: #084298;
+  }
+  &.in_progress {
+    background-color: #8fd3d4;
+    color: #0c5460;
+  }
+  &.completed {
+    background-color: #a8e6a2;
+    color: #155724;
+  }
+  &.canceled {
+    background-color: #f5a8a8;
+    color: #721c24;
+  }
+}
+
+/* ----------------------------
+   Alerts / Warnings
+----------------------------- */
+.static-warning {
+  background-color: #fff8e1;
+  border: 1px solid #ffe58f;
+  border-left: 5px solid #ffc107;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  border-radius: 0.5rem;
+
+  h6 {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    color: #555;
+  }
+
+  i {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+/* ----------------------------
+   Tables
+----------------------------- */
+.table-responsive.shadow-sm.rounded {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* ----------------------------
+   Selects
+----------------------------- */
+.pastel-select {
+  background-color: #f9f9f9;
+  border: 1px solid #d1d1d1;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    outline: none;
+  }
+}
+
+/* ----------------------------
+   Vehicle marker on map
+----------------------------- */
+.vehicle-marker {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 2px solid #fff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  text-align: center;
+  font-size: 13px;
+
+  &:hover {
+    background-color: #0056b3;
+    cursor: pointer;
+  }
+}
+
+/* ----------------------------
+   Misc
 ----------------------------- */
 .icon-wrapper {
   width: 70px;
@@ -250,109 +281,32 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* ----------------------------
-   Table
------------------------------ */
-.table-responsive.shadow-sm.rounded {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-/* ----------------------------
-   Headings icons
------------------------------ */
 h5 i {
   color: #6c63ff;
 }
 
-/* iOS-style cards */
-.pastel-box-ios {
-  background-color: #f9f9f9;
-  border: 1px solid #e3e3e3;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.pastel-box-ios:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-}
-
-/* iOS-style button */
-.ios-btn-ios {
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.6rem 0.8rem;
-  background: linear-gradient(145deg, #0d6efd, #0b5ed7);
-  border: none;
-  color: #fff;
-}
-
-.ios-btn-ios:hover {
-  background: linear-gradient(145deg, #0b5ed7, #0a58ca);
-  text-decoration: none;
-  color: #fff;
-}
-
-.ios-back-btn {
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-}
-
-/* iOS-style box for selected vehicle */
-.pastel-box-ios {
-  background-color: #f9f9f9;
-  border: 1px solid #e3e3e3;
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.pastel-box-ios:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* iOS-style select */
-.pastel-select {
-  background-color: #f9f9f9;
-  border: 1px solid #d1d1d1;
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.pastel-select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-  outline: none;
+.suggestions-container {
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 .btn-light {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
 
-.btn-light:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  text-decoration: none;
-  color: #2c2c2c !important;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+    color: #2c2c2c !important;
+  }
 }
 
 .stat-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
 
-.stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-/* Height limit and scrolling with more suggestions */
-.suggestions-container {
-  max-height: 700px;
-  /* adjust height as needed */
-  overflow-y: auto;
-  padding-right: 5px;
-  /* so it doesn't overlap the scroll */
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
 }
