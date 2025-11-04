@@ -19,8 +19,11 @@ module Dispatcher
           end
         end.compact
       end
-      
+    
+      #Sorting by number of days until the end of availability (ascending)
+      @drivers_availability_alerts.sort_by! { |alert| alert[:days_left] }
     end
+    
       
 
     def show

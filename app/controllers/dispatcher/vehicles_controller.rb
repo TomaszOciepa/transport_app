@@ -6,24 +6,79 @@ module Dispatcher
     def index
       @vehicles = Vehicle.order(brand: :asc)
     
-      @total_vehicles     = @vehicles.count
-      @available_vehicles = @vehicles.count { |v| v.current_status == "available" }
+      @total_vehicles       = @vehicles.count
+      @available_vehicles   = @vehicles.count { |v| v.current_status == "available" }
       @unavailable_vehicles = @vehicles.count { |v| v.current_status == "unavailable" }
     
-      @page_title = "📋 Pulpit pojazdów"
+      @page_title = "🚗 Pulpit pojazdów"
     
-      @vehicle_availability_alerts = @vehicles.flat_map do |vehicle|
-        vehicle.availabilities
-                .select { |a| a.end_time >= Time.current }
-                .map do |a|
-          days_left = (a.end_time.to_date - Date.current).to_i
-          if days_left < 7
-            { vehicle: vehicle, days_left: days_left }
+    # --- Main suggestion logic ---
+      @vehicles_needing_attention = []
+    
+      @vehicles.each do |vehicle|
+        # No current driver
+        if vehicle.current_driver.nil?
+          @vehicles_needing_attention << {
+            type: :no_driver,
+            vehicle: vehicle,
+            priority: 3 
+          }
+        else
+          driver = vehicle.current_driver
+    
+          # Driver availability ends soon (< 7 days)
+          if driver.availabilities.any?
+            current_or_upcoming_driver = driver.availabilities
+                                               .where("end_time >= ?", Time.current)
+                                               .order(:end_time)
+                                               .first
+    
+            if current_or_upcoming_driver
+              driver_days_left = (current_or_upcoming_driver.end_time.to_date - Date.current).to_i
+    
+              if driver_days_left < 7
+                @vehicles_needing_attention << {
+                  type: :expiring_driver_availability,
+                  vehicle: vehicle,
+                  driver: driver,
+                  days_left: driver_days_left,
+                  priority: 1 # pilne
+                }
+              end
+            end
           end
-        end.compact
+        end
+    
+        # Vehicle availability ends soon (< 7 days)
+        current_or_upcoming_vehicle = vehicle.availabilities
+                                             .where("end_time >= ?", Time.current)
+                                             .order(:end_time)
+                                             .first
+    
+        if current_or_upcoming_vehicle
+          vehicle_days_left = (current_or_upcoming_vehicle.end_time.to_date - Date.current).to_i
+    
+          if vehicle_days_left < 7
+            @vehicles_needing_attention << {
+              type: :expiring_vehicle_availability,
+              vehicle: vehicle,
+              days_left: vehicle_days_left,
+              priority: 1 
+            }
+          end
+        end
       end
-
-      @vehicles_without_driver = @vehicles.select { |v| v.current_driver.nil? }
+    
+    # Remove duplicates (by vehicle ID)
+      @vehicles_needing_attention.uniq! { |a| a[:vehicle].id }
+    
+      # Sorting: most urgent first, then by days_left ascending
+      @vehicles_needing_attention.sort_by! do |alert|
+        [
+          alert[:priority] || 2,          # urgency first (1 urgent, 2 normal, 3 low)
+          alert[:days_left] || 9999       # then the number of days left (ascending)
+        ]
+      end
     end
     
     

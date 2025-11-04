@@ -1,12 +1,19 @@
-<h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center" style="color: #2c2c2c;">
-    🧭 Centrum sugestii
+<h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center px-1" style="color: #1c1c1e; font-family: 'SF Pro Display', 'Poppins', sans-serif; letter-spacing: -0.3px;">
+    <span class="d-flex align-items-center gap-2">
+        <span class="fs-4" style="line-height: 1;">🧭</span>
+        <span style="font-weight: 700; font-size: 1.25rem;">
+            Checklist <span style="color: #007aff;">– Suggestions</span>
+        </span>
+    </span>
+
     <% total_order_tasks = @orders_needing_attention.size %>
     <% if total_order_tasks > 0 %>
-    <span class="badge bg-secondary rounded-pill">
-        <%= total_order_tasks %> zadania
+    <span class="badge rounded-pill px-3 py-2 shadow-sm" style="background-color: #007aff; color: white; font-weight: 600; font-size: 0.9rem;">
+        <%= total_order_tasks %> zadań
     </span>
     <% end %>
 </h4>
+
 
 <div class="suggestions-container d-flex flex-column gap-3">
     <% if @orders_needing_attention.any? %>
