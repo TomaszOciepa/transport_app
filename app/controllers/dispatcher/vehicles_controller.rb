@@ -8,19 +8,22 @@ module Dispatcher
     
       @total_vehicles     = @vehicles.count
       @available_vehicles = @vehicles.count { |v| v.current_status == "available" }
-      @busy_vehicles      = @vehicles.count { |v| v.current_status == "busy" }
-      @inactive_vehicles  = @vehicles.count { |v| v.current_status == "inactive" }
+      @unavailable_vehicles = @vehicles.count { |v| v.current_status == "unavailable" }
     
       @page_title = "📋 Pulpit pojazdów"
     
-      # Sugestie – np. pojazdy niedostępne lub wkrótce nieaktywne
-      @vehicle_status_alerts = @vehicles.flat_map do |vehicle|
-        if vehicle.current_status != "available"
-          [{ vehicle: vehicle, status: vehicle.current_status }]
-        else
-          []
-        end
+      @vehicle_availability_alerts = @vehicles.flat_map do |vehicle|
+        vehicle.availabilities
+                .select { |a| a.end_time >= Time.current }
+                .map do |a|
+          days_left = (a.end_time.to_date - Date.current).to_i
+          if days_left < 7
+            { vehicle: vehicle, days_left: days_left }
+          end
+        end.compact
       end
+
+      @vehicles_without_driver = @vehicles.select { |v| v.current_driver.nil? }
     end
     
     
@@ -65,13 +68,13 @@ module Dispatcher
 
     def available_vehicles
       @vehicles = Vehicle.all.select { |v| v.current_status == "available" }
-      @vehicles = @vehicles.sort_by(&:brand) # sortowanie po marce rosnąco
+      @vehicles = @vehicles.sort_by(&:brand) # sort by brand ascending
       @page_title = "✅ Dostępne pojazdy"
     end
 
     def unavailable_vehicles
       @vehicles = Vehicle.all.select { |v| v.current_status == "unavailable" }
-      @vehicles = @vehicles.sort_by(&:brand) # sortowanie po marce rosnąco
+      @vehicles = @vehicles.sort_by(&:brand) # sort by brand ascending
       @page_title = "🚫 Niedostępne pojazdy"
     end
     
