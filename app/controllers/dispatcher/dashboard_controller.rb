@@ -1,6 +1,10 @@
 module Dispatcher
     class DashboardController < ApplicationController
-      def index; end
+     
+      def index
+
+      end
+      
         
         def calendar
             @page_title = "Kalendarz w budowie"
