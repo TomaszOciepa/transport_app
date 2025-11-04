@@ -98,7 +98,7 @@ export default class extends Controller {
 
         // Add a line
         this.currentRoute = L.polyline(coords, {
-          color: "green",
+          color: "red",
           weight: 4,
           opacity: 0.8,
         }).addTo(this.map);
