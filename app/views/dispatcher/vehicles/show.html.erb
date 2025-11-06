@@ -192,8 +192,8 @@
                 <thead class="pastel-thead">
                     <tr>
                         <th><%= sortable "status", "Status" %></th>
-                        <th><%= sortable "pickup_date", "Data załadunku" %></th>
-                        <th><%= sortable "delivery_date", "Data dostawy" %></th>
+                        <th><%= sortable "pickup_address", "Miejsce zał-roz" %></th>
+                        <th><%= sortable "pickup_address", "Miejsce zał-roz" %></th>
                         <th><%= sortable "service_type_id", "Usługa" %></th>
                         <th><%= sortable "order_number", "Nr zamówienia" %></th>
                         <th>Akcje</th>
@@ -208,8 +208,8 @@
                                 <%= order.status_name %>
                             </span>
                         </td>
-                        <td><%= l(order.pickup_date, format: :short) if order.pickup_date %></td>
-                        <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
+                        <td><%= l(order.pickup_date, format: :short) if order.pickup_date %> - <%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
+                        <td><%= order.pickup_place %> - <%= order.delivery_place %></td>
                         <td><%= order.service_type.name %></td>
                         <td class="fw-bold text-dark"><%= order.order_number %></td>
                         <td>

@@ -19,11 +19,13 @@
         </p>
     </div>
 
-    <% if @vehicles.any? %>
+    <% if @vehicles_with_distance.any? %>
     <div class="row g-4 justify-content-center">
-        <% @vehicles.each do |vehicle| %>
-        <% distance = vehicle.distance_to_order(@order) %>
+        <% @vehicles_with_distance.each do |data| %>
+        <% vehicle = data[:vehicle] %>
+        <% distance = data[:distance] %>
         <% eta = vehicle.eta_to_order(@order) %>
+
 
         <div class="col-md-6 col-lg-4">
             <div class="card ios-card shadow-sm rounded-4 p-4 h-100 d-flex flex-column justify-content-between">
@@ -37,10 +39,25 @@
                         <%= vehicle.brand %>
                     </p>
 
-                    <p class="mb-1 text-dark">
-                        <i class="bi bi-geo-alt-fill me-2 text-success"></i>
+                    <%# Set color depending on distance %>
+                    <%
+                            distance_color =
+                                if distance.nil?
+                                "text-secondary"
+                                elsif distance <= 130
+                                "text-success"      
+                                elsif distance <= 200
+                                "text-warning"      
+                                else
+                                "text-danger"  
+                                end
+                            %>
+
+                    <p class="mb-1 fw-semibold <%= distance_color %>">
+                        <i class="bi bi-geo-alt-fill me-2 <%= distance_color %>"></i>
                         <strong><%= distance %> km</strong> od punktu odbioru
                     </p>
+
 
                     <% if eta %>
                     <p class="mb-1 text-dark">

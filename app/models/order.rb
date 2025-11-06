@@ -99,6 +99,13 @@ class Order < ApplicationRecord
     end
   end
 
+  def pickup_place
+    pickup_address&.split(',')&.last&.strip
+  end
+
+  def delivery_place
+    delivery_address&.split(',')&.last&.strip
+  end
   
   private
 

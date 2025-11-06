@@ -5,8 +5,8 @@
                 <tr>
                     <th class="text-center">Lp</th>
                     <th><%= sortable "brand", "Marka" %></th>
-                    <th><%= sortable "registration_number", "Numer rejestracyjny" %></th>
                     <th><%= sortable "vehicle_type_id", "Typ pojazdu" %></th>
+                    <th><%= sortable "registration_number", "Numer rejestracyjny" %></th>
                     <th>Kierowca</th>
                     <th><%= sortable "status", "Status" %></th>
                     <th>Akcje</th>
@@ -17,8 +17,21 @@
                 <tr>
                     <td class="text-center text-muted"><%= index + 1 %></td>
                     <td><%= vehicle.brand %></td>
+                    <td class="text-center">
+                        <% case vehicle.vehicle_type.name %>
+                        <% when "Bus" %>
+                        <i class="bi bi-bus-front fs-4 text-primary" title="Bus"></i>
+                        <% when "Ciężarówka solo" %>
+                        <i class="bi bi-truck fs-4 text-warning" title="Ciężarówka solo"></i>
+                        <% when "Ciężarówka z naczepą" %>
+                        <i class="bi bi-truck-flatbed fs-4 text-danger" title="Ciężarówka z naczepą"></i>
+                        <% when "Samochód osobowy" %>
+                        <i class="bi bi-car-front fs-4 text-success" title="Samochód osobowy"></i>
+                        <% else %>
+                        <i class="bi bi-question-circle fs-4 text-muted" title="Nieznany typ"></i>
+                        <% end %>
+                    </td>
                     <td><%= vehicle.registration_number %></td>
-                    <td><%= vehicle.vehicle_type&.name %></td>
                     <td>
                         <% if vehicle.current_driver %>
                         <%= link_to vehicle.current_driver.full_name, dispatcher_driver_path(vehicle.current_driver),

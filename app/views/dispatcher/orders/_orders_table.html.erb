@@ -4,11 +4,12 @@
             <tr>
                 <th class="text-center">Lp</th>
                 <th><%= sortable "status", "Status" %></th>
-                <th><%= sortable "pickup_date", "Data załadunku" %></th>
-                <th><%= sortable "delivery_date", "Data dostawy" %></th>
-                <th><%= sortable "service_type_id", "Usługa" %></th>
-                <th><%= sortable "order_number", "Nr zamówienia" %></th>
+                <th><%= sortable "pickup_date", "Data zał-roz" %></th>
+                <th><%= sortable "pickup_address", "Miejsce zał-roz" %></th>
+                <th><%= sortable "pickup_address", "Pojazd" %></th>
                 <th><%= sortable "vehicle_type_id", "Typ pojazdu" %></th>
+                <th><%= sortable "order_number", "Nr zamówienia" %></th>
+                <th><%= sortable "service_type_id", "Usługa" %></th>
                 <th>Akcje</th>
             </tr>
         </thead>
@@ -23,11 +24,32 @@
                         <%= order.status_name %>
                     </span>
                 </td>
-                <td><%= l(order.pickup_date, format: :short) if order.pickup_date %></td>
-                <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
-                <td><%= order.service_type.name %></td>
+                <td><%= l(order.pickup_date, format: :short) if order.pickup_date %> - <%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
+                <td><%= order.pickup_place %> - <%= order.delivery_place %></td>
+                <td>
+                    <% if order.current_vehicle %>
+                    <%= link_to order.current_vehicle&.registration_number, dispatcher_vehicle_path(order.current_vehicle),
+                            class: "text-decoration-underline fw-semibold" %>
+                    <% else %>
+                    <span class="text-muted fst-italic">Brak</span>
+                    <% end %>
+                </td>
+                <td class="text-center">
+                    <% case order.vehicle_type.name %>
+                    <% when "Bus" %>
+                    <i class="bi bi-bus-front fs-4 text-primary" title="Bus"></i>
+                    <% when "Ciężarówka solo" %>
+                    <i class="bi bi-truck fs-4 text-warning" title="Ciężarówka solo"></i>
+                    <% when "Ciężarówka z naczepą" %>
+                    <i class="bi bi-truck-flatbed fs-4 text-danger" title="Ciężarówka z naczepą"></i>
+                    <% when "Samochód osobowy" %>
+                    <i class="bi bi-car-front fs-4 text-success" title="Samochód osobowy"></i>
+                    <% else %>
+                    <i class="bi bi-question-circle fs-4 text-muted" title="Nieznany typ"></i>
+                    <% end %>
+                </td>
                 <td class="fw-bold text-dark"><%= order.order_number %></td>
-                <td><%= order.vehicle_type.name %></td>
+                <td><%= order.service_type.name %></td>
                 <td>
                     <div class="d-flex gap-2">
                         <%= link_to dispatcher_order_path(order),
