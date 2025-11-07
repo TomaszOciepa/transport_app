@@ -54,7 +54,7 @@ class Vehicle < ApplicationRecord
       start_lat, start_lon = if last_order
                               [last_order.delivery_lat, last_order.delivery_lon]
                             else
-                              [54.399063, 18.6675238] # default starting point
+                              [54.399063, 18.6675238] # default starting point Gdańsk
                             end
 
       return 0 unless order.pickup_lat.present? && order.pickup_lon.present?

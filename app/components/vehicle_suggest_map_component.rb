@@ -5,7 +5,7 @@ class VehicleSuggestMapComponent < ViewComponent::Base
       @ors_api_key = ENV["ORS_API_KEY"]
     end
   
-    # Wyliczamy "aktualne" pozycje pojazdów (czyli miejsce ostatniej dostawy lub domyślne)
+# We calculate the "current" vehicle positions (i.e. last delivery location or default)
     def vehicles_positions
       @vehicles.map do |v|
         last_order = v.orders
@@ -19,7 +19,7 @@ class VehicleSuggestMapComponent < ViewComponent::Base
         lat, lon = if last_order
                      [last_order.delivery_lat, last_order.delivery_lon]
                    else
-                     [54.399063, 18.6675238] # np. baza pojazdów w Gdańsku
+                     [54.399063, 18.6675238] # Gdańsk
                    end
   
         {
