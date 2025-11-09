@@ -15,7 +15,9 @@
             Punkt odbioru:
             <strong class="text-dark"><%= @order.pickup_address %></strong>
             <br>
-            <small class="text-secondary">(<%= l(@order.pickup_date, format: :short) %>)</small>
+          <i class="bi bi-clock me-2 text-warning"></i>
+          Czas odbioru:
+          <strong class="text-dark"><%= l(@order.pickup_date, format: :short) %></strong>
         </p>
     </div>
 
