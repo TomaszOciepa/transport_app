@@ -21,15 +21,43 @@ Rails.application.routes.draw do
     resources :orders do
       resources :order_vehicles, only: [:index, :new, :create, :edit, :update] do
         patch :unset_current, on: :member
+        get :suggest, on: :collection
       end
-  
-      resources :order_drivers, only: [:index, :new, :create, :edit, :update] do
-        patch :unset_current, on: :member
+
+      collection do
+        get :all_orders
+        get :pending_orders
+        get :planned_orders
+        get :in_progress_orders 
+        get :completed_orders
       end
+
     end
   
-    resources :drivers
-    resources :vehicles
+    resources :drivers do
+      member do
+        get :driver_history 
+      end
+
+      collection do
+        get :all_drivers
+        get :available_drivers
+        get :unavailable_drivers
+      end
+    end
+
+    resources :vehicles do
+      resources :vehicle_drivers, only: [:index, :new, :create, :edit, :update] do
+        patch :unset_current, on: :member
+      end
+
+      collection do
+        get :all_vehicles
+        get :available_vehicles
+        get :unavailable_vehicles
+      end
+
+    end
     resources :availabilities
   
     get "calendar", to: "dashboard#calendar"

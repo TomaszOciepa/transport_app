@@ -3,25 +3,65 @@ module Dispatcher
     before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
-
-      @orders = Order.order(pickup_date: :asc)
-
+      @page_title = "📦 Pulpit zamówień"
     
-      if params[:sort].present?
-        case params[:sort]
-        when "status"
-          status_order = %i[pending planned in_progress completed canceled]
+      @orders = Order.all
     
-          @orders = @orders.sort_by { |o| status_order.index(o.current_status) || 999 }
-          @orders.reverse! if params[:direction] == "desc"
+      @pending_orders     = @orders.count { |o| o.current_status == :pending }
+      @planned_orders     = @orders.count { |o| o.current_status == :planned }
+      @in_progress_orders = @orders.count { |o| o.current_status == :in_progress }
+      @completed_orders   = @orders.count { |o| o.current_status == :completed }
+      @total_orders       = @orders.size
+    
+      # We ignore completed or canceled orders
+      active_orders = @orders.reject do |o|
+        o.current_status.in?([:completed, :canceled]) ||
+        (o.pickup_date.present? && o.pickup_date < Time.current.beginning_of_day)
+      end
+    
+      # Orders requiring attention (no vehicle or no driver)
+      @orders_needing_attention = active_orders.select do |order|
+        if order.current_order_vehicle.nil?
+          true
+        elsif order.current_order_vehicle.vehicle.present?
+          !order.current_order_vehicle.vehicle.vehicle_drivers.exists?(current: true)
         else
-          @orders = @orders.reorder("#{sort_column} #{sort_direction}")
-
+          false
         end
+      end
+    
+      # Orders where the driver's availability is running out (< 7 days)
+      @orders_with_expiring_driver = active_orders.filter_map do |order|
+        vehicle = order.current_order_vehicle&.vehicle
+        next unless vehicle
+    
+        driver = vehicle.vehicle_drivers.find_by(current: true)&.driver
+        next unless driver
+    
+        current_or_upcoming = driver.availabilities
+                                    .where("end_time >= ?", Time.current)
+                                    .order(:end_time)
+                                    .first
+        next unless current_or_upcoming
+    
+        days_left = (current_or_upcoming.end_time.to_date - Date.current).to_i
+        if days_left < 7
+          { order: order, driver: driver, days_left: days_left }
+        end
+      end
+    
+      # Combined alerts (vehicle missing, driver missing, availability ending)
+      @orders_needing_attention += @orders_with_expiring_driver.map { |x| x[:order] }
+      @orders_needing_attention.uniq!
+    
+      # Sort by pickup date - next pickups at the top
+      @orders_needing_attention = @orders_needing_attention.sort_by do |order|
+        order.pickup_date.present? ? (order.pickup_date.to_date - Date.current).to_i : Float::INFINITY
       end
     end
     
-
+    
+    
     def show
       @order = Order.find(params[:id])
 
@@ -44,6 +84,34 @@ module Dispatcher
     def destroy
       @order.destroy
       redirect_to dispatcher_orders_path, notice: "Zamówienie zostało usunięte."
+    end
+
+    def all_orders
+      @orders = Order.all.order(:pickup_date)
+      @page_title = "📋 Wszystkie zamówienia"
+    end
+
+    def pending_orders
+      @orders = Order.order(pickup_date: :asc).select { |o| o.current_status == :pending }
+      @page_title = "⏳ Zamówienia oczekujące"
+    end
+
+    def planned_orders
+      @orders = Order.all.select { |o| o.current_status == :planned }
+      @orders = @orders.sort_by(&:pickup_date)
+      @page_title = "📅 Zamówienia zaplanowane"
+    end
+
+    def in_progress_orders
+      @orders = Order.all.select { |o| o.current_status == :in_progress }
+      @orders = @orders.sort_by(&:pickup_date)
+      @page_title = "🚚 Zamówienia w drodze"
+    end
+
+    def completed_orders
+      @orders = Order.all.select { |o| o.current_status == :completed }
+      @orders = @orders.sort_by(&:pickup_date)
+      @page_title = "✅ Zamówienia zakończone"
     end
 
     private

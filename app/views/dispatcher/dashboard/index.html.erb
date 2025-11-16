@@ -1,32 +1,23 @@
 <div class="container-fluid py-5">
-    <h2 class="fw-bold mb-5 text-center" style="color: #2c2c2c; font-size: 2rem;">
-        Panel dyspozytora
+    <h2 class="fw-bold mb-5 text-center" style="color: #2c2c2c; font-size: 2rem; letter-spacing: 0.5px;">
+        🚀 Panel dyspozytora
     </h2>
 
-    <div class="row g-4 justify-content-center">
+    <div class="d-flex flex-wrap justify-content-center gap-4">
         <% dashboard_cards = [
-      { title: "Zamówienia", path: dispatcher_orders_path, icon: "bi-box-seam", color: "#A3CEF1", description: "Zarządzaj zamówieniami klientów." },
-      { title: "Kierowcy", path: dispatcher_drivers_path, icon: "bi-person-circle", color: "#FFD6A5", description: "Zarządzanie i informacje o kierowcach." },
-      { title: "Pojazdy", path: dispatcher_vehicles_path, icon: "bi-truck", color: "#B5EAD7", description: "Zarządzanie i informacje o pojazdach." },
-      { title: "Kalendarz", path: dispatcher_calendar_path, icon: "bi-calendar-event", color: "#FFB7B2", description: "Terminy zamówień i dyspozycji." },
-      { title: "Powiadomienia", path: dispatcher_notifications_path, icon: "bi-bell-fill", color: "#E2C1F0", description: "Powiadomienia i statusy zamówień." }
+      { title: "Zamówienia", path: dispatcher_orders_path, icon: "bi-box-seam", color: "#A3CEF1" },
+      { title: "Pojazdy", path: dispatcher_vehicles_path, icon: "bi-truck", color: "#B5EAD7" },
+      { title: "Kierowcy", path: dispatcher_drivers_path, icon: "bi-person-circle", color: "#FFD6A5" },
+      { title: "Kalendarz", path: dispatcher_calendar_path, icon: "bi-calendar-event", color: "#FFB7B2" },
+      { title: "Powiadomienia", path: dispatcher_notifications_path, icon: "bi-bell-fill", color: "#E2C1F0" }
     ] %>
 
         <% dashboard_cards.each do |card| %>
-        <div class="col-sm-6 col-md-4 col-lg-3">
-            <div class="card pastel-card shadow-sm rounded-4 h-100 text-center" style="--card-color: <%= card[:color] %>;">
-                <div class="card-body d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="icon-wrapper mx-auto mb-3" style="background-color: var(--card-color);">
-                            <i class="bi <%= card[:icon] %> fs-2 text-white"></i>
-                        </div>
-                        <h5 class="fw-bold mb-2" style="color: #2c2c2c;"><%= card[:title] %></h5>
-                        <p class="text-muted small mb-0"><%= card[:description] %></p>
-                    </div>
-                    <%= link_to "Przejdź", card[:path], class: "btn btn-dark rounded-pill mt-3 fw-bold shadow-sm" %>
-                </div>
-            </div>
-        </div>
+        <%= link_to card[:path], class: "menu-card text-center d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-decoration-none fw-bold", 
+                  style: "width: 150px; height: 130px; background-color: #{card[:color]}; transition: all 0.2s ease;" do %>
+        <i class="bi <%= card[:icon] %> fs-2 text-dark mb-2"></i>
+        <span style="color: #2c2c2c; font-size: 1rem;"><%= card[:title] %></span>
+        <% end %>
         <% end %>
     </div>
 </div>

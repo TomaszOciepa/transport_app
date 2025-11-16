@@ -6,16 +6,18 @@ module Dispatcher
       def index
         @order_vehicles = @order.order_vehicles.includes(:vehicle, :user).order(updated_at: :desc)
       end
-
+     
       def new
         @order_vehicle = @order.order_vehicles.new
-        
+        @selected_vehicle = params[:vehicle_id] ? Vehicle.find(params[:vehicle_id]) : nil
         @vehicles = Vehicle.all.select do |v|
-          v.vehicle_type_id == @order.vehicle_type_id && v.available_for?(@order)
+          v.vehicle_type_id == @order.vehicle_type_id &&
+          v.available_for?(@order) &&
+          !@order.order_vehicles.exists?(vehicle: v, current: true)
         end
       end
-      
 
+      
       def create
         @order_vehicle = @order.order_vehicles.new(order_vehicle_params)
         @order_vehicle.user_id = current_user.id  
@@ -51,6 +53,32 @@ module Dispatcher
         @order_vehicle.update!(current: false, user: current_user)
         redirect_to dispatcher_order_order_vehicles_path(@order_vehicle.order), notice: "Przypisanie pojazdu zostało usunięte."
       end
+
+      def suggest
+        @order = Order.find(params[:order_id])
+      
+        # Filter only vehicles that meet type and availability requirements
+        @vehicles = Vehicle.includes(:orders).select do |v|
+          v.vehicle_type_id == @order.vehicle_type_id &&
+            v.available_for?(@order) &&
+            !@order.order_vehicles.exists?(vehicle: v, current: true)
+        end
+      
+        # For each vehicle, calculate the distance from the last order to the order pickup
+        @vehicles_with_distance = @vehicles.map do |v|
+          {
+            vehicle: v,
+            distance: v.distance_to_order(@order)
+          }
+        end
+      
+        # Sort by increasing distance (closest vehicle first)
+        @vehicles_with_distance.sort_by! { |data| data[:distance] || Float::INFINITY }
+      
+        # km limit:
+        # @vehicles_with_distance = @vehicles_with_distance.first(10)
+      end
+      
   
       private
   

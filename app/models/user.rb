@@ -1,5 +1,7 @@
 class User < ApplicationRecord
   has_many :orders, dependent: :destroy
+  has_many :vehicle_drivers, dependent: :nullify
+  has_many :assigned_vehicle_drivers, class_name: "VehicleDriver"
   
   enum :role, [ :client, :dispatcher, :admin ]
   

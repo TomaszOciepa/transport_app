@@ -35,7 +35,7 @@
             else "bg-secondary text-white"
           end %>
                     <span class="badge <%= status_class %> rounded-pill px-3 py-1">
-                        <%= @vehicle.current_status %>
+                        <%= @vehicle.current_status_i18n %>
                     </span>
                 </p>
             </div>
@@ -53,6 +53,72 @@
             </div>
         </div>
     </div>
+
+    <!-- Aktualni kierowcy przypisani do pojazdu w formie timeline -->
+    <ul class="timeline list-unstyled position-relative m-0 p-0">
+        <% current_assignment = @vehicle.vehicle_drivers.find_by(current: true) %>
+        <% driver = current_assignment&.driver %>
+
+        <li class="timeline-item mb-5 position-relative ps-4">
+            <!-- Linia timeline -->
+            <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
+
+            <!-- Kolorowa kropka zależnie od dostępności kierowcy -->
+            <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color:
+      <%= if driver.nil?
+            '#dc3545'      # brak kierowcy
+          elsif driver.available?
+            '#28a745'      # dostępny
+          else
+            '#ffc107'      # niedostępny
+          end %>;">
+            </span>
+
+            <div class="timeline-content position-relative">
+                <h6 class="mb-2 fw-bold">
+                    <i class="bi bi-person-badge me-2"></i>Aktualnie przypisany kierowca
+                </h6>
+
+                <% if driver.present? %>
+                <p>
+                    <%= link_to driver.full_name, dispatcher_driver_path(driver), class: "text-decoration-underline fw-semibold" %>
+                    <% unless driver.available? %>
+                    <span class="text-warning fst-italic">(obecnie niedostępny)</span>
+                    <% end %>
+                </p>
+
+                <% if current_assignment %>
+                <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
+                    <%= l(current_assignment.updated_at, format: :short) %><br>
+                    <%= current_assignment.user&.email || "system" %>
+                </small>
+                <% end %>
+
+                <% else %>
+                <p class="text-muted fst-italic">
+                    Pojazd nie ma aktualnie przypisanego kierowcy.
+                </p>
+                <% end %>
+
+                <div class="mt-2 d-flex gap-2">
+                    <!-- Przycisk przypisz/zmień kierowcę -->
+                    <%= link_to new_dispatcher_vehicle_vehicle_driver_path(@vehicle),
+                    class: "ios-fab-btn",
+                    title: (current_assignment ? "Zmień kierowcę" : "Przypisz kierowcę") do %>
+                    <i class="bi bi-plus-lg me-1"></i>
+                    <%= current_assignment ? "Zmień kierowcę" : "Przypisz kierowcę" %>
+                    <% end %>
+
+                    <!-- Przycisk historia przypisań -->
+                    <%= link_to dispatcher_vehicle_vehicle_drivers_path(@vehicle),
+              class: "ios-fab-btn", title: "Historia przypisań kierowców" do %>
+                    <i class="bi bi-clock-history me-1"></i> Historia
+                    <% end %>
+                </div>
+            </div>
+        </li>
+    </ul>
+
 
     <!-- Dostępność pojazdu -->
     <div class="card pastel-box pastel-box-green p-4 mb-4">
@@ -126,8 +192,8 @@
                 <thead class="pastel-thead">
                     <tr>
                         <th><%= sortable "status", "Status" %></th>
-                        <th><%= sortable "pickup_date", "Data załadunku" %></th>
-                        <th><%= sortable "delivery_date", "Data dostawy" %></th>
+                        <th><%= sortable "pickup_address", "Miejsce zał-roz" %></th>
+                        <th><%= sortable "pickup_address", "Miejsce zał-roz" %></th>
                         <th><%= sortable "service_type_id", "Usługa" %></th>
                         <th><%= sortable "order_number", "Nr zamówienia" %></th>
                         <th>Akcje</th>
@@ -142,8 +208,8 @@
                                 <%= order.status_name %>
                             </span>
                         </td>
-                        <td><%= l(order.pickup_date, format: :short) if order.pickup_date %></td>
-                        <td><%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
+                        <td><%= l(order.pickup_date, format: :short) if order.pickup_date %> - <%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
+                        <td><%= order.pickup_place %> - <%= order.delivery_place %></td>
                         <td><%= order.service_type.name %></td>
                         <td class="fw-bold text-dark"><%= order.order_number %></td>
                         <td>
@@ -165,7 +231,6 @@
         <p class="text-muted">Brak aktualnych zamówień przypisanych do tego pojazdu.</p>
         <% end %>
     </div>
-
 
     <!-- Powrót -->
     <div class="mt-3">

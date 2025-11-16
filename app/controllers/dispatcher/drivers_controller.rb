@@ -1,24 +1,36 @@
 module Dispatcher
   class DriversController < ApplicationController
-    before_action :set_driver, only: [:show, :edit, :update, :destroy]
+    before_action :set_driver, only: [:show, :edit, :update, :destroy, :driver_history]
 
     def index
-      @drivers = Driver.order(last_name: :asc)
+      @drivers = Driver.order(last_name: :asc) 
     
-      if params[:sort].present?
-        case params[:sort]
-        when "status"
-          status_order = %i[available busy inactive]
-          @drivers = @drivers.sort_by { |d| status_order.index(d.status.to_sym) rescue 999 }
-          @drivers.reverse! if params[:direction] == "desc"
-        else
-          @drivers = @drivers.reorder("#{sort_column} #{sort_direction}")
-        end
+      @total_drivers       = @drivers.count
+      @available_drivers   = @drivers.count { |d| d.current_status == "available" }
+      @unavailable_drivers = @drivers.count { |d| d.current_status == "unavailable" }
+    
+      @page_title = "📋 Pulpit kierowców"
+    
+      @drivers_availability_alerts = @drivers.flat_map do |driver|
+        driver.availabilities.select { |a| a.end_time >= Time.current }.map do |a|
+          days_left = (a.end_time.to_date - Date.current).to_i
+          if days_left < 7
+            { driver: driver, days_left: days_left }
+          end
+        end.compact
       end
+    
+      #Sorting by number of days until the end of availability (ascending)
+      @drivers_availability_alerts.sort_by! { |alert| alert[:days_left] }
     end
+    
+      
 
     def show
+      @driver = Driver.find(params[:id])
+      @availabilities = @driver.availabilities.order(end_time: :desc)
     end
+    
 
     def new
       @driver = Driver.new
@@ -51,6 +63,27 @@ module Dispatcher
       redirect_to dispatcher_drivers_path, notice: "Kierowca został usunięty."
     end
     
+    def driver_history
+      @vehicle_drivers = @driver.vehicle_drivers.order(updated_at: :desc).includes(:vehicle, :user)
+    end
+
+    def all_drivers
+      @drivers = Driver.order(last_name: :asc)
+      @page_title = "👤 Wszyscy kierowcy"
+    end
+
+    def available_drivers
+      @drivers = Driver.all.select { |d| d.current_status == "available" }
+      @drivers = @drivers.sort_by(&:last_name)
+      @page_title = "✅ Dostępni kierowcy"
+    end
+
+    def unavailable_drivers
+      @drivers = Driver.all.select { |d| d.current_status == "unavailable" }
+      @drivers = @drivers.sort_by(&:last_name)
+      @page_title = "🚫 Niedostępni kierowcy"
+    end
+    
 
     private
 
@@ -66,8 +99,6 @@ module Dispatcher
         :phone,
         :license_category_id,
         :birth_year,
-        :available_from,
-        :available_to,
         :status
       )
     end

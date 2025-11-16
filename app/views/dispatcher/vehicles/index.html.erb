@@ -1,47 +1,157 @@
 <div class="container-fluid py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Lista pojazdów</h2>
-        <%= link_to "Dodaj nowy pojazd", new_dispatcher_vehicle_path, class: "ios-btn shadow-sm rounded-pill px-4 py-2" %>
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-2" style="color: #2c2c2c;"><%= @page_title %></h2>
+        <%= render "vehicles_menu" %>
     </div>
 
-    <div class="table-responsive shadow-sm rounded-4 pastel-box p-3">
-        <table class="table table-hover mb-0 align-middle">
-            <thead class="pastel-thead">
-                <tr>
-                    <th class="text-center">Lp</th>
-                    <th><%= sortable "brand", "Marka" %></th>
-                    <th><%= sortable "registration_number", "Numer rejestracyjny" %></th>
-                    <th><%= sortable "vehicle_type_id", "Typ pojazdu" %></th>
-                    <th><%= sortable "status", "Status" %></th>
-                    <th>Akcje</th>
-                </tr>
-            </thead>
-            <tbody>
-                <%@vehicles.each_with_index do |vehicle, index| %>
-                <tr>
-                    <td class="text-center text-muted"><%= index + 1 %></td>
-                    <td><%= vehicle.brand %></td>
-                    <td><%= vehicle.registration_number %></td>
-                    <td><%= vehicle.vehicle_type&.name %></td>
-                    <td>
-                        <% status_class = case vehicle.current_status
-                when "available" then "status-badge completed"
-                when "in_transit" then "status-badge in_progress"
-                when "unavailable" then "status-badge canceled"
-                else "status-badge pending"
-              end %>
-                        <span class="<%= status_class %> rounded-pill px-3 py-1 fw-semibold">
-                            <%= vehicle.current_status_i18n %>
-                        </span>
-                    </td>
-                    <td>
-                        <%= link_to dispatcher_vehicle_path(vehicle), class: "ios-btn btn-sm shadow-sm d-flex align-items-center justify-content-center" do %>
-                        <i class="bi bi-gear me-1"></i> Szczegóły
-                        <% end %>
-                    </td>
-                </tr>
+    <div class="row g-4">
+        <!-- Left Column: Suggestions -->
+        <div class="col-lg-6">
+            <h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center px-1" style="color: #1c1c1e; font-family: 'SF Pro Display', 'Poppins', sans-serif; letter-spacing: -0.3px;">
+                <span class="d-flex align-items-center gap-2">
+                    <span class="fs-4" style="line-height: 1;">🧭</span>
+                    <span style="font-weight: 700; font-size: 1.25rem;">
+                        Checklist <span style="color: #007aff;">– Suggestions</span>
+                    </span>
+                </span>
+
+                <% total_vehicle_tasks = @vehicles_needing_attention.size %>
+                <% if total_vehicle_tasks > 0 %>
+                <span class="badge rounded-pill px-3 py-2 shadow-sm" style="background-color: #0d6efd; color: white; font-weight: 600; font-size: 0.9rem;">
+                    <%= total_vehicle_tasks %> zadań
+                </span>
                 <% end %>
-            </tbody>
-        </table>
+            </h4>
+
+
+            <div class="suggestions-container d-flex flex-column gap-3">
+                <% if @vehicles_needing_attention.any? %>
+                <% @vehicles_needing_attention.each do |alert| %>
+                <% vehicle = alert[:vehicle] %>
+                <% driver = alert[:driver] if alert[:driver].present? %>
+
+                <% bg_color =
+        case alert[:type]
+        when :no_driver
+          '#FFF6E5' # brak kierowcy
+        when :expiring_vehicle_availability
+          alert[:days_left] < 4 ? '#FFE5E5' : '#FFF3CD'
+        when :expiring_driver_availability
+          alert[:days_left] < 4 ? '#FFE5E5' : '#FFF3CD'
+        else
+          '#FFFFFF'
+        end
+      %>
+
+                <div class="card shadow-sm rounded-4 border-0 p-4 mb-3" style="background-color: <%= bg_color %>;">
+                    <div class="d-flex align-items-start gap-3">
+                        <% icon_class =
+            case alert[:type]
+            when :no_driver
+              'bi-person-x-fill text-warning'
+            when :expiring_vehicle_availability
+              'bi-exclamation-triangle-fill text-danger'
+            when :expiring_driver_availability
+              'bi-person-exclamation text-warning'
+            else
+              'bi-info-circle text-secondary'
+            end
+          %>
+
+                        <i class="bi <%= icon_class %> fs-3"></i>
+
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">
+                                <%= link_to dispatcher_vehicle_path(vehicle), style: "text-decoration: none; color: #2c2c2c;" do %>
+                                <%= vehicle.brand %> – <%= vehicle.registration_number %>
+                                <% end %>
+                            </h6>
+
+                            <% case alert[:type]
+            when :no_driver %>
+                            <p class="text-muted small mb-0">
+                                Ten pojazd <strong>nie ma przypisanego kierowcy</strong>.
+                            </p>
+                            <%= link_to "Przypisz kierowcę", dispatcher_vehicle_path(vehicle),
+                    class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
+
+                            <% when :expiring_vehicle_availability %>
+                            <p class="text-muted small mb-0">
+                                Dostępność pojazdu kończy się za
+                                <strong><%= alert[:days_left] %></strong> dni.
+                            </p>
+                            <%= link_to "Zarządzaj dostępnością pojazdu", dispatcher_vehicle_path(vehicle),
+                    class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
+
+                            <% when :expiring_driver_availability %>
+                            <p class="text-muted small mb-0">
+                                Kierowca <strong><%= driver.full_name %></strong> ma dostępność tylko przez
+                                <strong><%= alert[:days_left] %></strong> dni.
+                            </p>
+                            <%= link_to "Zarządzaj kierowcą", dispatcher_driver_path(driver),
+                    class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+                <% end %>
+                <% else %>
+                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #E9FBEF;">
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Wszystko w porządku!</h6>
+                            <p class="text-muted small mb-0">
+                                Wszystkie pojazdy mają przypisanych kierowców i aktualną dostępność 🚗✨
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+
+
+        </div>
+
+
+
+        <!-- Right Column: Statistics -->
+        <div class="col-lg-6">
+            <h4 class="fw-bold mb-3" style="color: #2c2c2c;">📊 Statystyki pojazdów</h4>
+
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #9AD0EC;">
+                        <i class="bi bi-truck fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">Wszystkie</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @total_vehicles %></p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #B5EAD7;">
+                        <i class="bi bi-check-circle-fill fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">Dostępne</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @available_vehicles %></p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #FFD6A5;">
+                        <i class="bi bi-truck fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">W użyciu</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @busy_vehicles %></p>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #FFB7B2;">
+                        <i class="bi bi-x-circle-fill fs-2 text-white mb-2"></i>
+                        <h6 class="fw-semibold text-white mb-1">Nieaktywne</h6>
+                        <p class="fs-5 fw-bold text-white mb-0"><%= @inactive_vehicles %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

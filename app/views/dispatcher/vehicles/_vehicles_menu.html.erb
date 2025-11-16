@@ -1,0 +1,28 @@
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-wrap gap-2">
+
+        <%= link_to dispatcher_vehicles_path, class: "btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3 py-2 border border-1", style: "background-color: #F0F0F0; color: #2c2c2c;" do %>
+        <i class="bi bi-house-door-fill me-2 fs-5"></i>
+        <span class="fw-semibold"></span>
+        <% end %>
+
+        <%= link_to new_dispatcher_vehicle_path, class: "btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3 py-2 border border-1", style: "background-color: #F0F0F0; color: #2c2c2c;" do %>
+        <i class="bi bi-person-plus-fill me-2 fs-5"></i>
+        <span class="fw-semibold">Dodaj</span>
+        <% end %>
+
+        <% dashboard_cards = [
+        { title: "Wszystkie", path: all_vehicles_dispatcher_vehicles_path, icon: "bi-people-fill", color: "#9AD0EC" },
+        { title: "Dostępne", path: available_vehicles_dispatcher_vehicles_path, icon: "bi-check-circle-fill", color: "#B5EAD7" },
+        { title: "Niedostępne", path: unavailable_vehicles_dispatcher_vehicles_path, icon: "bi-x-circle-fill", color: "#FFB7B2" }
+        ] %>
+
+
+        <% dashboard_cards.each do |card| %>
+        <%= link_to card[:path], class: "btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3 py-2 border border-1", style: "background-color: #{card[:color]}; color: #2c2c2c;" do %>
+        <i class="bi <%= card[:icon] %> me-2 fs-5"></i>
+        <span class="fw-semibold"><%= card[:title] %></span>
+        <% end %>
+        <% end %>
+    </div>
+</div>

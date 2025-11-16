@@ -1,16 +1,17 @@
 class Driver < ApplicationRecord
     belongs_to :license_category, optional: true
     has_many :availabilities, as: :availableable, dependent: :destroy
-    has_many :order_drivers, dependent: :restrict_with_error
-    has_many :orders, through: :order_drivers
+    has_many :vehicle_drivers, dependent: :restrict_with_error
+    has_many :vehicles, through: :vehicle_drivers
 
     validates :first_name, :last_name, :email, :license_category, presence: true
     validates :email, uniqueness: true
 
-    def current_orders
-      Order.joins(:order_drivers)
-           .where(order_drivers: { driver_id: id, current: true })
-           .distinct
+    
+    def current_vehicles
+      Vehicle.joins(:vehicle_drivers)
+             .where(vehicle_drivers: { driver_id: id, current: true })
+             .distinct
     end
 
     def current_status
@@ -48,8 +49,11 @@ class Driver < ApplicationRecord
 
     def available_for?(order)
       return false unless available_during?(order.pickup_date, order.delivery_date)
-      return false if assigned_during?(order.pickup_date, order.delivery_date, exclude_order_id: order.id)
       true
+    end
+
+    def available?(time = Time.current)
+      availabilities.where("start_time <= ? AND end_time >= ?", time, time).exists?
     end
 
     private
@@ -60,13 +64,4 @@ class Driver < ApplicationRecord
       end
     end
   
-    def assigned_during?(start_date, end_date, exclude_order_id: nil)
-      overlapping_orders = orders.joins(:order_drivers)
-                                 .where(order_drivers: { current: true })
-                                 .where.not(id: exclude_order_id)
-                                 .where("(pickup_date BETWEEN ? AND ?) OR (delivery_date BETWEEN ? AND ?)",
-                                        start_date, end_date, start_date, end_date)
-      overlapping_orders.exists?
-    end
-
 end

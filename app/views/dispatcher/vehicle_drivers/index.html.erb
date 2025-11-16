@@ -1,0 +1,56 @@
+<div class="container my-4">
+    <h3 class="mb-4">Historia przypisań kierowców dla pojazdu <%= @vehicle.brand %></h3>
+
+    <% if @vehicle_drivers.any? %>
+    <div class="table-responsive shadow-sm rounded pastel-box p-3">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="pastel-thead">
+                <tr>
+                    <th>Kierowca</th>
+                    <th>Data przypisania</th>
+                    <th>Zmienione przez</th>
+                    <th>Aktualny</th>
+                    <th>Akcja</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @vehicle_drivers.each do |vd| %>
+                <tr>
+                    <td>
+                        <%= link_to vd.driver.full_name, dispatcher_driver_path(vd.driver), class: "text-decoration-underline fw-semibold" %>
+                    </td>
+                    <td>
+                        <%= l(vd.created_at, format: :short) %> -
+                        <%= vd.current ? "?" : l(vd.updated_at, format: :short) %>
+                    </td>
+                    <td><%= vd.user ? vd.user.email : "System" %></td>
+                    <td>
+                        <% if vd.current %>
+                        <span class="status-badge completed rounded-pill px-3 py-1">Aktualny</span>
+                        <% else %>
+                        <span class="status-badge canceled rounded-pill px-3 py-1">Poprzedni</span>
+                        <% end %>
+                    </td>
+                    <td>
+                        <% if vd.current %>
+                        <%= link_to "🗑️", unset_current_dispatcher_vehicle_vehicle_driver_path(@vehicle, vd),
+                      data: { turbo_method: :patch, turbo_confirm: "Czy na pewno chcesz usunąć przypisanie kierowcy?" },
+                      class: "ios-btn-back btn-sm" %>
+                        <% end %>
+                    </td>
+                </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
+    <% else %>
+    <p class="text-muted mt-3">Brak przypisań kierowców dla tego pojazdu.</p>
+    <% end %>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <%= link_to dispatcher_vehicle_path(@vehicle), class: "ios-back-btn ios-btn-back" do %>
+        <i class="bi bi-arrow-left me-2"></i> Powrót do pojazdu
+        <% end %>
+
+    </div>
+</div>

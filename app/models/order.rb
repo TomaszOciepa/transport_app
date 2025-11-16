@@ -3,10 +3,6 @@ class Order < ApplicationRecord
   belongs_to :vehicle_type
   belongs_to :service_type
 
-
-  has_many :order_drivers, dependent: :destroy
-  has_many :driver_history, through: :order_drivers, source: :driver
-
   has_many :order_vehicles, dependent: :destroy
   has_many :vehicle_history, through: :order_vehicles, source: :vehicle
 
@@ -34,16 +30,8 @@ class Order < ApplicationRecord
     return :canceled if canceled?
     return :completed if delivery_date.present? && Time.current >= delivery_date
     return :in_progress if pickup_date.present? && Time.current >= pickup_date
-    return :planned if current_driver.present? && current_vehicle.present?
+    return :planned if current_vehicle.present? && current_vehicle.vehicle_drivers.exists?(current: true)
     :pending
-  end
-
-  def current_order_driver
-    order_drivers.find_by(current: true)
-  end
-
-  def current_driver
-    current_order_driver&.driver
   end
 
   def current_order_vehicle
@@ -76,7 +64,12 @@ class Order < ApplicationRecord
  
   def calculate_price_and_delivery
     if pickup_lat.present? && pickup_lon.present? && delivery_lat.present? && delivery_lon.present?
-      self.distance_km = fetch_distance_from_ors
+      self.distance_km = OpenRouteService.distance_km(
+        start_lon: pickup_lon,
+        start_lat: pickup_lat,
+        end_lon: delivery_lon,
+        end_lat: delivery_lat
+      )
     else
       self.distance_km ||= 0
     end
@@ -106,6 +99,13 @@ class Order < ApplicationRecord
     end
   end
 
+  def pickup_place
+    pickup_address&.split(',')&.last&.strip
+  end
+
+  def delivery_place
+    delivery_address&.split(',')&.last&.strip
+  end
   
   private
 
@@ -126,26 +126,7 @@ class Order < ApplicationRecord
     end
   end
 
-  def fetch_distance_from_ors
-    api_key = ENV['ORS_API_KEY']
-    return 0 unless api_key.present?
 
-    url = URI("https://api.openrouteservice.org/v2/directions/driving-car?api_key=#{api_key}&start=#{pickup_lon},#{pickup_lat}&end=#{delivery_lon},#{delivery_lat}")
-
-    begin
-      res = Net::HTTP.get(url)
-      data = JSON.parse(res)
-
-      if data['features'] && data['features'][0] && data['features'][0]['properties'] && data['features'][0]['properties']['summary']
-        distance_m = data['features'][0]['properties']['summary']['distance']
-        return distance_m / 1000.0
-      end
-    rescue => e
-      Rails.logger.error("Błąd ORS: #{e.message}")
-    end
-
-    0
-  end
 
  
 end

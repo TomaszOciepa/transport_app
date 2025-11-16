@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_21_165809) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_02_143814) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,18 +52,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_165809) do
     t.bigint "license_category_id", null: false
     t.index ["license_category_id", "vehicle_type_id"], name: "index_license_category_vehicle_type"
     t.index ["vehicle_type_id", "license_category_id"], name: "index_vehicle_type_license_category", unique: true
-  end
-
-  create_table "order_drivers", force: :cascade do |t|
-    t.bigint "order_id", null: false
-    t.bigint "driver_id", null: false
-    t.bigint "user_id", null: false
-    t.boolean "current"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["driver_id"], name: "index_order_drivers_on_driver_id"
-    t.index ["order_id"], name: "index_order_drivers_on_order_id"
-    t.index ["user_id"], name: "index_order_drivers_on_user_id"
   end
 
   create_table "order_vehicles", force: :cascade do |t|
@@ -142,6 +130,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_165809) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "vehicle_drivers", force: :cascade do |t|
+    t.bigint "vehicle_id", null: false
+    t.bigint "driver_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "current"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["driver_id"], name: "index_vehicle_drivers_on_driver_id"
+    t.index ["user_id"], name: "index_vehicle_drivers_on_user_id"
+    t.index ["vehicle_id"], name: "index_vehicle_drivers_on_vehicle_id"
+  end
+
   create_table "vehicle_types", force: :cascade do |t|
     t.string "name"
     t.integer "max_speed"
@@ -162,9 +162,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_165809) do
   end
 
   add_foreign_key "drivers", "license_categories"
-  add_foreign_key "order_drivers", "drivers"
-  add_foreign_key "order_drivers", "orders"
-  add_foreign_key "order_drivers", "users"
   add_foreign_key "order_vehicles", "orders"
   add_foreign_key "order_vehicles", "users"
   add_foreign_key "order_vehicles", "vehicles"
@@ -173,5 +170,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_21_165809) do
   add_foreign_key "orders", "vehicle_types"
   add_foreign_key "transport_orders", "service_types"
   add_foreign_key "transport_orders", "vehicle_types"
+  add_foreign_key "vehicle_drivers", "drivers"
+  add_foreign_key "vehicle_drivers", "users"
+  add_foreign_key "vehicle_drivers", "vehicles"
   add_foreign_key "vehicles", "vehicle_types"
 end

@@ -2,20 +2,85 @@ module Dispatcher
   class VehiclesController < ApplicationController
     before_action :set_vehicle, only: [:show, :edit, :update, :destroy]
 
+
     def index
       @vehicles = Vehicle.order(brand: :asc)
     
-      if params[:sort].present?
-        case params[:sort]
-        when "status"
-          status_order = %i[available busy inactive] 
-          @vehicles = @vehicles.sort_by { |v| status_order.index(v.status.to_sym) rescue 999 }
-          @vehicles.reverse! if params[:direction] == "desc"
+      @total_vehicles       = @vehicles.count
+      @available_vehicles   = @vehicles.count { |v| v.current_status == "available" }
+      @unavailable_vehicles = @vehicles.count { |v| v.current_status == "unavailable" }
+    
+      @page_title = "🚗 Pulpit pojazdów"
+    
+    # --- Main suggestion logic ---
+      @vehicles_needing_attention = []
+    
+      @vehicles.each do |vehicle|
+        # No current driver
+        if vehicle.current_driver.nil?
+          @vehicles_needing_attention << {
+            type: :no_driver,
+            vehicle: vehicle,
+            priority: 3 
+          }
         else
-          @vehicles = @vehicles.reorder("#{sort_column} #{sort_direction}")
+          driver = vehicle.current_driver
+    
+          # Driver availability ends soon (< 7 days)
+          if driver.availabilities.any?
+            current_or_upcoming_driver = driver.availabilities
+                                               .where("end_time >= ?", Time.current)
+                                               .order(:end_time)
+                                               .first
+    
+            if current_or_upcoming_driver
+              driver_days_left = (current_or_upcoming_driver.end_time.to_date - Date.current).to_i
+    
+              if driver_days_left < 7
+                @vehicles_needing_attention << {
+                  type: :expiring_driver_availability,
+                  vehicle: vehicle,
+                  driver: driver,
+                  days_left: driver_days_left,
+                  priority: 1 # pilne
+                }
+              end
+            end
+          end
+        end
+    
+        # Vehicle availability ends soon (< 7 days)
+        current_or_upcoming_vehicle = vehicle.availabilities
+                                             .where("end_time >= ?", Time.current)
+                                             .order(:end_time)
+                                             .first
+    
+        if current_or_upcoming_vehicle
+          vehicle_days_left = (current_or_upcoming_vehicle.end_time.to_date - Date.current).to_i
+    
+          if vehicle_days_left < 7
+            @vehicles_needing_attention << {
+              type: :expiring_vehicle_availability,
+              vehicle: vehicle,
+              days_left: vehicle_days_left,
+              priority: 1 
+            }
+          end
         end
       end
+    
+    # Remove duplicates (by vehicle ID)
+      @vehicles_needing_attention.uniq! { |a| a[:vehicle].id }
+    
+      # Sorting: most urgent first, then by days_left ascending
+      @vehicles_needing_attention.sort_by! do |alert|
+        [
+          alert[:priority] || 2,          # urgency first (1 urgent, 2 normal, 3 low)
+          alert[:days_left] || 9999       # then the number of days left (ascending)
+        ]
+      end
     end
+    
     
     def show
     end
@@ -50,6 +115,24 @@ module Dispatcher
       @vehicle.destroy
       redirect_to dispatcher_vehicles_path, notice: "Pojazd został usunięty."
     end
+
+    def all_vehicles
+      @vehicles = Vehicle.order(brand: :asc)
+      @page_title = "👤 Wszystkie pojazdy"
+    end
+
+    def available_vehicles
+      @vehicles = Vehicle.all.select { |v| v.current_status == "available" }
+      @vehicles = @vehicles.sort_by(&:brand) # sort by brand ascending
+      @page_title = "✅ Dostępne pojazdy"
+    end
+
+    def unavailable_vehicles
+      @vehicles = Vehicle.all.select { |v| v.current_status == "unavailable" }
+      @vehicles = @vehicles.sort_by(&:brand) # sort by brand ascending
+      @page_title = "🚫 Niedostępne pojazdy"
+    end
+    
 
     private
 
