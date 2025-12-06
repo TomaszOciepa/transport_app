@@ -64,6 +64,7 @@ module Dispatcher
     
     def show
       @order = Order.find(params[:id])
+      @messages = @order.order_vehicles.map(&:whatsapp_group).compact.flat_map(&:whatsapp_messages).sort_by(&:timestamp)
 
     end
     

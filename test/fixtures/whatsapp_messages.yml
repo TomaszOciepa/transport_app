@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  whatsapp_group: one
+  from_number: MyString
+  to_number: MyString
+  body: MyText
+  is_from_driver: false
+  timestamp: 2025-12-04 13:08:42
+  raw_data: 
+
+two:
+  whatsapp_group: two
+  from_number: MyString
+  to_number: MyString
+  body: MyText
+  is_from_driver: false
+  timestamp: 2025-12-04 13:08:42
+  raw_data: 

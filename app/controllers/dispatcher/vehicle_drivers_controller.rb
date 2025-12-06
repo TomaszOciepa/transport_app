@@ -27,6 +27,7 @@ module Dispatcher
         @vehicle_driver.user_id = current_user.id
   
         if @vehicle_driver.save
+          add_driver_to_group(@vehicle_driver)
           redirect_to dispatcher_vehicle_path(@vehicle), notice: "Kierowca został przypisany do pojazdu."
         else
           @drivers = Driver.includes(:license_category)
@@ -59,6 +60,32 @@ module Dispatcher
       def vehicle_driver_params
         params.require(:vehicle_driver).permit(:driver_id)
       end
+
+      def add_driver_to_group(vehicle_driver)
+        order_vehicle = vehicle_driver.vehicle.current_order_vehicle
+        return unless order_vehicle
+      
+        group = WhatsappGroup.find_by(order_vehicle: order_vehicle)
+        return unless group
+      
+        driver_phone = vehicle_driver.driver.phone
+      
+        # Wywołanie endpointu Node.js
+        begin
+          uri = URI.parse("http://localhost:3005/add_to_group")
+          request = Net::HTTP::Post.new(uri)
+          request["Content-Type"] = "application/json"
+          request.body = { group_id: group.whatsapp_group_id, phone: driver_phone }.to_json
+      
+          Net::HTTP.start(uri.hostname, uri.port) do |http|
+            http.request(request)
+          end
+        rescue => e
+          Rails.logger.error("Błąd dodawania kierowcy do grupy WhatsApp: #{e.message}")
+        end
+      end
+      
+
     end
   end
   

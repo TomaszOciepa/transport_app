@@ -223,6 +223,18 @@
         </div>
     </div>
 
+
+    <h2>Wiadomości
+    </h2>
+    <% @messages.each do |msg| %>
+    <div class="<%= msg.is_from_driver ? 'driver' : 'dispatcher' %>">
+        <strong><%= msg.is_from_driver ? 'Kierowca' : 'Dispatcher' %>:</strong>
+        <%= msg.body %>
+        <small><%= l msg.timestamp %></small>
+    </div>
+    <% end %>
+
+
     <!-- Back -->
     <div class="mt-4">
         <%= link_to dispatcher_orders_path, class: "ios-back-btn ios-btn-back mt-3" do %>

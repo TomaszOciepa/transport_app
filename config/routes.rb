@@ -72,6 +72,11 @@ Rails.application.routes.draw do
     get "notifications", to: "dashboard#notifications"
   end
 
+  namespace :api do
+    resources :whatsapp_messages, only: [:create]
+  end
+  
+
   root "orders#new"
   match "/404", to: "errors#not_found", via: :all
 end
