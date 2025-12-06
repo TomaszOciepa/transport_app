@@ -224,15 +224,55 @@
     </div>
 
 
-    <h2>Wiadomości
-    </h2>
-    <% @messages.each do |msg| %>
-    <div class="<%= msg.is_from_driver ? 'driver' : 'dispatcher' %>">
-        <strong><%= msg.is_from_driver ? 'Kierowca' : 'Dispatcher' %>:</strong>
-        <%= msg.body %>
-        <small><%= l msg.timestamp %></small>
+    <!-- WhatsApp Chat Section -->
+    <div class="card pastel-box pastel-box-light p-3 mb-4">
+        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-chat-left-text me-2"></i>Grupa WhatsApp</h5>
+
+        <% if @order.current_order_vehicle&.whatsapp_group %>
+        <% group = @order.current_order_vehicle.whatsapp_group %>
+        <p><strong>Nazwa grupy:</strong> <%= group.name %></p>
+        <p><strong>Członkowie:</strong>
+            Kierowca:
+            <% driver = group.order_vehicle.vehicle.current_driver %>
+            <%= driver ? link_to("#{driver.first_name} #{driver.last_name}", dispatcher_driver_path(driver)) : "Brak" %>,
+            Bot: System
+        </p>
+
+
+
+        <div class="chat-messages border rounded p-2 mb-3" style="height: 300px; overflow-y: auto; background-color: #f7f7f7;">
+            <% @messages.each do |msg| %>
+            <div class="d-flex flex-column mb-2 <%= msg.is_from_driver ? 'align-items-start' : 'align-items-end' %>">
+                <div class="p-2 rounded" style="background-color: <%= msg.is_from_driver ? '#e1ffc7' : '#d1e7ff' %>;">
+                    <strong>
+                        <%= if msg.is_from_driver
+                                driver = @order.current_order_vehicle&.vehicle&.current_driver
+                                driver ? "#{driver.first_name} #{driver.last_name}" : "Kierowca"
+                            else
+                                "Dispatcher"
+                            end %>:
+                    </strong>
+                    <%= msg.body %>
+
+                </div>
+                <small class="text-muted"><%= l msg.timestamp, format: :short %></small>
+            </div>
+            <% end %>
+        </div>
+
+        <!-- Form to send new message -->
+        <%= form_with url: send_whatsapp_dispatcher_order_path(@order), method: :post, local: true, html: { class: "d-flex gap-2" } do |f| %>
+        <%= f.text_area :body, placeholder: "Napisz wiadomość...", class: "form-control", rows: 1, style: "resize: none;" %>
+        <%= f.hidden_field :group_id, value: group.whatsapp_group_id %>
+        <%= f.submit "Wyślij", class: "btn btn-primary" %>
+        <% end %>
+
+        <% else %>
+        <p class="text-warning fst-italic">Nie utworzono jeszcze grupy WhatsApp dla tego pojazdu.</p>
+        <% end %>
     </div>
-    <% end %>
+
+
 
 
     <!-- Back -->

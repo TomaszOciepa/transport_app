@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     root "dashboard#index"
     
     resources :orders do
+      post :send_whatsapp, on: :member
       resources :order_vehicles, only: [:index, :new, :create, :edit, :update] do
         patch :unset_current, on: :member
         get :suggest, on: :collection
