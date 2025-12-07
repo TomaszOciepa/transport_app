@@ -26,7 +26,7 @@ module Dispatcher
         @order.order_vehicles.where.not(id: @order_vehicle.id).update_all(current: false)
       
         if @order_vehicle.save
-          create_whatsapp_group(@order_vehicle)
+          create_whatsapp_group_for_driver(@order_vehicle)
           redirect_to dispatcher_order_path(@order), notice: "Pojazd został przypisany."
         else
           @vehicles = Vehicle.all
@@ -94,37 +94,44 @@ module Dispatcher
       def order_vehicle_params
         params.require(:order_vehicle).permit(:vehicle_id)
       end
-
-      def create_whatsapp_group(order_vehicle)
+      
+      def create_whatsapp_group_for_driver(order_vehicle)
         vehicle = order_vehicle.vehicle
         driver = vehicle.current_driver
         return unless driver&.phone.present?
       
-        group_name = "Pojazd #{vehicle.brand} – Kierowca #{driver.last_name}"
+        # Check if the group already exists for this order and driver
+        existing_group = WhatsappGroup.find_by(order_id: order_vehicle.order_id, driver_id: driver.id)
+        if existing_group
+          Rails.logger.info("Grupa WhatsApp już istnieje dla zamówienia ##{order_vehicle.order_id} i kierowcy ##{driver.id}")
+          return
+        end
       
-        #1. We create a WhatsappGroup record in Rails
+        # Create group name
+        group_name = "Zamówienie #{order_vehicle.order.id} – #{driver.first_name} #{driver.last_name}"
+      
+        # Create record in Rails
         whatsapp_group = WhatsappGroup.create!(
-          order_vehicle: order_vehicle,
+          order_id: order_vehicle.order_id,
+          driver_id: driver.id,
           whatsapp_group_id: nil,
           name: group_name
         )
       
-        # 2. We call Node.js – creates a group and does not send messages
+        # Call Node.js to create group
         result = CreateWhatsappGroup.call(
           group_name: group_name,
           driver_phone: driver.phone,
-          message: nil   # <<< we do not send any messages
+          message: nil
         )
       
-        # 3. If Node.js returns a valid ID – we save it in the database
+        # Update group ID returned by Node
         if result && result["group_id"].present?
           whatsapp_group.update!(whatsapp_group_id: result["group_id"])
         else
           Rails.logger.error("❌ Nie udało się utworzyć grupy WhatsApp – brak group_id w odpowiedzi Node.js")
         end
       end
-      
-      
       
     end
   end

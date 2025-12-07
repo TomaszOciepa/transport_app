@@ -1,10 +1,9 @@
-# app/services/create_whatsapp_group.rb
 require "net/http"
 require "uri"
 require "json"
 
 class CreateWhatsappGroup
-  BOT_URL = "http://localhost:3005/create_group" # ← poprawiony endpoint
+  BOT_URL = "http://localhost:3005/create_group" 
 
   def self.call(group_name:, driver_phone:, message: nil)
     uri = URI.parse(BOT_URL)

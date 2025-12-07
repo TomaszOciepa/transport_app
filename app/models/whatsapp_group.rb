@@ -1,5 +1,7 @@
 class WhatsappGroup < ApplicationRecord
-  belongs_to :order_vehicle
-  has_many :whatsapp_messages
+  belongs_to :order
+  belongs_to :driver
+
+  has_many :whatsapp_messages, dependent: :destroy
 end
 

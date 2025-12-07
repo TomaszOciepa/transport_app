@@ -27,7 +27,7 @@ module Dispatcher
         @vehicle_driver.user_id = current_user.id
   
         if @vehicle_driver.save
-          add_driver_to_group(@vehicle_driver)
+          assign_driver_to_all_active_orders(@vehicle_driver)
           redirect_to dispatcher_vehicle_path(@vehicle), notice: "Kierowca został przypisany do pojazdu."
         else
           @drivers = Driver.includes(:license_category)
@@ -61,29 +61,57 @@ module Dispatcher
         params.require(:vehicle_driver).permit(:driver_id)
       end
 
-      def add_driver_to_group(vehicle_driver)
-        order_vehicle = vehicle_driver.vehicle.current_order_vehicle
-        return unless order_vehicle
+      def assign_driver_to_all_active_orders(vehicle_driver)
+        driver = vehicle_driver.driver
+        vehicle = vehicle_driver.vehicle
+        return unless driver&.phone.present?
       
-        group = WhatsappGroup.find_by(order_vehicle: order_vehicle)
-        return unless group
+          # 1. Get current order_vehicle
+        active_order_vehicles = vehicle.order_vehicles.where(current: true)
+        return if active_order_vehicles.empty?
       
-        driver_phone = vehicle_driver.driver.phone
+        active_order_vehicles.each do |order_vehicle|
+          
+          order = order_vehicle.order
       
-        # Wywołanie endpointu Node.js
-        begin
-          uri = URI.parse("http://localhost:3005/add_to_group")
-          request = Net::HTTP::Post.new(uri)
-          request["Content-Type"] = "application/json"
-          request.body = { group_id: group.whatsapp_group_id, phone: driver_phone }.to_json
+            # 2. Check if the order is active
+          next unless order.delivery_date > Time.current || order.pickup_date > Time.current
       
-          Net::HTTP.start(uri.hostname, uri.port) do |http|
-            http.request(request)
+          # 3. Check if the group already exists
+          existing_group = WhatsappGroup.find_by(order_id: order.id, driver_id: driver.id)
+      
+          if existing_group
+            Rails.logger.info("Grupa WhatsApp już istnieje dla order #{order.id} i kierowcy #{driver.id}")
+            next
           end
-        rescue => e
-          Rails.logger.error("Błąd dodawania kierowcy do grupy WhatsApp: #{e.message}")
+      
+          # 4. Group name
+          group_name = "Zamówienie #{order.id} – #{driver.first_name} #{driver.last_name}"
+      
+          # 5. Create local record
+          whatsapp_group = WhatsappGroup.create!(
+            order_id: order.id,
+            driver_id: driver.id,
+            whatsapp_group_id: nil,
+            name: group_name
+          )
+      
+          # 6. Create group in Node.js
+          result = CreateWhatsappGroup.call(
+            group_name: group_name,
+            driver_phone: driver.phone,
+            message: nil
+          )
+      
+          if result && result["group_id"].present?
+            whatsapp_group.update!(whatsapp_group_id: result["group_id"])
+            Rails.logger.info("Utworzono grupę WhatsApp: #{result["group_id"]}")
+          else
+            Rails.logger.error("❌ Błąd: CreateWhatsappGroup nie zwróciło group_id dla order #{order.id}")
+          end
         end
       end
+      
       
 
     end

@@ -61,14 +61,22 @@ module Dispatcher
     end
     
     
-    
     def show
       @order = Order.find(params[:id])
-      @messages = @order.order_vehicles.map(&:whatsapp_group).compact.flat_map(&:whatsapp_messages).sort_by(&:timestamp)
-
+    
+      # All groups for the order (historical + active)
+      @whatsapp_groups = @order.whatsapp_groups.includes(:driver, :whatsapp_messages)
+    
+      # Current driver
+      @active_driver = @order.current_order_vehicle&.vehicle&.current_driver
+    
+      # Active driver group (may not exist)
+      @active_group = @active_driver ? 
+                      @order.whatsapp_groups.find_by(driver_id: @active_driver.id) : 
+                      nil
     end
     
-
+    
     def edit
       @service_types = ServiceType.all
       @vehicle_types = VehicleType.all
@@ -116,52 +124,42 @@ module Dispatcher
     end
 
 
-    # POST /dispatcher/orders/:id/send_whatsapp
-def send_whatsapp
-  @order = Order.find(params[:id])
-  group_id = params[:group_id]
-  message_body = params[:body]
-
-  if group_id.present? && message_body.present?
-    driver_phone = @order.current_order_vehicle.vehicle.current_driver&.phone
-
-    payload = {
-      from: "BOT", # lub numer bota
-      to: group_id,
-      message: message_body,
-      group_id: group_id,
-      timestamp: Time.now.to_i,
-      raw: {}
-    }
-
-    # Możesz wysłać do Node.js
-    require 'net/http'
-    require 'uri'
-    require 'json'
-
-    uri = URI.parse("http://localhost:3005/send_to_group")
-    http = Net::HTTP.new(uri.host, uri.port)
-    req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
-    req.body = { group_id: group_id, message: message_body }.to_json
-    http.request(req)
-
-    # Zapis do bazy
-    WhatsappMessage.create!(
-      whatsapp_group: @order.current_order_vehicle.whatsapp_group,
-      from_number: "BOT",
-      to_number: group_id,
-      body: message_body,
-      is_from_driver: false,
-      timestamp: Time.now,
-      raw_data: {}
-    )
-
-    redirect_to dispatcher_order_path(@order), notice: "Wiadomość wysłana."
-  else
-    redirect_to dispatcher_order_path(@order), alert: "Nie można wysłać wiadomości."
-  end
-end
-
+    def send_whatsapp
+      @order = Order.find(params[:id])
+      group_id = params[:group_id]
+      message_body = params[:body]
+    
+      if group_id.present? && message_body.present?
+        driver = @order.current_order_vehicle.vehicle.current_driver
+        whatsapp_group = WhatsappGroup.find_by(order_id: @order.id, driver_id: driver&.id)
+    
+          # Sending to Node.js
+        uri = URI.parse("http://localhost:3005/send_to_group")
+        http = Net::HTTP.new(uri.host, uri.port)
+        req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
+        req.body = { group_id: group_id, message: message_body }.to_json
+        http.request(req)
+    
+        if whatsapp_group
+          WhatsappMessage.create!(
+            whatsapp_group: whatsapp_group,
+            from_number: "BOT",
+            to_number: group_id,
+            body: message_body,
+            is_from_driver: false,
+            timestamp: Time.now,
+            raw_data: {}
+          )
+        else
+          Rails.logger.error("Nie znaleziono grupy WhatsApp dla zamówienia #{@order.id} i kierowcy #{driver&.id}")
+        end
+    
+        redirect_to dispatcher_order_path(@order), notice: "Wiadomość wysłana."
+      else
+        redirect_to dispatcher_order_path(@order), alert: "Nie można wysłać wiadomości."
+      end
+    end
+    
 
     private
     

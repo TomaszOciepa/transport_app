@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_04_120842) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_07_111941) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -183,12 +183,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_04_120842) do
   end
 
   create_table "whatsapp_groups", force: :cascade do |t|
-    t.bigint "order_vehicle_id", null: false
     t.string "whatsapp_group_id"
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["order_vehicle_id"], name: "index_whatsapp_groups_on_order_vehicle_id"
+    t.bigint "order_id"
+    t.bigint "driver_id"
+    t.index ["driver_id"], name: "index_whatsapp_groups_on_driver_id"
+    t.index ["order_id", "driver_id"], name: "index_whatsapp_groups_on_order_id_and_driver_id", unique: true
+    t.index ["order_id"], name: "index_whatsapp_groups_on_order_id"
   end
 
   create_table "whatsapp_messages", force: :cascade do |t|
@@ -219,6 +222,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_04_120842) do
   add_foreign_key "vehicle_drivers", "users"
   add_foreign_key "vehicle_drivers", "vehicles"
   add_foreign_key "vehicles", "vehicle_types"
-  add_foreign_key "whatsapp_groups", "order_vehicles"
+  add_foreign_key "whatsapp_groups", "drivers"
+  add_foreign_key "whatsapp_groups", "orders"
   add_foreign_key "whatsapp_messages", "whatsapp_groups"
 end

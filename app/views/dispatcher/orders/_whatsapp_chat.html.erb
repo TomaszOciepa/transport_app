@@ -1,0 +1,109 @@
+<div class="card pastel-box pastel-box-light p-3 mb-4">
+    <h5 class="mb-3 border-bottom pb-2">
+        <i class="bi bi-chat-left-text me-2"></i>Grupy WhatsApp
+    </h5>
+
+    <% active_driver = @order.current_order_vehicle&.vehicle&.current_driver %>
+    <% active_group = active_driver ? WhatsappGroup.find_by(order_id: @order.id, driver_id: active_driver.id) : nil %>
+
+    <% groups_raw = WhatsappGroup.where(order_id: @order.id).includes(:driver) %>
+
+    <% groups =
+        groups_raw.partition { |g| g == active_group }
+                 .flatten
+                 .tap { |arr| arr[1..] = arr[1..].sort_by(&:created_at).reverse if arr.size > 1 } %>
+
+    <% if groups.any? %>
+
+    <!-- NAV TABS -->
+    <ul class="nav nav-tabs mb-3" id="chatTab" role="tablist">
+
+        <% groups.each do |g| %>
+        <% is_active = (g == active_group) %>
+
+        <li class="nav-item" role="presentation">
+            <button class="nav-link <%= is_active ? 'active' : '' %>" id="tab-<%= g.id %>" data-bs-toggle="tab" data-bs-target="#chat-<%= g.id %>" type="button" role="tab">
+
+                <%= g.driver.first_name %> <%= g.driver.last_name %>
+
+                <!-- creation date -->
+                <small class="text-muted d-block" style="font-size: 0.7rem;">
+                    <%= g.created_at.strftime("%d-%m-%Y") %>
+                </small>
+
+                <% if is_active %>
+                <span class="badge bg-success ms-1">AKTYWNY</span>
+                <% end %>
+            </button>
+        </li>
+        <% end %>
+
+    </ul>
+
+    <!-- TAB CONTENT -->
+    <div class="tab-content">
+
+        <% groups.each do |g| %>
+        <% is_active = (g == active_group) %>
+
+        <div class="tab-pane fade <%= is_active ? 'show active' : '' %>" id="chat-<%= g.id %>" role="tabpanel">
+
+            <p><strong>Nazwa grupy:</strong> <%= g.name %></p>
+
+            <p><strong>Kierowca:</strong>
+                <%= link_to "#{g.driver.first_name} #{g.driver.last_name}",
+                      dispatcher_driver_path(g.driver) %>
+            </p>
+
+            <% messages = g.whatsapp_messages.order(:timestamp) %>
+
+            <div class="chat-messages border rounded p-2 mb-3" style="height: 300px; overflow-y: auto; background-color: #f7f7f7;">
+
+                <% messages.each do |msg| %>
+                <div class="d-flex flex-column mb-2 <%= msg.is_from_driver ? 'align-items-start' : 'align-items-end' %>">
+                    <div class="p-2 rounded" style="background-color: <%= msg.is_from_driver ? '#e1ffc7' : '#d1e7ff' %>;">
+                        <strong>
+                            <% if msg.is_from_driver %>
+                            <%= g.driver.first_name %> <%= g.driver.last_name %>
+                            <% else %>
+                            Dispatcher
+                            <% end %>:
+                        </strong>
+                        <%= msg.body %>
+                    </div>
+                    <small class="text-muted"><%= l msg.timestamp, format: :short %></small>
+                </div>
+                <% end %>
+
+            </div>
+
+            <% if is_active %>
+            <!-- sending messages only for active group -->
+            <%= form_with url: send_whatsapp_dispatcher_order_path(@order),
+                        method: :post,
+                        local: true,
+                        html: { class: "d-flex gap-2" } do |f| %>
+
+            <%= f.text_area :body,
+                            placeholder: "Napisz wiadomość...",
+                            class: "form-control",
+                            rows: 1,
+                            style: "resize: none;" %>
+
+            <%= f.hidden_field :group_id, value: g.whatsapp_group_id %>
+
+            <%= f.submit "Wyślij", class: "btn btn-primary" %>
+            <% end %>
+            <% else %>
+            <p class="text-muted fst-italic">Historia — nie można wysyłać wiadomości.</p>
+            <% end %>
+
+        </div>
+        <% end %>
+
+    </div>
+
+    <% else %>
+    <p class="text-warning fst-italic">Brak grup WhatsApp dla tego zamówienia.</p>
+    <% end %>
+</div>

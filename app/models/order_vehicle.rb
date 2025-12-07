@@ -3,9 +3,6 @@ class OrderVehicle < ApplicationRecord
   belongs_to :vehicle
   belongs_to :user
 
-  has_one :whatsapp_group, dependent: :destroy 
-
-
   validates :vehicle_id, :order_id, :user_id, presence: true
   validate :vehicle_must_be_available
   

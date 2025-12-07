@@ -1,4 +1,3 @@
-# app/controllers/api/whatsapp_messages_controller.rb
 class Api::WhatsappMessagesController < ApplicationController
   skip_before_action :verify_authenticity_token
 
@@ -11,10 +10,10 @@ class Api::WhatsappMessagesController < ApplicationController
       return head :unprocessable_entity
     end
 
-    # Numer nadawcy z Node.js
+    # Sender number from Node.js
     participant_jid = params[:raw]&.dig("participant") || params[:from]
 
-    # Nie sprawdzamy już driver.current_driver – zapisujemy wszystko
+    # We no longer check driver.current_driver – we save everything
     is_driver = params[:raw]&.dig("fromMe") == false && participant_jid.present?
 
     message = WhatsappMessage.new(
