@@ -100,6 +100,9 @@ module Dispatcher
         driver = vehicle.current_driver
         return unless driver&.phone.present?
       
+        # pobieramy zamówienie
+        order = order_vehicle.order
+      
         # Check if the group already exists for this order and driver
         existing_group = WhatsappGroup.find_by(order_id: order_vehicle.order_id, driver_id: driver.id)
         if existing_group
@@ -108,7 +111,9 @@ module Dispatcher
         end
       
         # Create group name
-        group_name = "Zamówienie #{order_vehicle.order.id} – #{driver.first_name} #{driver.last_name}"
+        delivery_city = order.delivery_address.split(",")[2].strip rescue "?"
+        pickup_city   = order.pickup_address.split(",")[2].strip   rescue "?"
+        group_name    = "#{order.order_number} #{pickup_city} - #{delivery_city}"
       
         # Create record in Rails
         whatsapp_group = WhatsappGroup.create!(
@@ -132,6 +137,7 @@ module Dispatcher
           Rails.logger.error("❌ Nie udało się utworzyć grupy WhatsApp – brak group_id w odpowiedzi Node.js")
         end
       end
+      
       
     end
   end
