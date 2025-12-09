@@ -123,44 +123,6 @@ module Dispatcher
       @page_title = "✅ Zamówienia zakończone"
     end
 
-
-    def send_whatsapp
-      @order = Order.find(params[:id])
-      group_id = params[:group_id]
-      message_body = params[:body]
-    
-      if group_id.present? && message_body.present?
-        driver = @order.current_order_vehicle.vehicle.current_driver
-        whatsapp_group = WhatsappGroup.find_by(order_id: @order.id, driver_id: driver&.id)
-    
-          # Sending to Node.js
-        uri = URI.parse("http://localhost:3005/send_to_group")
-        http = Net::HTTP.new(uri.host, uri.port)
-        req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
-        req.body = { group_id: group_id, message: message_body }.to_json
-        http.request(req)
-    
-        if whatsapp_group
-          WhatsappMessage.create!(
-            whatsapp_group: whatsapp_group,
-            from_number: "BOT",
-            to_number: group_id,
-            body: message_body,
-            is_from_driver: false,
-            timestamp: Time.now,
-            raw_data: {}
-          )
-        else
-          Rails.logger.error("Nie znaleziono grupy WhatsApp dla zamówienia #{@order.id} i kierowcy #{driver&.id}")
-        end
-    
-        redirect_to dispatcher_order_path(@order), notice: "Wiadomość wysłana."
-      else
-        redirect_to dispatcher_order_path(@order), alert: "Nie można wysłać wiadomości."
-      end
-    end
-    
-
     private
     
     def sort_column

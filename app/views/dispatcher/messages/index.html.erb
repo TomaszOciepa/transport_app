@@ -1,0 +1,104 @@
+<div class="container-fluid mt-4">
+    <div class="whatsapp-container">
+
+        <!-- LEFT COLUMN -->
+        <div class="whatsapp-sidebar">
+            <div class="ws-header">
+                <span>Wiadomości</span>
+                <i class="bi bi-chat-dots fs-5"></i>
+            </div>
+
+            <div class="chat-list">
+                <% @groups.each do |g| %>
+                <% is_active = (g == @active_group) %>
+                <%= link_to dispatcher_messages_path(group_id: g.id), class: "text-decoration-none text-dark" do %>
+                <div class="chat-item <%= 'active' if is_active %>">
+                    <div class="chat-avatar">
+                        <%= g&.driver&.first_name&.first || "?" %>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="fw-bold"><%= g.name %></div>
+                        <div class="text-muted" style="font-size: 0.8rem;">
+                            Kierowca: <%= g.driver&.first_name %> <%= g.driver&.last_name %><br>
+                            <%= truncate(g.whatsapp_group_id.to_s, length: 40) %>
+                        </div>
+                    </div>
+
+                    <small class="text-muted"><%= g.created_at.strftime("%d.%m") %></small>
+                </div>
+                <% end %>
+                <% end %>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN (CHAT) -->
+        <div class="whatsapp-chat-area">
+
+            <% if @active_group.present? %>
+            <div class="chat-header">
+                <div class="chat-avatar"><%= @active_group&.driver&.first_name&.first || "?" %></div>
+                <div>
+                    <div class="fw-bold">
+                        <%= link_to @active_group.name, dispatcher_order_path(@active_group.order), class: "text-decoration-none text-dark" %>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.8rem;">
+                        ID: <%= @active_group.id %> • Order: <%= @active_group.order_id %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- messages container (lekko szare tło już ustawione przez .whatsapp-chat-area) -->
+            <div id="messagesBox" class="chat-messages">
+                <% if @messages.any? %>
+                <% @messages.each do |msg| %>
+                <div class="d-flex flex-column <%= msg.is_from_driver ? 'align-items-start' : 'align-items-end' %>">
+                    <div class="bubble <%= msg.is_from_driver ? 'driver' : 'dispatcher' %>">
+                        <div class="sender-label">
+                            <%= msg.is_from_driver ? "#{@active_group.driver.first_name} #{@active_group.driver.last_name}" : "Dyspozytor" %>
+                        </div>
+
+                        <div class="bubble-body"><%= simple_format(h(msg.body)) %></div>
+
+                        <div class="bubble-time"><%= l(msg.timestamp || msg.created_at, format: :short) %></div>
+                    </div>
+                </div>
+                <% end %>
+                <% else %>
+                <div class="text-center text-muted">Brak wiadomości w tej grupie.</div>
+                <% end %>
+            </div>
+
+            <!-- input area -->
+            <%= form_with url: send_whatsapp_dispatcher_messages_path, method: :post, local: true, html: { class: "chat-input-area" } do |f| %>
+            <%= f.text_area :body, class: "form-control", rows: 1, placeholder: "Napisz wiadomość..." %>
+            <%= f.hidden_field :whatsapp_group_id, value: @active_group.id %>
+            <!-- tu id z Rails -->
+            <button class="btn btn-success"><i class="bi bi-send-fill"></i></button>
+            <% end %>
+
+
+
+
+            <% else %>
+            <div class="h-100 d-flex justify-content-center align-items-center text-muted">
+                <div class="text-center">
+                    <i class="bi bi-chat fs-1 text-muted"></i>
+                    <p>Wybierz rozmowę z listy.</p>
+                </div>
+            </div>
+            <% end %>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // auto-scroll to bottom when page loads
+    document.addEventListener("DOMContentLoaded", function() {
+        const box = document.getElementById('messagesBox');
+        if (box) {
+            box.scrollTop = box.scrollHeight;
+        }
+    });
+</script>

@@ -61,6 +61,12 @@ Rails.application.routes.draw do
     end
     resources :availabilities
   
+    resources :messages, only: [:index] do
+      collection do
+        post :send_whatsapp
+      end
+    end
+
     get "calendar", to: "dashboard#calendar"
     get "notifications", to: "dashboard#notifications"
   end

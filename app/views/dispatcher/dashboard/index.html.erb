@@ -5,12 +5,14 @@
 
     <div class="d-flex flex-wrap justify-content-center gap-4">
         <% dashboard_cards = [
-      { title: "Zamówienia", path: dispatcher_orders_path, icon: "bi-box-seam", color: "#A3CEF1" },
-      { title: "Pojazdy", path: dispatcher_vehicles_path, icon: "bi-truck", color: "#B5EAD7" },
-      { title: "Kierowcy", path: dispatcher_drivers_path, icon: "bi-person-circle", color: "#FFD6A5" },
-      { title: "Kalendarz", path: dispatcher_calendar_path, icon: "bi-calendar-event", color: "#FFB7B2" },
-      { title: "Powiadomienia", path: dispatcher_notifications_path, icon: "bi-bell-fill", color: "#E2C1F0" }
-    ] %>
+            { title: "Zamówienia", path: dispatcher_orders_path, icon: "bi-box-seam", color: "#A3CEF1" },
+            { title: "Pojazdy", path: dispatcher_vehicles_path, icon: "bi-truck", color: "#B5EAD7" },
+            { title: "Kierowcy", path: dispatcher_drivers_path, icon: "bi-person-circle", color: "#FFD6A5" },
+            { title: "Wiadomości", path: dispatcher_messages_path, icon: "bi-chat-dots-fill", color: "#C7E9B0" },
+            { title: "Kalendarz", path: dispatcher_calendar_path, icon: "bi-calendar-event", color: "#FFB7B2" },
+            { title: "Powiadomienia", path: dispatcher_notifications_path, icon: "bi-bell-fill", color: "#E2C1F0" },
+            ] %>
+
 
         <% dashboard_cards.each do |card| %>
         <%= link_to card[:path], class: "menu-card text-center d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-decoration-none fw-bold", 
