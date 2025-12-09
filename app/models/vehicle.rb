@@ -13,6 +13,10 @@ class Vehicle < ApplicationRecord
       vehicle_drivers.includes(:driver).find_by(current: true)&.driver
     end
 
+    # def current_order_vehicle
+    #   order_vehicles.find_by(current: true)
+    # end
+    
     def current_orders
       Order.joins(:order_vehicles)
           .where(order_vehicles: { vehicle_id: id, current: true })

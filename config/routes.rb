@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     root "dashboard#index"
     
     resources :orders do
+      post :send_whatsapp, on: :member
       resources :order_vehicles, only: [:index, :new, :create, :edit, :update] do
         patch :unset_current, on: :member
         get :suggest, on: :collection
@@ -60,6 +61,14 @@ Rails.application.routes.draw do
     end
     resources :availabilities
   
+    resources :messages, only: [:index] do
+      collection do
+        post :send_whatsapp
+      end
+      
+      post :send_order_to_group, on: :member
+    end
+
     get "calendar", to: "dashboard#calendar"
     get "notifications", to: "dashboard#notifications"
   end
@@ -71,6 +80,11 @@ Rails.application.routes.draw do
     get "calendar", to: "dashboard#calendar"
     get "notifications", to: "dashboard#notifications"
   end
+
+  namespace :api do
+    resources :whatsapp_messages, only: [:create]
+  end
+  
 
   root "orders#new"
   match "/404", to: "errors#not_found", via: :all

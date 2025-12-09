@@ -27,6 +27,7 @@ module Dispatcher
         @vehicle_driver.user_id = current_user.id
   
         if @vehicle_driver.save
+          assign_driver_to_all_active_orders(@vehicle_driver)
           redirect_to dispatcher_vehicle_path(@vehicle), notice: "Kierowca został przypisany do pojazdu."
         else
           @drivers = Driver.includes(:license_category)
@@ -59,6 +60,75 @@ module Dispatcher
       def vehicle_driver_params
         params.require(:vehicle_driver).permit(:driver_id)
       end
+
+      def assign_driver_to_all_active_orders(vehicle_driver)
+        driver  = vehicle_driver.driver
+        vehicle = vehicle_driver.vehicle
+        return unless driver&.phone.present?
+      
+        # 1. Pobierz wszystkie powiązania, gdzie pojazd jest przypisany jako current
+        active_order_vehicles = vehicle.order_vehicles.where(current: true)
+        return if active_order_vehicles.empty?
+      
+        # 2. Pobierz aktywne zamówienia
+        active_orders = Order.where(id: active_order_vehicles.pluck(:order_id))
+                             .where("delivery_date > ? OR pickup_date > ?", Time.current, Time.current)
+      
+        return if active_orders.empty?
+      
+        active_orders.each do |order|
+          # 3. Czy istnieje już grupa dla tego zamówienia i kierowcy?
+          existing_group = WhatsappGroup.find_by(order_id: order.id, driver_id: driver.id)
+      
+          if existing_group
+            Rails.logger.info("Grupa WhatsApp już istnieje dla zamówienia #{order.id} i kierowcy #{driver.id}")
+            next
+          end
+      
+          # 4. Utwórz nową grupę — ta metoda jest spójna z OrderVehiclesController
+          create_whatsapp_group_for_order_and_driver(order, driver)
+
+          sleep(2)
+        end
+      end
+      
+      def create_whatsapp_group_for_order_and_driver(order, driver)
+        # zabezpieczenie przed brakiem telefonu
+        return unless driver.phone.present?
+      
+        # zabezpieczenie danych adresowych
+        pickup_city   = order.pickup_address.to_s.split(",")[2].to_s.strip
+        delivery_city = order.delivery_address.to_s.split(",")[2].to_s.strip
+      
+        # nazwa grupy
+        group_name = "#{order.order_number} #{pickup_city} - #{delivery_city}"
+      
+        # lokalny rekord
+        whatsapp_group = WhatsappGroup.create!(
+          order_id: order.id,
+          driver_id: driver.id,
+          name: group_name
+        )
+      
+        # wywołanie Node.js
+        result = CreateWhatsappGroup.call(
+          group_name: group_name,
+          driver_phone: driver.phone,
+          message: nil
+        )
+      
+        if result && result["group_id"].present?
+          whatsapp_group.update!(whatsapp_group_id: result["group_id"])
+          Rails.logger.info("Utworzono grupę WhatsApp #{result["group_id"]} dla order #{order.id}")
+        else
+          Rails.logger.error("❌ Node.js nie zwrócił group_id dla order #{order.id}")
+        end
+      
+        whatsapp_group
+      end
+      
+      
+
     end
   end
   

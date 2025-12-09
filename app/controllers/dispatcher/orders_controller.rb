@@ -61,13 +61,22 @@ module Dispatcher
     end
     
     
-    
     def show
       @order = Order.find(params[:id])
-
+    
+      # All groups for the order (historical + active)
+      @whatsapp_groups = @order.whatsapp_groups.includes(:driver, :whatsapp_messages)
+    
+      # Current driver
+      @active_driver = @order.current_order_vehicle&.vehicle&.current_driver
+    
+      # Active driver group (may not exist)
+      @active_group = @active_driver ? 
+                      @order.whatsapp_groups.find_by(driver_id: @active_driver.id) : 
+                      nil
     end
     
-
+    
     def edit
       @service_types = ServiceType.all
       @vehicle_types = VehicleType.all

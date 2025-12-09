@@ -4,7 +4,6 @@ module Dispatcher
       def index
 
       end
-      
         
         def calendar
             @page_title = "Kalendarz w budowie"

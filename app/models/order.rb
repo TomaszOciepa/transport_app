@@ -6,6 +6,9 @@ class Order < ApplicationRecord
   has_many :order_vehicles, dependent: :destroy
   has_many :vehicle_history, through: :order_vehicles, source: :vehicle
 
+  has_many :whatsapp_groups, dependent: :destroy
+  has_many :whatsapp_messages, through: :whatsapp_groups
+
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 
   enum :status, [ :pending, :planned, :in_progress, :completed, :canceled ]
