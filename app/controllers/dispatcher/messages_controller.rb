@@ -22,7 +22,7 @@ module Dispatcher
             whatsapp_group = WhatsappGroup.find_by(id: params[:whatsapp_group_id])
           
             if whatsapp_group && message_body.present?
-              # dispatch to Node.js
+              # send to Node.js
               uri = URI.parse("http://localhost:3005/send_to_group")
               http = Net::HTTP.new(uri.host, uri.port)
               req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
@@ -46,7 +46,43 @@ module Dispatcher
             end
           end
           
-      
+          def send_order_to_group
+            whatsapp_group = WhatsappGroup.find(params[:id])
+            order = whatsapp_group.order
+        
+            if whatsapp_group && order
+                message_body = <<~MSG
+                Załadunek: #{order.pickup_address}, data: #{l(order.pickup_date, format: :short)}
+                Rozładunek: #{order.delivery_address}, data: #{l(order.delivery_date, format: :short)}
+              MSG
+              
+              
+           # send to Node.js / WhatsApp
+              uri = URI.parse("http://localhost:3005/send_to_group")
+              http = Net::HTTP.new(uri.host, uri.port)
+              req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
+              req.body = { group_id: whatsapp_group.whatsapp_group_id, message: message_body }.to_json
+              http.request(req)
+        
+             # save to Rails DB
+              WhatsappMessage.create!(
+                whatsapp_group: whatsapp_group,
+                from_number: "BOT",
+                to_number: whatsapp_group.whatsapp_group_id,
+                body: message_body,
+                is_from_driver: false,
+                timestamp: Time.current,
+                raw_data: {}
+              )
+        
+              whatsapp_group.update!(order_sent: true)
+        
+              redirect_to dispatcher_messages_path(group_id: whatsapp_group.id), notice: "Zlecenie wysłane."
+            else
+              redirect_to dispatcher_messages_path, alert: "Nie można wysłać zlecenia."
+            end
+          end
+
       private
 
        

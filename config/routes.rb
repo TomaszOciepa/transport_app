@@ -65,6 +65,8 @@ Rails.application.routes.draw do
       collection do
         post :send_whatsapp
       end
+      
+      post :send_order_to_group, on: :member
     end
 
     get "calendar", to: "dashboard#calendar"
