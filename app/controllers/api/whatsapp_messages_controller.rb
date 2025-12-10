@@ -28,6 +28,26 @@ class Api::WhatsappMessagesController < ApplicationController
 
     if message.save
       Rails.logger.info("💾 Wiadomość zapisana w Rails: #{message.body} | from: #{message.from_number}")
+
+            # 🔹 Broadcast do grupy
+            SolidCable::Message.broadcast("chat_channel_#{group.id}", {
+              id: message.id,
+              from_number: message.from_number,
+              body: message.body,
+              timestamp: message.timestamp
+            })
+            
+      
+            # 🔹 Broadcast globalny powiadomień
+            SolidCable::Message.broadcast("chat_notifications", {
+              whatsapp_group_id: group.id,
+              group_name: group.name,
+              from_number: message.from_number,
+              body: message.body,
+              timestamp: message.timestamp
+            })
+            
+
       render json: { ok: true }
     else
       Rails.logger.error("Nie udało się zapisać wiadomości: #{message.errors.full_messages.join(', ')}")

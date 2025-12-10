@@ -12,12 +12,9 @@
                 <% @groups.each do |g| %>
                 <% is_active = (g == @active_group) %>
                 <%= link_to dispatcher_messages_path(group_id: g.id), class: "text-decoration-none text-dark" do %>
-                <div class="chat-item <%= 'active' if is_active %> d-flex justify-content-between align-items-center">
+                <div class="chat-item <%= 'active' if is_active %> d-flex justify-content-between align-items-center" data-group-id="<%= g.id %>">
                     <div class="d-flex align-items-center gap-2">
-                        <div class="chat-avatar">
-                            <%= g&.driver&.first_name&.first || "?" %>
-                        </div>
-
+                        <div class="chat-avatar"><%= g&.driver&.first_name&.first || "?" %></div>
                         <div>
                             <div class="fw-bold"><%= g.name %></div>
                             <div class="text-muted" style="font-size: 0.8rem;">
@@ -26,7 +23,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="d-flex align-items-center gap-1">
                         <% unless g.order_sent %>
                         <span class="badge bg-danger" style="font-size:1rem; line-height:1;">!</span>
@@ -37,12 +33,10 @@
                 <% end %>
                 <% end %>
             </div>
-
         </div>
 
         <!-- RIGHT COLUMN (CHAT) -->
         <div class="whatsapp-chat-area">
-
             <% if @active_group.present? %>
             <div class="chat-header d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">
@@ -57,29 +51,24 @@
                     </div>
                 </div>
 
-                <!-- shipping button always active -->
                 <div class="ms-auto">
                     <%= button_to "Wyślij zlecenie", send_order_to_group_dispatcher_message_path(@active_group), method: :post, class: "btn btn-warning btn-sm" %>
                 </div>
             </div>
 
-            <!-- messages container -->
-            <div id="messagesBox" class="chat-messages">
-                <% if @messages.any? %>
-                <% @messages.each do |msg| %>
-                <div class="d-flex flex-column <%= msg.is_from_driver ? 'align-items-start' : 'align-items-end' %>">
-                    <div class="bubble <%= msg.is_from_driver ? 'driver' : 'dispatcher' %>">
-                        <div class="sender-label">
-                            <%= msg.is_from_driver ? "#{@active_group.driver.first_name} #{@active_group.driver.last_name}" : "Dyspozytor" %>
-                        </div>
-                        <div class="bubble-body"><%= simple_format(h(msg.body)) %></div>
-                        <div class="bubble-time"><%= l(msg.timestamp || msg.created_at, format: :short) %></div>
-                    </div>
+            <!-- CHAT WRAPPER -->
+            <div id="chatWrapper" style="position: relative; flex: 1; display: flex; flex-direction: column;">
+                <div class="chat-messages" id="messagesBox">
+                    <%= turbo_frame_tag "messages" do %>
+                    <% if @messages.any? %>
+                    <%= render partial: "dispatcher/messages/message", collection: @messages, as: :msg %>
+                    <% else %>
+                    <div class="text-center text-muted">Brak wiadomości w tej grupie.</div>
+                    <% end %>
+                    <% end %>
+
+                    <%= turbo_stream_from "chat_channel_#{@active_group.id}" %>
                 </div>
-                <% end %>
-                <% else %>
-                <div class="text-center text-muted">Brak wiadomości w tej grupie.</div>
-                <% end %>
             </div>
 
             <!-- input area -->
@@ -97,17 +86,63 @@
                 </div>
             </div>
             <% end %>
-
         </div>
     </div>
 </div>
 
 <script>
-    // auto-scroll to bottom when page loads
-    document.addEventListener("DOMContentLoaded", function() {
-        const box = document.getElementById('messagesBox');
-        if (box) {
-            box.scrollTop = box.scrollHeight;
+    (function() {
+        const box = document.getElementById("messagesBox");
+        const BOTTOM_THRESHOLD = 150;
+
+        if (!box) return;
+
+        let userNearBottom = true;
+
+        function scrollToBottom(smooth = false) {
+            if (smooth) {
+                box.scrollTo({
+                    top: box.scrollHeight,
+                    behavior: "smooth"
+                });
+            } else {
+                box.scrollTop = box.scrollHeight;
+            }
         }
-    });
+
+        function updateUserPosition() {
+            userNearBottom = (box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD);
+        }
+
+        // --- INITIAL SCROLL AFTER RENDER ---
+        function initialScroll() {
+            // małe opóźnienie, żeby wiadomości były w DOM
+            setTimeout(() => {
+                scrollToBottom(false);
+                updateUserPosition();
+            }, 50);
+        }
+
+        document.addEventListener("DOMContentLoaded", initialScroll);
+        document.addEventListener("turbo:frame-load", initialScroll);
+
+        // MutationObserver dla nowych wiadomości
+        const observer = new MutationObserver((mutations) => {
+            const added = mutations.some(m => m.addedNodes && m.addedNodes.length > 0);
+            if (!added) return;
+
+            if (userNearBottom) {
+                scrollToBottom(true); // przewijamy tylko jeśli użytkownik był przy dole
+            }
+        });
+        observer.observe(box, {
+            childList: true,
+            subtree: false
+        });
+
+        box.addEventListener("scroll", updateUserPosition);
+
+        // cleanup
+        window.addEventListener("beforeunload", () => observer.disconnect());
+    })();
 </script>

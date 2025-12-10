@@ -398,7 +398,7 @@ h5 i {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0; /* bardzo ważne dla scrolla */
+  min-height: 0;
 }
 
 /* --- CHAT HEADER --- */
@@ -412,7 +412,21 @@ h5 i {
   gap: 15px;
 }
 
-/* --- CHAT MESSAGES --- */
+/* --- CHAT WRAPPER --- */
+#chatWrapper {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#messagesBox {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -421,8 +435,10 @@ h5 i {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-height: 0;
 }
 
+/* --- BUBBLES --- */
 .bubble {
   max-width: 70%;
   padding: 10px 12px;

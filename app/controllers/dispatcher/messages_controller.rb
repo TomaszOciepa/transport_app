@@ -5,13 +5,15 @@ module Dispatcher
 
         def index
             @page_title = "Wiadomości"
-            
+            puts "@groups = #{@groups.inspect}"
             # Selecting the active group from the parameter or the first one from the list
             if params[:group_id].present?
               @active_group = @groups.find { |g| g.id == params[:group_id].to_i }
             end
       
             @active_group ||= @groups.first
+
+            puts "@active_group = #{@active_group.inspect}"
       
            # Download messages for the active group
             @messages = @active_group ? @active_group.whatsapp_messages.order(:timestamp) : []
