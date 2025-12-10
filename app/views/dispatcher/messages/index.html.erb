@@ -87,11 +87,12 @@
             </div>
 
             <!-- input area -->
-            <%= form_with url: send_whatsapp_dispatcher_messages_path, method: :post, local: true, html: { class: "chat-input-area" } do |f| %>
-            <%= f.text_area :body, class: "form-control", rows: 1, placeholder: "Napisz wiadomość..." %>
+            <%= form_with url: send_whatsapp_dispatcher_messages_path, method: :post, local: false, html: { class: "chat-input-area", data: { turbo_frame: "messagesBox" } } do |f| %>
+            <%= f.text_area :body, id: "whatsappMessageBody", class: "form-control", rows: 1, placeholder: "Napisz wiadomość..." %>
             <%= f.hidden_field :whatsapp_group_id, value: @active_group.id %>
             <button class="btn btn-success"><i class="bi bi-send-fill"></i></button>
             <% end %>
+
 
             <% else %>
             <div class="h-100 d-flex justify-content-center align-items-center text-muted">
@@ -173,6 +174,29 @@
                 newMessageCount = 0;
                 newMessageIndicator.style.display = 'none';
             });
+
+            // --- Czyścimy pole po wysłaniu wiadomości ---
+            document.addEventListener("turbo:submit-end", (event) => {
+                const form = event.target;
+                if (form.classList.contains("chat-input-area")) {
+                    const textarea = document.getElementById("whatsappMessageBody");
+                    if (textarea) {
+                        textarea.value = ""; // czyścimy pole
+                        textarea.focus(); // ustawiamy focus
+                    }
+                }
+            });
+
+            // --- Wysyłanie wiadomości Enterem ---
+            const textarea = document.getElementById("whatsappMessageBody");
+            if (textarea) {
+                textarea.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault(); // zapobiega wstawieniu nowej linii
+                        textarea.form.requestSubmit(); // wysyła formularz
+                    }
+                });
+            }
 
             initialScroll();
         }
