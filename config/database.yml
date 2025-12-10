@@ -17,6 +17,10 @@ development:
 test:
   <<: *default
   database: transport_app_test
+
+cable:
+  <<: *default
+  database: transport_app_cable
 # production:
 
 # default: &default
