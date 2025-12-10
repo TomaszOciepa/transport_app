@@ -107,73 +107,76 @@
 
 <script>
     (function() {
-        const box = document.getElementById("messagesBox");
-        const newMessageIndicator = document.getElementById("newMessageIndicator");
         const BOTTOM_THRESHOLD = 150;
+        let box, newMessageIndicator;
         let userNearBottom = true;
         let newMessageCount = 0;
+        let observer;
 
-        if (!box) return;
+        function init() {
+            box = document.getElementById("messagesBox");
+            newMessageIndicator = document.getElementById("newMessageIndicator");
 
-        function scrollToBottom(smooth = false) {
-            if (smooth) {
-                box.scrollTo({
-                    top: box.scrollHeight,
-                    behavior: "smooth"
-                });
-            } else {
-                box.scrollTop = box.scrollHeight;
+            if (!box || !newMessageIndicator) return;
+
+            function scrollToBottom(smooth = false) {
+                if (smooth) {
+                    box.scrollTo({
+                        top: box.scrollHeight,
+                        behavior: "smooth"
+                    });
+                } else {
+                    box.scrollTop = box.scrollHeight;
+                }
             }
-        }
 
-        function updateUserPosition() {
-            userNearBottom = (box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD);
-            if (userNearBottom) {
-                newMessageCount = 0;
-                newMessageIndicator.style.display = 'none';
+            function updateUserPosition() {
+                userNearBottom = (box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD);
+                if (userNearBottom) {
+                    newMessageCount = 0;
+                    newMessageIndicator.style.display = 'none';
+                }
             }
-        }
 
-        // Initial scroll
-        function initialScroll() {
-            setTimeout(() => {
-                scrollToBottom(false);
-                updateUserPosition();
-            }, 50);
-        }
+            function initialScroll() {
+                setTimeout(() => {
+                    scrollToBottom(false);
+                    updateUserPosition();
+                }, 100); // poczekaj chwilę aż Turbo Streams wyrenderują wszystkie wiadomości
+            }
 
-        document.addEventListener("DOMContentLoaded", initialScroll);
-        document.addEventListener("turbo:frame-load", initialScroll);
-        box.addEventListener("scroll", updateUserPosition);
+            box.addEventListener("scroll", updateUserPosition);
 
-        // Observe new messages
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach(mutation => {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1 && node.querySelector('.bubble')) {
-                        if (userNearBottom) {
-                            scrollToBottom(true);
-                        } else {
-                            newMessageCount += 1;
-                            newMessageIndicator.innerText = `Nowe wiadomości (${newMessageCount})`;
-                            newMessageIndicator.style.display = 'block';
+            observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1 && node.querySelector('.bubble')) {
+                            if (userNearBottom) {
+                                scrollToBottom(true);
+                            } else {
+                                newMessageCount += 1;
+                                newMessageIndicator.innerText = `Nowe wiadomości (${newMessageCount})`;
+                                newMessageIndicator.style.display = 'block';
+                            }
                         }
-                    }
+                    });
                 });
             });
-        });
 
-        observer.observe(box, {
-            childList: true,
-            subtree: false
-        });
+            observer.observe(box, {
+                childList: true,
+                subtree: false
+            });
 
-        newMessageIndicator.addEventListener('click', () => {
-            scrollToBottom(true);
-            newMessageCount = 0;
-            newMessageIndicator.style.display = 'none';
-        });
+            newMessageIndicator.addEventListener('click', () => {
+                scrollToBottom(true);
+                newMessageCount = 0;
+                newMessageIndicator.style.display = 'none';
+            });
 
-        window.addEventListener("beforeunload", () => observer.disconnect());
+            initialScroll();
+        }
+
+        document.addEventListener("turbo:load", init);
     })();
 </script>
