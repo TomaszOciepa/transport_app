@@ -69,6 +69,21 @@
 
                     <%= turbo_stream_from "chat_channel_#{@active_group.id}" %>
                 </div>
+
+                <!-- New message indicator -->
+                <div id="newMessageIndicator" style="
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0d6efd;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: none;
+            z-index: 10;
+          ">Nowa wiadomość</div>
             </div>
 
             <!-- input area -->
@@ -93,11 +108,12 @@
 <script>
     (function() {
         const box = document.getElementById("messagesBox");
+        const newMessageIndicator = document.getElementById("newMessageIndicator");
         const BOTTOM_THRESHOLD = 150;
+        let userNearBottom = true;
+        let newMessageCount = 0;
 
         if (!box) return;
-
-        let userNearBottom = true;
 
         function scrollToBottom(smooth = false) {
             if (smooth) {
@@ -112,11 +128,14 @@
 
         function updateUserPosition() {
             userNearBottom = (box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD);
+            if (userNearBottom) {
+                newMessageCount = 0;
+                newMessageIndicator.style.display = 'none';
+            }
         }
 
-        // --- INITIAL SCROLL AFTER RENDER ---
+        // Initial scroll
         function initialScroll() {
-            // małe opóźnienie, żeby wiadomości były w DOM
             setTimeout(() => {
                 scrollToBottom(false);
                 updateUserPosition();
@@ -125,24 +144,36 @@
 
         document.addEventListener("DOMContentLoaded", initialScroll);
         document.addEventListener("turbo:frame-load", initialScroll);
+        box.addEventListener("scroll", updateUserPosition);
 
-        // MutationObserver dla nowych wiadomości
+        // Observe new messages
         const observer = new MutationObserver((mutations) => {
-            const added = mutations.some(m => m.addedNodes && m.addedNodes.length > 0);
-            if (!added) return;
-
-            if (userNearBottom) {
-                scrollToBottom(true); // przewijamy tylko jeśli użytkownik był przy dole
-            }
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1 && node.querySelector('.bubble')) {
+                        if (userNearBottom) {
+                            scrollToBottom(true);
+                        } else {
+                            newMessageCount += 1;
+                            newMessageIndicator.innerText = `Nowe wiadomości (${newMessageCount})`;
+                            newMessageIndicator.style.display = 'block';
+                        }
+                    }
+                });
+            });
         });
+
         observer.observe(box, {
             childList: true,
             subtree: false
         });
 
-        box.addEventListener("scroll", updateUserPosition);
+        newMessageIndicator.addEventListener('click', () => {
+            scrollToBottom(true);
+            newMessageCount = 0;
+            newMessageIndicator.style.display = 'none';
+        });
 
-        // cleanup
         window.addEventListener("beforeunload", () => observer.disconnect());
     })();
 </script>
