@@ -28,30 +28,28 @@ class Api::WhatsappMessagesController < ApplicationController
 
     if message.save
       Rails.logger.info("💾 Wiadomość zapisana w Rails: #{message.body} | from: #{message.from_number}")
-
-            # 🔹 Broadcast do grupy
-            SolidCable::Message.broadcast("chat_channel_#{group.id}", {
-              id: message.id,
-              from_number: message.from_number,
-              body: message.body,
-              timestamp: message.timestamp
-            })
-            
-      
-            # 🔹 Broadcast globalny powiadomień
-            SolidCable::Message.broadcast("chat_notifications", {
-              whatsapp_group_id: group.id,
-              group_name: group.name,
-              from_number: message.from_number,
-              body: message.body,
-              timestamp: message.timestamp
-            })
-            
-
+    
+      # 🔹 Broadcast do prawego okna
+      SolidCable::Message.broadcast("chat_channel_#{group.id}", {
+        id: message.id,
+        from_number: message.from_number,
+        body: message.body,
+        timestamp: message.timestamp
+      })
+    
+      # 🔹 Broadcast globalny dla lewej kolumny
+      puts "=== BROADCAST TURBO STREAM LEWEJ KOLUMNY ==="
+      Turbo::StreamsChannel.broadcast_append_to "chat_notifications",
+        target: "chat_notifications",
+        partial: "dispatcher/messages/notify_new_message",
+        locals: { message: message }
+        puts "=== BROADCAST WYSŁANY ==="
+    
       render json: { ok: true }
     else
       Rails.logger.error("Nie udało się zapisać wiadomości: #{message.errors.full_messages.join(', ')}")
       render json: { error: message.errors.full_messages }, status: :unprocessable_entity
     end
+    
   end
 end

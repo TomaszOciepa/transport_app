@@ -8,7 +8,11 @@
                 <i class="bi bi-chat-dots fs-5"></i>
             </div>
 
-            <div class="chat-list">
+            <!-- Turbo Streams dla globalnych powiadomień -->
+            <div id="chat_notifications"></div>
+            <%= turbo_stream_from "chat_notifications" %>
+
+            <div class="chat-list" id="chatList">
                 <% @groups.each do |g| %>
                 <% is_active = (g == @active_group) %>
                 <%= link_to dispatcher_messages_path(group_id: g.id), class: "text-decoration-none text-dark" do %>
@@ -25,9 +29,10 @@
                     </div>
                     <div class="d-flex align-items-center gap-1">
                         <% unless g.order_sent %>
-                        <span class="badge bg-danger" style="font-size:1rem; line-height:1;">!</span>
+                        <span class="badge bg-success" style="font-size:1rem; line-height:1;">!</span>
                         <% end %>
                         <small class="text-muted"><%= g.created_at.strftime("%d.%m") %></small>
+                        <span class="badge bg-success unread-badge" style="display:none;">0</span>
                     </div>
                 </div>
                 <% end %>
@@ -50,7 +55,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="ms-auto">
                     <%= button_to "Wyślij zlecenie", send_order_to_group_dispatcher_message_path(@active_group), method: :post, class: "btn btn-warning btn-sm" %>
                 </div>
@@ -66,7 +70,6 @@
                     <div class="text-center text-muted">Brak wiadomości w tej grupie.</div>
                     <% end %>
                     <% end %>
-
                     <%= turbo_stream_from "chat_channel_#{@active_group.id}" %>
                 </div>
 
@@ -93,9 +96,7 @@
             <button type="button" class="btn btn-success" id="sendMessageBtn">
                 <i class="bi bi-send-fill"></i>
             </button>
-
             <% end %>
-
 
             <% else %>
             <div class="h-100 d-flex justify-content-center align-items-center text-muted">
@@ -106,8 +107,12 @@
             </div>
             <% end %>
         </div>
+
     </div>
 </div>
+
+<!-- Turbo Stream dla globalnych powiadomień -->
+<%= turbo_stream_from "chat_notifications" %>
 
 <script>
     (function() {
@@ -116,16 +121,14 @@
         let userNearBottom = true;
         let newMessageCount = 0;
         let observer;
-
-        let eventsBound = false; // zabezpieczenie przed wielokrotną inicjalizacją
+        let eventsBound = false;
 
         function init() {
             box = document.getElementById("messagesBox");
             newMessageIndicator = document.getElementById("newMessageIndicator");
-
             if (!box || !newMessageIndicator) return;
 
-            function scrollToBottom(smooth = false) {
+            const scrollToBottom = (smooth = false) => {
                 if (smooth) {
                     box.scrollTo({
                         top: box.scrollHeight,
@@ -134,24 +137,20 @@
                 } else {
                     box.scrollTop = box.scrollHeight;
                 }
-            }
+            };
 
-            function updateUserPosition() {
-                userNearBottom =
-                    box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD;
-
+            const updateUserPosition = () => {
+                userNearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD;
                 if (userNearBottom) {
                     newMessageCount = 0;
                     newMessageIndicator.style.display = "none";
                 }
-            }
+            };
 
-            function initialScroll() {
-                setTimeout(() => {
-                    scrollToBottom(false);
-                    updateUserPosition();
-                }, 100);
-            }
+            const initialScroll = () => setTimeout(() => {
+                scrollToBottom(false);
+                updateUserPosition();
+            }, 100);
 
             box.addEventListener("scroll", updateUserPosition);
 
@@ -159,10 +158,9 @@
                 mutations.forEach((mutation) => {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === 1 && node.querySelector(".bubble")) {
-                            if (userNearBottom) {
-                                scrollToBottom(true);
-                            } else {
-                                newMessageCount += 1;
+                            if (userNearBottom) scrollToBottom(true);
+                            else {
+                                newMessageCount++;
                                 newMessageIndicator.innerText = `Nowe wiadomości (${newMessageCount})`;
                                 newMessageIndicator.style.display = "block";
                             }
@@ -182,22 +180,17 @@
                 newMessageIndicator.style.display = "none";
             });
 
-            // ------------------------------
-            //   OBSŁUGA FORMULARZA CZATU
-            // ------------------------------
+            // CHAT FORM HANDLING
             if (!eventsBound) {
                 eventsBound = true;
-
                 const textarea = document.getElementById("whatsappMessageBody");
                 const sendButton = document.getElementById("sendMessageBtn");
 
                 if (textarea) {
-                    // ENTER -> wyślij
                     textarea.addEventListener("keydown", (event) => {
                         if (event.key === "Enter" && !event.shiftKey) {
                             event.preventDefault();
                             const form = textarea.form;
-
                             if (!form.classList.contains("sending")) {
                                 form.classList.add("sending");
                                 form.requestSubmit();
@@ -205,10 +198,8 @@
                         }
                     });
 
-                    // czyść pole po wysłaniu
                     document.addEventListener("turbo:submit-end", (event) => {
                         const form = event.target;
-
                         if (form.classList.contains("chat-input-area")) {
                             textarea.value = "";
                             textarea.focus();
@@ -220,7 +211,6 @@
                 if (sendButton) {
                     sendButton.addEventListener("click", () => {
                         const form = sendButton.closest("form");
-
                         if (!form.classList.contains("sending")) {
                             form.classList.add("sending");
                             form.requestSubmit();
@@ -230,6 +220,50 @@
             }
 
             initialScroll();
+
+            // LEFT PANEL NOTIFICATIONS
+            const notificationsDiv = document.getElementById("chat_notifications");
+            if (notificationsDiv) {
+                const notifObserver = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType !== 1 || !node.dataset.whatsappGroupId) return;
+                            const groupId = parseInt(node.dataset.whatsappGroupId);
+                            const chatItem = document.querySelector(`.chat-item[data-group-id='${groupId}']`);
+                            if (!chatItem || chatItem.classList.contains("active")) return;
+
+                            let badge = chatItem.querySelector(".unread-badge");
+                            if (!badge) {
+                                badge = document.createElement("span");
+                                badge.classList.add("badge", "unread-badge", "bg-whatsapp");
+                                badge.style.fontSize = "0.8rem";
+                                badge.style.lineHeight = "1";
+                                chatItem.querySelector(".d-flex.align-items-center.gap-1").appendChild(badge);
+                            }
+
+                            let count = parseInt(badge.innerText || "0");
+                            count++;
+                            badge.innerText = count;
+                            badge.style.display = "inline-block";
+                        });
+                    });
+                });
+
+                notifObserver.observe(notificationsDiv, {
+                    childList: true
+                });
+            }
+
+            // RESET BADGE ON CLICK
+            document.querySelectorAll(".chat-item").forEach(item => {
+                item.addEventListener("click", () => {
+                    const badge = item.querySelector(".unread-badge");
+                    if (badge) {
+                        badge.innerText = "0";
+                        badge.style.display = "none";
+                    }
+                });
+            });
         }
 
         document.addEventListener("turbo:load", init);

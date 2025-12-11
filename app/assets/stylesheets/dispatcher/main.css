@@ -347,6 +347,19 @@ h5 i {
   min-height: 0; /* konieczne do scrolla w flex */
 }
 
+/* --- WHATSAPP GREEN BADGE --- */
+.bg-whatsapp {
+  background-color: #25d366; /* klasyczna zieleń WhatsApp */
+  color: white;
+  padding: 3px 6px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  min-width: 20px;
+  text-align: center;
+  display: inline-block;
+  line-height: 1.2;
+}
+
 /* --- SIDEBAR --- */
 .ws-header {
   padding: 15px;
