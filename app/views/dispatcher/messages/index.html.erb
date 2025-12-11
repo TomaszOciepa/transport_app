@@ -90,7 +90,10 @@
             <%= form_with url: send_whatsapp_dispatcher_messages_path, method: :post, local: false, html: { class: "chat-input-area", data: { turbo_frame: "messagesBox" } } do |f| %>
             <%= f.text_area :body, id: "whatsappMessageBody", class: "form-control", rows: 1, placeholder: "Napisz wiadomość..." %>
             <%= f.hidden_field :whatsapp_group_id, value: @active_group.id %>
-            <button class="btn btn-success"><i class="bi bi-send-fill"></i></button>
+            <button type="button" class="btn btn-success" id="sendMessageBtn">
+                <i class="bi bi-send-fill"></i>
+            </button>
+
             <% end %>
 
 
@@ -114,6 +117,8 @@
         let newMessageCount = 0;
         let observer;
 
+        let eventsBound = false; // zabezpieczenie przed wielokrotną inicjalizacją
+
         function init() {
             box = document.getElementById("messagesBox");
             newMessageIndicator = document.getElementById("newMessageIndicator");
@@ -132,10 +137,12 @@
             }
 
             function updateUserPosition() {
-                userNearBottom = (box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD);
+                userNearBottom =
+                    box.scrollTop + box.clientHeight >= box.scrollHeight - BOTTOM_THRESHOLD;
+
                 if (userNearBottom) {
                     newMessageCount = 0;
-                    newMessageIndicator.style.display = 'none';
+                    newMessageIndicator.style.display = "none";
                 }
             }
 
@@ -143,21 +150,21 @@
                 setTimeout(() => {
                     scrollToBottom(false);
                     updateUserPosition();
-                }, 100); // poczekaj chwilę aż Turbo Streams wyrenderują wszystkie wiadomości
+                }, 100);
             }
 
             box.addEventListener("scroll", updateUserPosition);
 
             observer = new MutationObserver((mutations) => {
-                mutations.forEach(mutation => {
-                    mutation.addedNodes.forEach(node => {
-                        if (node.nodeType === 1 && node.querySelector('.bubble')) {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1 && node.querySelector(".bubble")) {
                             if (userNearBottom) {
                                 scrollToBottom(true);
                             } else {
                                 newMessageCount += 1;
                                 newMessageIndicator.innerText = `Nowe wiadomości (${newMessageCount})`;
-                                newMessageIndicator.style.display = 'block';
+                                newMessageIndicator.style.display = "block";
                             }
                         }
                     });
@@ -169,33 +176,57 @@
                 subtree: false
             });
 
-            newMessageIndicator.addEventListener('click', () => {
+            newMessageIndicator.addEventListener("click", () => {
                 scrollToBottom(true);
                 newMessageCount = 0;
-                newMessageIndicator.style.display = 'none';
+                newMessageIndicator.style.display = "none";
             });
 
-            // --- Czyścimy pole po wysłaniu wiadomości ---
-            document.addEventListener("turbo:submit-end", (event) => {
-                const form = event.target;
-                if (form.classList.contains("chat-input-area")) {
-                    const textarea = document.getElementById("whatsappMessageBody");
-                    if (textarea) {
-                        textarea.value = ""; // czyścimy pole
-                        textarea.focus(); // ustawiamy focus
-                    }
+            // ------------------------------
+            //   OBSŁUGA FORMULARZA CZATU
+            // ------------------------------
+            if (!eventsBound) {
+                eventsBound = true;
+
+                const textarea = document.getElementById("whatsappMessageBody");
+                const sendButton = document.getElementById("sendMessageBtn");
+
+                if (textarea) {
+                    // ENTER -> wyślij
+                    textarea.addEventListener("keydown", (event) => {
+                        if (event.key === "Enter" && !event.shiftKey) {
+                            event.preventDefault();
+                            const form = textarea.form;
+
+                            if (!form.classList.contains("sending")) {
+                                form.classList.add("sending");
+                                form.requestSubmit();
+                            }
+                        }
+                    });
+
+                    // czyść pole po wysłaniu
+                    document.addEventListener("turbo:submit-end", (event) => {
+                        const form = event.target;
+
+                        if (form.classList.contains("chat-input-area")) {
+                            textarea.value = "";
+                            textarea.focus();
+                            form.classList.remove("sending");
+                        }
+                    });
                 }
-            });
 
-            // --- Wysyłanie wiadomości Enterem ---
-            const textarea = document.getElementById("whatsappMessageBody");
-            if (textarea) {
-                textarea.addEventListener("keydown", (event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                        event.preventDefault(); // zapobiega wstawieniu nowej linii
-                        textarea.form.requestSubmit(); // wysyła formularz
-                    }
-                });
+                if (sendButton) {
+                    sendButton.addEventListener("click", () => {
+                        const form = sendButton.closest("form");
+
+                        if (!form.classList.contains("sending")) {
+                            form.classList.add("sending");
+                            form.requestSubmit();
+                        }
+                    });
+                }
             }
 
             initialScroll();

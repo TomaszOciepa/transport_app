@@ -24,14 +24,15 @@ module Dispatcher
             whatsapp_group = WhatsappGroup.find_by(id: params[:whatsapp_group_id])
           
             if whatsapp_group && message_body.present?
-              # Wyślij do Node.js
+          
+              # --- Wyślij do Node.js ---
               uri = URI.parse("http://localhost:3005/send_to_group")
               http = Net::HTTP.new(uri.host, uri.port)
               req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
               req.body = { group_id: whatsapp_group.whatsapp_group_id, message: message_body }.to_json
               http.request(req)
           
-              # Zapis do DB
+              # --- Zapis do DB ---
               @message = WhatsappMessage.create!(
                 whatsapp_group: whatsapp_group,
                 from_number: "BOT",
@@ -42,17 +43,28 @@ module Dispatcher
                 raw_data: {}
               )
           
+              # --- UWAGA: tu był duplikat ---
+              # format.turbo_stream powodował podwójne wyświetlanie wiadomości
+          
               respond_to do |format|
-                format.turbo_stream
-                format.html { redirect_to dispatcher_messages_path(group_id: whatsapp_group.id), notice: "Wiadomość wysłana." }
+                format.turbo_stream { head :ok }  # nic nie renderujemy – broadcast zrobi resztę
+                format.html {
+                  redirect_to dispatcher_messages_path(group_id: whatsapp_group.id),
+                  notice: "Wiadomość wysłana."
+                }
               end
+          
             else
               respond_to do |format|
                 format.turbo_stream { head :unprocessable_entity }
-                format.html { redirect_to dispatcher_messages_path(group_id: whatsapp_group&.id), alert: "Nie można wysłać wiadomości." }
+                format.html {
+                  redirect_to dispatcher_messages_path(group_id: whatsapp_group&.id),
+                  alert: "Nie można wysłać wiadomości."
+                }
               end
             end
           end
+          
           
           
           def send_order_to_group
