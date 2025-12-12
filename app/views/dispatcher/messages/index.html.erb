@@ -134,10 +134,28 @@
 <script>
     (function() {
 
-        /* ================= MARK AS READ (DEBUG) ================= */
+        /* ================= MARK AS READ ================= */
+
+        let __markReadInFlight = false;
+
+        function getActiveGroupIdFromDom() {
+            const input = document.querySelector(
+                "input[name='whatsapp_group_id']"
+            );
+            const id = input ? input.value : null;
+            console.log("🔎 getActiveGroupIdFromDom =", id);
+            return id;
+        }
 
         function markChatAsRead(groupId) {
-            console.log("📤 markChatAsRead() called for group:", groupId);
+            if (!groupId) {
+                console.warn("⚠️ markChatAsRead: no groupId");
+                return;
+            }
+            if (__markReadInFlight) return;
+
+            console.log("➡️ markChatAsRead CALLED with:", groupId);
+            __markReadInFlight = true;
 
             fetch(`/dispatcher/messages/${groupId}/mark_as_read`, {
                     method: "POST",
@@ -147,15 +165,18 @@
                             .content
                     }
                 })
-                .then(response => {
-                    console.log("📥 mark_as_read response status:", response.status);
+                .then(r => {
+                    console.log("✅ mark_as_read RESPONSE:", r.status);
                 })
-                .catch(error => {
-                    console.error("❌ mark_as_read error:", error);
+                .catch(err => {
+                    console.error("❌ mark_as_read ERROR:", err);
+                })
+                .finally(() => {
+                    __markReadInFlight = false;
                 });
         }
 
-        /* ================= ACTIVE CHAT ================= */
+        /* ================= ACTIVE CHAT (LEFT COLUMN) ================= */
 
         function markActiveFromUrl() {
             const params = new URLSearchParams(window.location.search);
@@ -178,8 +199,6 @@
             const groupId = link.dataset.groupId;
             if (!groupId) return;
 
-            console.log("🖱️ chat clicked, groupId =", groupId);
-
             document.querySelectorAll(".chat-item.active")
                 .forEach(el => el.classList.remove("active"));
 
@@ -187,9 +206,6 @@
                 `.chat-item[data-group-id='${groupId}']`
             );
             if (item) item.classList.add("active");
-
-            // 🔥 TUTAJ oznaczamy jako przeczytane
-            markChatAsRead(groupId);
         });
 
         /* ================= CHAT LOGIC ================= */
@@ -198,14 +214,14 @@
             const textarea = document.getElementById("whatsappMessageBody");
             const messagesBox = document.getElementById("messagesBox");
             const messagesFrame = document.getElementById("messages");
-            const indicator = document.getElementById("newMessageIndicator");
+            const chatWrapper = document.getElementById("chatWrapper");
 
-            if (!textarea || !messagesBox || !messagesFrame) return;
+            if (!textarea || !messagesBox || !messagesFrame || !chatWrapper) return;
 
-            /* ENTER / SHIFT+ENTER */
+            /* ENTER = SEND */
             if (!textarea.dataset.enterBound) {
                 textarea.dataset.enterBound = "1";
-                textarea.addEventListener("keydown", function(e) {
+                textarea.addEventListener("keydown", e => {
                     if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
                         textarea.form.requestSubmit();
@@ -216,7 +232,7 @@
             /* CLEAR AFTER SEND */
             if (!window.__chatSubmitBound) {
                 window.__chatSubmitBound = true;
-                document.addEventListener("turbo:submit-end", function(e) {
+                document.addEventListener("turbo:submit-end", e => {
                     const form = e.target;
                     if (!form.classList.contains("chat-input-area")) return;
                     textarea.value = "";
@@ -224,35 +240,11 @@
                 });
             }
 
-            /* SCROLL */
-            const BOTTOM_THRESHOLD = 150;
-            let userNearBottom = true;
-            let newCount = 0;
-
-            const scrollToBottom = (smooth = false) => {
-                messagesBox.scrollTo({
-                    top: messagesBox.scrollHeight,
-                    behavior: smooth ? "smooth" : "auto"
-                });
+            /* SCROLL TO BOTTOM */
+            const scrollToBottom = () => {
+                messagesBox.scrollTop = messagesBox.scrollHeight;
             };
 
-            const updatePosition = () => {
-                userNearBottom =
-                    messagesBox.scrollTop + messagesBox.clientHeight >=
-                    messagesBox.scrollHeight - BOTTOM_THRESHOLD;
-
-                if (userNearBottom && indicator) {
-                    newCount = 0;
-                    indicator.style.display = "none";
-                }
-            };
-
-            if (!messagesBox.dataset.scrollBound) {
-                messagesBox.dataset.scrollBound = "1";
-                messagesBox.addEventListener("scroll", updatePosition);
-            }
-
-            /* OBSERVER – NA turbo-frame#messages */
             if (window.__chatObserver) {
                 try {
                     window.__chatObserver.disconnect();
@@ -260,13 +252,7 @@
             }
 
             window.__chatObserver = new MutationObserver(() => {
-                if (userNearBottom) {
-                    scrollToBottom(true);
-                } else if (indicator) {
-                    newCount++;
-                    indicator.innerText = `Nowe wiadomości (${newCount})`;
-                    indicator.style.display = "block";
-                }
+                scrollToBottom();
             });
 
             window.__chatObserver.observe(messagesFrame, {
@@ -274,16 +260,17 @@
                 subtree: true
             });
 
-            if (indicator && !indicator.dataset.bound) {
-                indicator.dataset.bound = "1";
-                indicator.addEventListener("click", () => {
-                    scrollToBottom(true);
-                    newCount = 0;
-                    indicator.style.display = "none";
+            /* 🔥 JEDYNE MIEJSCE mark_as_read */
+            if (!textarea.dataset.readBound) {
+                textarea.dataset.readBound = "1";
+                textarea.addEventListener("focus", () => {
+                    console.log("🖱️ TEXTAREA FOCUS");
+                    const groupId = getActiveGroupIdFromDom();
+                    markChatAsRead(groupId);
                 });
             }
 
-            setTimeout(() => scrollToBottom(false), 100);
+            setTimeout(scrollToBottom, 50);
         }
 
         document.addEventListener("turbo:load", () => {
