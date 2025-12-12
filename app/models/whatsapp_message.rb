@@ -1,9 +1,24 @@
 class WhatsappMessage < ApplicationRecord
   belongs_to :whatsapp_group
 
-  after_create_commit do
-    broadcast_append_to "chat_channel_#{whatsapp_group.id}", target: "messagesBox", partial: "dispatcher/messages/message", locals: { msg: self }
+  # =========================
+  # 📌 SCOPES
+  # =========================
+
+  scope :unread, -> { where(read_at: nil) }
+  scope :read,   -> { where.not(read_at: nil) }
+
+  # =========================
+  # 🔍 HELPERS
+  # =========================
+
+  def unread?
+    read_at.nil?
+  end
+
+  def mark_as_read!
+    return if read_at.present?
+
+    update!(read_at: Time.current)
   end
 end
-
-
