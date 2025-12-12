@@ -31,6 +31,10 @@ class Api::WhatsappMessagesController < ApplicationController
     )
 
     if message.save
+
+      group.update_column(:last_activity_at, message.timestamp)
+
+
       Rails.logger.info(
         "💾 Wiadomość zapisana: #{message.body} | group=#{group.id}"
       )
@@ -48,36 +52,32 @@ class Api::WhatsappMessagesController < ApplicationController
         locals: { msg: message }
       )
 
-            # =========================
-        # 🔔 LEWA KOLUMNA (BADGE / READ)
         # =========================
+        # 🔔 LEWA KOLUMNA (REORDER + BADGE)
+        # =========================
+
         active_group_id = session[:active_whatsapp_group_id]
+        is_active = active_group_id.present? && active_group_id.to_i == group.id
 
-        if active_group_id.present? && active_group_id.to_i == group.id
-          # 🟢 użytkownik JEST w tym czacie → od razu przeczytane
+        # jeśli użytkownik jest w tym czacie → od razu oznacz jako przeczytane
+        if is_active
           message.update_column(:read_at, Time.current)
-
-          Turbo::StreamsChannel.broadcast_replace_to(
-            "chat_notifications",
-            target: "chat_group_#{group.id}",
-            partial: "dispatcher/messages/chat_row",
-            locals: {
-              group:  group.reload,
-              active: true
-            }
-          )
-        else
-          # 🔴 użytkownik NIE jest w tym czacie → badge rośnie
-          Turbo::StreamsChannel.broadcast_replace_to(
-            "chat_notifications",
-            target: "chat_group_#{group.id}",
-            partial: "dispatcher/messages/chat_row",
-            locals: {
-              group:  group.reload,
-              active: false
-            }
-          )
         end
+
+        # 1️⃣ USUŃ stary wiersz z listy
+        Turbo::StreamsChannel.broadcast_remove_to(
+          "chat_notifications",
+          target: "chat_group_#{group.id}"
+        )
+
+        # 2️⃣ DODAJ na górę listy
+        Turbo::StreamsChannel.broadcast_prepend_to(
+          "chat_notifications",
+          target: "chatList",
+          partial: "dispatcher/messages/chat_list_item",
+          locals: { group: group.reload, active: is_active }
+        )
+        
 
 
       render json: { ok: true }

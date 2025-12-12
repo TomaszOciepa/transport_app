@@ -75,7 +75,7 @@ module Dispatcher
       # --- Zapis do DB ---
       @message = WhatsappMessage.create!(
         whatsapp_group: whatsapp_group,
-        from_number:    "BOT",
+        from_number:    "DISPATCHER",
         to_number:      whatsapp_group.whatsapp_group_id,
         body:           message_body,
         is_from_driver: false,
@@ -84,17 +84,70 @@ module Dispatcher
         read_at:        Time.current
       )
 
+      # 🔥 AKTYWNOŚĆ CZATU
+      whatsapp_group.update_column(:last_activity_at, @message.timestamp)
+
       Rails.logger.info("SEND_WHATSAPP: group=#{whatsapp_group.id} msg_id=#{@message.id}")
-      Rails.logger.info("BROADCAST_CHAT: stream=chat_channel_#{whatsapp_group.id} target=messages msg_id=#{@message.id}")
 
 
-      # 🔥 REALTIME PRAWEJ KOLUMNY
+      # =========================
+      # 🔹 PRAWA KOLUMNA (CHAT)
+      # =========================
       Turbo::StreamsChannel.broadcast_append_to(
         "chat_channel_#{whatsapp_group.id}",
         target: "messages",
         partial: "dispatcher/messages/message",
-        locals: { msg: @message } # ← TERAZ OK ✅
+        locals: { msg: @message }
       )
+
+        # =========================
+        # 🔔 LEWA KOLUMNA (REORDER)
+        # =========================
+
+        active_group_id = session[:active_whatsapp_group_id]
+        is_active =
+          active_group_id.present? &&
+          active_group_id.to_i == whatsapp_group.id
+
+        # jeśli jesteś w tym czacie → oznacz jako przeczytane
+        if is_active
+          WhatsappMessage
+            .where(whatsapp_group_id: whatsapp_group.id, read_at: nil)
+            .update_all(read_at: Time.current)
+        end
+
+        # 1️⃣ usuń stary wiersz
+        Turbo::StreamsChannel.broadcast_remove_to(
+          "chat_notifications",
+          target: "chat_group_#{whatsapp_group.id}"
+        )
+
+        # 2️⃣ dodaj na górę listy
+        Turbo::StreamsChannel.broadcast_prepend_to(
+          "chat_notifications",
+          target: "chatList",
+          partial: "dispatcher/messages/chat_row",
+          locals: {
+            group:  whatsapp_group.reload,
+            active: is_active
+          }
+        )
+
+      # 1️⃣ usuń stary wiersz
+      Turbo::StreamsChannel.broadcast_remove_to(
+        "chat_notifications",
+        target: "chat_group_#{whatsapp_group.id}"
+      )
+
+      # 2️⃣ dodaj na górę (bez badge)
+      Turbo::StreamsChannel.broadcast_prepend_to(
+        "chat_notifications",
+        target: "chatList",
+        partial: "dispatcher/messages/chat_list_item",
+        locals: { group: whatsapp_group.reload, active: is_active }
+      )
+      
+
 
       respond_to do |format|
         # ⬇⬇⬇ TO JEST KLUCZ ⬇⬇⬇
@@ -154,7 +207,10 @@ module Dispatcher
     private
 
     def set_groups
-      @groups = WhatsappGroup.includes(:driver).order(created_at: :desc)
+      @groups = WhatsappGroup
+                    .includes(:driver)
+                    .order(Arel.sql("COALESCE(last_activity_at, created_at) DESC"))
+
     end
 
     def set_active_group

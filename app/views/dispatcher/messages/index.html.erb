@@ -13,16 +13,11 @@
 
             <div class="chat-list" id="chatList">
                 <% @groups.each do |group| %>
-                <%= link_to dispatcher_messages_path(group_id: group.id),
-              class: "text-decoration-none text-dark chat-link",
-              data: { turbo_frame: "chat_panel", group_id: group.id } do %>
-
-                <%= render "dispatcher/messages/chat_row",
-              group: group,
-              active: group == @active_group %>
-
+                <%= render "dispatcher/messages/chat_list_item",
+                        group: group,
+                        active: group == @active_group %>
                 <% end %>
-                <% end %>
+
             </div>
         </div>
 
