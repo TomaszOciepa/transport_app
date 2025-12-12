@@ -134,6 +134,24 @@
 <script>
     (function() {
 
+        if (!window.__clearTextareaBound) {
+            window.__clearTextareaBound = true;
+
+            document.addEventListener("turbo:submit-end", function(e) {
+                const form = e.target;
+                if (!form.classList.contains("chat-input-area")) return;
+
+                const textarea = form.querySelector("#whatsappMessageBody");
+                if (!textarea) return;
+
+                console.log("🧹 clearing textarea");
+
+                textarea.value = "";
+                textarea.style.height = ""; // jeśli kiedyś dodasz autoresize
+                textarea.focus();
+            });
+        }
+
         /* ================= MARK AS READ ================= */
 
         let __markReadInFlight = false;
