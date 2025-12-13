@@ -542,3 +542,39 @@ h5 i {
   display: inline-block;
   margin-left: auto;
 }
+
+/* ================= MEDIA IN CHAT ================= */
+
+.chat-image {
+  max-width: 240px;
+  border-radius: 10px;
+  display: block;
+}
+
+.chat-video {
+  max-width: 240px;
+  border-radius: 10px;
+}
+
+.chat-audio {
+  width: 240px;
+}
+
+.chat-file {
+  display: inline-block;
+  padding: 6px 10px;
+  background: #f0f2f5;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #111;
+  font-size: 0.9rem;
+}
+
+.bubble.outgoing .chat-file {
+  background: #cfe9c8;
+}
+
+.media-caption {
+  margin-top: 6px;
+  font-size: 0.9rem;
+}

@@ -1,6 +1,17 @@
 class WhatsappMessage < ApplicationRecord
   belongs_to :whatsapp_group
 
+  has_one_attached :media
+
+  enum :message_type, {
+    text: "text",
+    image: "image",
+    video: "video",
+    audio: "audio",
+    document: "file"
+  }
+
+
   # =========================
   # 📌 SCOPES
   # =========================

@@ -27,8 +27,23 @@ class Api::WhatsappMessagesController < ApplicationController
       is_from_driver: is_driver,
       timestamp:      Time.at(params[:timestamp].to_i),
       raw_data:       params[:raw],
-      read_at:        nil # ⬅ przychodzące = NIEPRZECZYTANE
+      read_at:        nil 
     )
+
+      # ======================================
+      # 📎 MEDIA (ZDJĘCIA / PLIKI / AUDIO / VIDEO)
+      # ======================================
+      if params[:media].present?
+        message.message_type = params[:media][:type] || "file"
+
+        message.media.attach(
+          io: StringIO.new(Base64.decode64(params[:media][:data])),
+          filename: params[:media][:filename],
+          content_type: params[:media][:mimetype]
+        )
+      else
+        message.message_type = "text"
+      end
 
     if message.save
 
