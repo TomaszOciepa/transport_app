@@ -1,113 +1,302 @@
 <div class="container-fluid mt-4">
     <div class="whatsapp-container">
 
-        <!-- LEFT COLUMN -->
+        <!-- ================= LEFT COLUMN ================= -->
         <div class="whatsapp-sidebar">
             <div class="ws-header">
                 <span>Wiadomości</span>
                 <i class="bi bi-chat-dots fs-5"></i>
             </div>
 
-            <div class="chat-list">
-                <% @groups.each do |g| %>
-                <% is_active = (g == @active_group) %>
-                <%= link_to dispatcher_messages_path(group_id: g.id), class: "text-decoration-none text-dark" do %>
-                <div class="chat-item <%= 'active' if is_active %> d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="chat-avatar">
-                            <%= g&.driver&.first_name&.first || "?" %>
-                        </div>
+            <!-- realtime lewa kolumna -->
+            <%= turbo_stream_from "chat_notifications" %>
 
-                        <div>
-                            <div class="fw-bold"><%= g.name %></div>
-                            <div class="text-muted" style="font-size: 0.8rem;">
-                                Kierowca: <%= g.driver&.first_name %> <%= g.driver&.last_name %><br>
-                                <%= truncate(g.whatsapp_group_id.to_s, length: 40) %>
-                            </div>
-                        </div>
-                    </div>
+            <div class="chat-list" id="chatList">
+                <% @groups.each do |group| %>
+                <%= render "dispatcher/messages/chat_list_item",
+                        group: group,
+                        active: group == @active_group %>
+                <% end %>
 
-                    <div class="d-flex align-items-center gap-1">
-                        <% unless g.order_sent %>
-                        <span class="badge bg-danger" style="font-size:1rem; line-height:1;">!</span>
-                        <% end %>
-                        <small class="text-muted"><%= g.created_at.strftime("%d.%m") %></small>
-                    </div>
-                </div>
-                <% end %>
-                <% end %>
             </div>
-
         </div>
 
-        <!-- RIGHT COLUMN (CHAT) -->
-        <div class="whatsapp-chat-area">
+        <!-- ================= RIGHT COLUMN ================= -->
+        <%= turbo_frame_tag "chat_panel", class: "whatsapp-chat-area" do %>
 
-            <% if @active_group.present? %>
-            <div class="chat-header d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="chat-avatar"><%= @active_group&.driver&.first_name&.first || "?" %></div>
-                    <div>
-                        <div class="fw-bold">
-                            <%= link_to @active_group.name, dispatcher_order_path(@active_group.order), class: "text-decoration-none text-dark" %>
-                        </div>
-                        <div class="text-muted" style="font-size: 0.8rem;">
-                            ID: <%= @active_group.id %> • Order: <%= @active_group.order_id %>
-                        </div>
-                    </div>
+        <% if @active_group.present? %>
+
+        <!-- HEADER -->
+        <div class="chat-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <div class="chat-avatar">
+                    <%= @active_group.driver&.first_name&.first || "?" %>
                 </div>
-
-                <!-- shipping button always active -->
-                <div class="ms-auto">
-                    <%= button_to "Wyślij zlecenie", send_order_to_group_dispatcher_message_path(@active_group), method: :post, class: "btn btn-warning btn-sm" %>
+                <div>
+                    <div class="fw-bold">
+                        <%= link_to @active_group.name,
+                  dispatcher_order_path(@active_group.order),
+                  class: "text-decoration-none text-dark" %>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.8rem;">
+                        ID: <%= @active_group.id %> • Order: <%= @active_group.order_id %>
+                    </div>
                 </div>
             </div>
 
-            <!-- messages container -->
-            <div id="messagesBox" class="chat-messages">
+            <%= button_to "Wyślij zlecenie",
+              send_order_to_group_dispatcher_message_path(@active_group),
+              method: :post,
+              class: "btn btn-warning btn-sm" %>
+        </div>
+
+        <!-- CHAT -->
+        <div id="chatWrapper" style="position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0;">
+
+            <div class="chat-messages" id="messagesBox">
+
+                <!-- MUSI być id="messages" -->
+                <%= turbo_frame_tag "messages" do %>
                 <% if @messages.any? %>
-                <% @messages.each do |msg| %>
-                <div class="d-flex flex-column <%= msg.is_from_driver ? 'align-items-start' : 'align-items-end' %>">
-                    <div class="bubble <%= msg.is_from_driver ? 'driver' : 'dispatcher' %>">
-                        <div class="sender-label">
-                            <%= msg.is_from_driver ? "#{@active_group.driver.first_name} #{@active_group.driver.last_name}" : "Dyspozytor" %>
-                        </div>
-                        <div class="bubble-body"><%= simple_format(h(msg.body)) %></div>
-                        <div class="bubble-time"><%= l(msg.timestamp || msg.created_at, format: :short) %></div>
-                    </div>
-                </div>
-                <% end %>
+                <%= render partial: "dispatcher/messages/message",
+                    collection: @messages,
+                    as: :msg %>
                 <% else %>
-                <div class="text-center text-muted">Brak wiadomości w tej grupie.</div>
-                <% end %>
-            </div>
-
-            <!-- input area -->
-            <%= form_with url: send_whatsapp_dispatcher_messages_path, method: :post, local: true, html: { class: "chat-input-area" } do |f| %>
-            <%= f.text_area :body, class: "form-control", rows: 1, placeholder: "Napisz wiadomość..." %>
-            <%= f.hidden_field :whatsapp_group_id, value: @active_group.id %>
-            <button class="btn btn-success"><i class="bi bi-send-fill"></i></button>
-            <% end %>
-
-            <% else %>
-            <div class="h-100 d-flex justify-content-center align-items-center text-muted">
-                <div class="text-center">
-                    <i class="bi bi-chat fs-1 text-muted"></i>
-                    <p>Wybierz rozmowę z listy.</p>
+                <div class="text-center text-muted">
+                    Brak wiadomości w tej grupie.
                 </div>
-            </div>
-            <% end %>
+                <% end %>
+                <% end %>
 
+                <!-- realtime prawa kolumna -->
+                <%= turbo_stream_from "chat_channel_#{@active_group.id}" %>
+            </div>
+
+            <!-- indicator nowych wiadomości -->
+            <div id="newMessageIndicator" style="
+              position: absolute;
+              bottom: 10px;
+              left: 50%;
+              transform: translateX(-50%);
+              background: #0d6efd;
+              color: white;
+              padding: 4px 12px;
+              border-radius: 20px;
+              cursor: pointer;
+              display: none;
+              z-index: 10;
+            ">
+                Nowe wiadomości
+            </div>
         </div>
+
+        <!-- INPUT -->
+        <%= form_with url: send_whatsapp_dispatcher_messages_path,
+          method: :post,
+          local: false,
+          html: { class: "chat-input-area" } do |f| %>
+
+        <%= f.text_area :body,
+            id: "whatsappMessageBody",
+            class: "form-control",
+            rows: 1,
+            placeholder: "Napisz wiadomość…",
+            autocomplete: "off" %>
+
+        <%= f.hidden_field :whatsapp_group_id, value: @active_group.id %>
+
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-send-fill"></i>
+        </button>
+        <% end %>
+
+        <% else %>
+
+        <div class="h-100 d-flex justify-content-center align-items-center text-muted">
+            <div class="text-center">
+                <i class="bi bi-chat fs-1 text-muted"></i>
+                <p>Wybierz rozmowę z listy.</p>
+            </div>
+        </div>
+
+        <% end %>
+
+        <% end %>
     </div>
 </div>
 
+<!-- ================= JS ================= -->
 <script>
-    // auto-scroll to bottom when page loads
-    document.addEventListener("DOMContentLoaded", function() {
-        const box = document.getElementById('messagesBox');
-        if (box) {
-            box.scrollTop = box.scrollHeight;
+    (function() {
+
+        if (!window.__clearTextareaBound) {
+            window.__clearTextareaBound = true;
+
+            document.addEventListener("turbo:submit-end", function(e) {
+                const form = e.target;
+                if (!form.classList.contains("chat-input-area")) return;
+
+                const textarea = form.querySelector("#whatsappMessageBody");
+                if (!textarea) return;
+
+                console.log("🧹 clearing textarea");
+
+                textarea.value = "";
+                textarea.style.height = ""; // jeśli kiedyś dodasz autoresize
+                textarea.focus();
+            });
         }
-    });
+
+        /* ================= MARK AS READ ================= */
+
+        let __markReadInFlight = false;
+
+        function getActiveGroupIdFromDom() {
+            const input = document.querySelector(
+                "input[name='whatsapp_group_id']"
+            );
+            const id = input ? input.value : null;
+            console.log("🔎 getActiveGroupIdFromDom =", id);
+            return id;
+        }
+
+        function markChatAsRead(groupId) {
+            if (!groupId) {
+                console.warn("⚠️ markChatAsRead: no groupId");
+                return;
+            }
+            if (__markReadInFlight) return;
+
+            console.log("➡️ markChatAsRead CALLED with:", groupId);
+            __markReadInFlight = true;
+
+            fetch(`/dispatcher/messages/${groupId}/mark_as_read`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-Token": document
+                            .querySelector("meta[name='csrf-token']")
+                            .content
+                    }
+                })
+                .then(r => {
+                    console.log("✅ mark_as_read RESPONSE:", r.status);
+                })
+                .catch(err => {
+                    console.error("❌ mark_as_read ERROR:", err);
+                })
+                .finally(() => {
+                    __markReadInFlight = false;
+                });
+        }
+
+        /* ================= ACTIVE CHAT (LEFT COLUMN) ================= */
+
+        function markActiveFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const groupId = params.get("group_id");
+            if (!groupId) return;
+
+            document.querySelectorAll(".chat-item.active")
+                .forEach(el => el.classList.remove("active"));
+
+            const item = document.querySelector(
+                `.chat-item[data-group-id='${groupId}']`
+            );
+            if (item) item.classList.add("active");
+        }
+
+        document.addEventListener("click", function(e) {
+            const link = e.target.closest(".chat-link");
+            if (!link) return;
+
+            const groupId = link.dataset.groupId;
+            if (!groupId) return;
+
+            document.querySelectorAll(".chat-item.active")
+                .forEach(el => el.classList.remove("active"));
+
+            const item = document.querySelector(
+                `.chat-item[data-group-id='${groupId}']`
+            );
+            if (item) item.classList.add("active");
+        });
+
+        /* ================= CHAT LOGIC ================= */
+
+        function initChat() {
+            const textarea = document.getElementById("whatsappMessageBody");
+            const messagesBox = document.getElementById("messagesBox");
+            const messagesFrame = document.getElementById("messages");
+            const chatWrapper = document.getElementById("chatWrapper");
+
+            if (!textarea || !messagesBox || !messagesFrame || !chatWrapper) return;
+
+            /* ENTER = SEND */
+            if (!textarea.dataset.enterBound) {
+                textarea.dataset.enterBound = "1";
+                textarea.addEventListener("keydown", e => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        textarea.form.requestSubmit();
+                    }
+                });
+            }
+
+            /* CLEAR AFTER SEND */
+            if (!window.__chatSubmitBound) {
+                window.__chatSubmitBound = true;
+                document.addEventListener("turbo:submit-end", e => {
+                    const form = e.target;
+                    if (!form.classList.contains("chat-input-area")) return;
+                    textarea.value = "";
+                    textarea.focus();
+                });
+            }
+
+            /* SCROLL TO BOTTOM */
+            const scrollToBottom = () => {
+                messagesBox.scrollTop = messagesBox.scrollHeight;
+            };
+
+            if (window.__chatObserver) {
+                try {
+                    window.__chatObserver.disconnect();
+                } catch (e) {}
+            }
+
+            window.__chatObserver = new MutationObserver(() => {
+                scrollToBottom();
+            });
+
+            window.__chatObserver.observe(messagesFrame, {
+                childList: true,
+                subtree: true
+            });
+
+            /* 🔥 JEDYNE MIEJSCE mark_as_read */
+            if (!textarea.dataset.readBound) {
+                textarea.dataset.readBound = "1";
+                textarea.addEventListener("focus", () => {
+                    console.log("🖱️ TEXTAREA FOCUS");
+                    const groupId = getActiveGroupIdFromDom();
+                    markChatAsRead(groupId);
+                });
+            }
+
+            setTimeout(scrollToBottom, 50);
+        }
+
+        document.addEventListener("turbo:load", () => {
+            markActiveFromUrl();
+            initChat();
+        });
+
+        document.addEventListener("turbo:frame-load", e => {
+            if (e.target.id === "chat_panel") {
+                markActiveFromUrl();
+                initChat();
+            }
+        });
+
+    })();
 </script>

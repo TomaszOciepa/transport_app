@@ -1,0 +1,9 @@
+<%= link_to dispatcher_messages_path(group_id: group.id),
+      class: "text-decoration-none text-dark chat-link",
+      data: { turbo_frame: "chat_panel", group_id: group.id } do %>
+
+<%= render "dispatcher/messages/chat_row",
+        group: group,
+        active: local_assigns[:active] %>
+
+<% end %>

@@ -22,6 +22,9 @@
 
         <!-- Sidebar -->
         <nav class="bg-dark text-white vh-100 p-3" style="width: 250px;">
+
+            <%= turbo_stream_from "dispatcher_menu" %>
+
             <div class="mb-4 text-center">
                 <%= link_to root_path, class: "text-white text-decoration-none d-inline-block mb-3" do %>
                 <i class="bi bi-house-door-fill fs-3"></i>
@@ -58,8 +61,21 @@
                     <% end %>
                 </li>
                 <li class="nav-item mb-2">
-                    <%= link_to dispatcher_messages_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_notifications_path)}" do %>
-                    <i class="bi-chat-dots-fill"></i> Wiadomości
+                    <%= link_to dispatcher_messages_path,
+                    class: "nav-link text-white d-flex align-items-center gap-2 #{'fw-bold' if current_page?(dispatcher_messages_path)}" do %>
+
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Wiadomości</span>
+
+                    <!-- 🔔 BADGE -->
+
+
+                    <span id="menu-messages-badge" class="ms-auto">
+                        <% if @has_unread_messages %>
+                        <i class="bi bi-chat-dots-fill text-success fs-5" title="Nowe wiadomości"></i>
+                        <% end %>
+                    </span>
+
                     <% end %>
                 </li>
                 <li class="nav-item mb-2">
