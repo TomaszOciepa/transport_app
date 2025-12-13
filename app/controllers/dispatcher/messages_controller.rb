@@ -40,6 +40,16 @@ module Dispatcher
           active: true
         }
       )
+
+      has_unread = WhatsappMessage.where(read_at: nil).exists?
+
+      Turbo::StreamsChannel.broadcast_replace_to(
+        "dispatcher_menu",
+        target: "menu-messages-badge",
+        partial: "dispatcher/shared/menu_messages_badge",
+        locals: { has_unread: has_unread }
+      )
+
     
       head :ok
     end

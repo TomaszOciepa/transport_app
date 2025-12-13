@@ -78,6 +78,17 @@ class Api::WhatsappMessagesController < ApplicationController
           locals: { group: group.reload, active: is_active }
         )
         
+         # =========================
+        # 🔔 Globalne menu
+        # =========================
+        has_unread = WhatsappMessage.where(read_at: nil).exists?
+
+        Turbo::StreamsChannel.broadcast_replace_to(
+          "dispatcher_menu",
+          target: "menu-messages-badge",
+          partial: "dispatcher/shared/menu_messages_badge",
+          locals: { has_unread: has_unread }
+        )
 
 
       render json: { ok: true }

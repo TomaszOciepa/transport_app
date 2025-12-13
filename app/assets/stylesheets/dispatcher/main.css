@@ -533,3 +533,12 @@ h5 i {
     width: 40%;
   }
 }
+
+.menu-unread-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #25d366; /* WhatsApp green */
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: auto;
+}
