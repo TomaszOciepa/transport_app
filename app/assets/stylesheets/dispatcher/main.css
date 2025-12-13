@@ -578,3 +578,51 @@ h5 i {
   margin-top: 6px;
   font-size: 0.9rem;
 }
+
+.attach-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.attach-btn:hover {
+  background: #e4e6eb;
+}
+
+.attach-btn.file-selected {
+  background: #d9fdd3;
+  color: #075e54;
+}
+
+.file-preview {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-header-action {
+  background: transparent;
+  border: none;
+  color: #198754;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  transition: background 0.15s ease;
+}
+
+.chat-header-action:hover {
+  background: rgba(25, 135, 84, 0.12);
+}
+
+.chat-header-action .action-label {
+  font-weight: 500;
+}

@@ -34,20 +34,28 @@
                 </div>
                 <div>
                     <div class="fw-bold">
-                        <%= link_to @active_group.name,
-                  dispatcher_order_path(@active_group.order),
-                  class: "text-decoration-none text-dark" %>
+                        <%= link_to dispatcher_order_path(@active_group.order),
+                            class: "text-decoration-none text-dark",
+                            title: "Przejdź do zamówienia",
+                            data: { turbo_frame: "_top" } do %>
+                        <%= @active_group.name %>
+                        <% end %>
                     </div>
+
                     <div class="text-muted" style="font-size: 0.8rem;">
                         ID: <%= @active_group.id %> • Order: <%= @active_group.order_id %>
                     </div>
                 </div>
             </div>
 
-            <%= button_to "Wyślij zlecenie",
-              send_order_to_group_dispatcher_message_path(@active_group),
-              method: :post,
-              class: "btn btn-warning btn-sm" %>
+            <%= button_to send_order_to_group_dispatcher_message_path(@active_group),
+    method: :post,
+    class: "chat-header-action text-button",
+    title: "Wyślij zlecenie do tej grupy" do %>
+            <i class="bi bi-clipboard-check"></i>
+            <span class="action-label">Zlecenie</span>
+            <% end %>
+
         </div>
 
         <!-- CHAT -->
@@ -90,11 +98,36 @@
             </div>
         </div>
 
+
+        <!-- ❗ KOMUNIKAT BŁĘDU -->
+        <div id="chat-errors"></div>
+
+
         <!-- INPUT -->
         <%= form_with url: send_whatsapp_dispatcher_messages_path,
           method: :post,
           local: false,
-          html: { class: "chat-input-area" } do |f| %>
+          html: { class: "chat-input-area",  multipart: true } do |f| %>
+
+        <!-- Upload file button -->
+        <div class="chat-attach d-flex align-items-center gap-2" data-controller="file-indicator">
+
+            <!-- PRZYCISK PLUS -->
+            <label for="media-input" class="attach-btn" data-file-indicator-target="button" title="Dodaj plik">
+                <i class="bi bi-plus-lg"></i>
+            </label>
+
+            <!-- INPUT FILE (UKRYTY) -->
+            <%= f.file_field :media,
+                id: "media-input",
+                accept: "image/*,video/*,application/pdf",
+                class: "d-none",
+                data: { action: "change->file-indicator#fileSelected" } %>
+
+            <!-- PODGLĄD NAZWY PLIKU -->
+            <div class="file-preview text-muted small d-none" data-file-indicator-target="preview"></div>
+        </div>
+
 
         <%= f.text_area :body,
             id: "whatsappMessageBody",
@@ -136,16 +169,35 @@
                 const form = e.target;
                 if (!form.classList.contains("chat-input-area")) return;
 
+                // ===== TEXTAREA =====
                 const textarea = form.querySelector("#whatsappMessageBody");
-                if (!textarea) return;
+                if (textarea) {
+                    textarea.value = "";
+                    textarea.style.height = "";
+                    textarea.focus();
+                }
 
-                console.log("🧹 clearing textarea");
+                // ===== FILE RESET =====
+                const preview = form.querySelector(".file-preview");
+                const button = form.querySelector(".attach-btn");
+                const input = form.querySelector("#media-input");
 
-                textarea.value = "";
-                textarea.style.height = ""; // jeśli kiedyś dodasz autoresize
-                textarea.focus();
+                if (preview) {
+                    preview.textContent = "";
+                    preview.classList.add("d-none");
+                }
+
+                if (button) {
+                    button.innerHTML = `<i class="bi bi-plus-lg"></i>`;
+                    button.classList.remove("file-selected");
+                }
+
+                if (input) {
+                    input.value = "";
+                }
             });
         }
+
 
         /* ================= MARK AS READ ================= */
 
