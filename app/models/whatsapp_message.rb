@@ -21,6 +21,10 @@ class WhatsappMessage < ApplicationRecord
   scope :unread, -> { where(read_at: nil) }
   scope :read,   -> { where.not(read_at: nil) }
 
+  scope :with_media, -> {
+    joins(:media_attachment)
+  }
+
   # =========================
   # 🔍 HELPERS
   # =========================

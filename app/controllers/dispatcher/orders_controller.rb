@@ -74,6 +74,8 @@ module Dispatcher
       @active_group = @active_driver ? 
                       @order.whatsapp_groups.find_by(driver_id: @active_driver.id) : 
                       nil
+
+      @media_messages = @order.whatsapp_media_messages
     end
     
     

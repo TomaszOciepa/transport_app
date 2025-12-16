@@ -109,6 +109,13 @@ class Order < ApplicationRecord
   def delivery_place
     delivery_address&.split(',')&.last&.strip
   end
+
+  def whatsapp_media_messages
+    whatsapp_messages
+      .with_media
+      .includes(media_attachment: :blob)
+      .order(created_at: :asc)
+  end
   
   private
 

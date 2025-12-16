@@ -42,6 +42,9 @@ gem "cssbundling-rails"
 
 gem 'devise'
 
+gem "image_processing", "~> 1.2"
+
+
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false
 
