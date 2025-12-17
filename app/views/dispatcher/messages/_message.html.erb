@@ -13,7 +13,9 @@
         <% if msg.media.attached? %>
 
         <% if msg.image? %>
-        <%= image_tag url_for(msg.media), class: "chat-image" %>
+        <%= link_to msg.media, target: "_blank", rel: "noopener" do %>
+            <%= image_tag msg.media, class: "chat-image" %>
+          <% end %>
 
         <% elsif msg.video? %>
         <video controls class="chat-video">

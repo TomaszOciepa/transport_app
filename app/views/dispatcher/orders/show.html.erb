@@ -222,72 +222,92 @@
       )) %>
         </div>
     </div>
+                    
 
 
-    <!-- WhatsApp Chat Section -->
-    <%= render "whatsapp_chat" %>
+    <div class="card pastel-box pastel-box-green p-4 mb-4">
+                <h5 class="mb-3"><i class="bi bi-chat-dots me-2"></i>Wiadomości i pliki</h5>
+                <ul class="list-group whatsapp-groups-list">
 
-    <h3>📎 Pliki WhatsApp</h3>
-
-    <% if @media_messages.any? %>
-    <div class="attachments-grid">
-
-        <% @media_messages.each do |msg| %>
-        <% media = msg.media %>
-
-        <div class="attachment-card">
-
-            <% if media.image? %>
-            <%= link_to url_for(media), target: "_blank", rel: "noopener" do %>
-            <%= image_tag media.variant(resize_to_limit: [200, 200]),
-                loading: "lazy" %>
-            <% end %>
-
-            <% elsif media.previewable? %>
-            <%= link_to url_for(media), target: "_blank", rel: "noopener" do %>
-            <%= image_tag media.preview(resize_to_limit: [200, 200]) %>
-            <% end %>
-
-            <% elsif msg.audio? %>
-            <%= link_to url_for(media), target: "_blank", rel: "noopener" do %>
-            <audio controls>
-                <source src="<%= url_for(media) %>">
-            </audio>
-            <% end %>
-
-            <% elsif msg.video? %>
-            <%= link_to url_for(media), target: "_blank", rel: "noopener" do %>
-            <video controls width="300">
-                <source src="<%= url_for(media) %>">
-            </video>
-            <% end %>
-
-            <% else %>
-            <%= link_to media.filename.to_s,
-              rails_blob_path(media, disposition: "attachment"),
-              target: "_blank",
-              rel: "noopener" %>
-            <% end %>
-
-            <!-- META -->
-            <div class="meta">
-                <small>
-                    <strong><%= msg.message_type %></strong><br>
-                    <%= msg.created_at.strftime("%d.%m.%Y %H:%M") %><br>
-                    Sender: <%= msg.whatsapp_group.driver.first_name %> <%= msg.whatsapp_group.driver.last_name %>
-                </small>
-            </div>
-
-        </div>
-        <% end %>
-
+                <% @whatsapp_groups.each do |g| %>
+                <li class="list-group-item whatsapp-group-item">
+            
+                    <!-- HEADER -->
+                    <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>
+                        <%= g.driver.first_name %> <%= g.driver.last_name %>
+                        </strong><br>
+                        <small class="text-muted"><%= g.name %></small>
+                    </div>
+            
+                    <%= link_to dispatcher_messages_path(group_id: g.id),
+                        class: "btn btn-sm btn-success",
+                        data: { turbo: false } do %>
+                        Otwórz chat
+                    <% end %>
+                    </div>
+            
+                    <!-- FILES -->
+                    <% files = @media_messages_by_group[g.id] %>
+            
+                    <% if files.present? %>
+                    <div class="attachments-grid mt-3">
+                        <% files.each do |msg| %>
+                        <% media = msg.media %>
+            
+                        <div class="attachment-card">
+                        <% icon_class =
+                        if media.image?
+                            "bi bi-image"
+                        elsif msg.video?
+                            "bi bi-camera-video"
+                        elsif msg.audio?
+                            "bi bi-mic"
+                        elsif media.previewable?
+                            "bi bi-file-earmark-text"
+                        else
+                            "bi bi-paperclip"
+                        end
+                        %>
+                        
+                        <%= link_to rails_blob_url(media, disposition: "inline"),
+                            target: "_blank",
+                            rel: "noopener",
+                            class: "d-flex align-items-center gap-2 text-decoration-none" do %>
+                        
+                        <i class="<%= icon_class %> fs-5 text-secondary"></i>
+                        
+                        <span class="small text-truncate" style="max-width: 180px;">
+                            <%= media.filename.to_s %>
+                        </span>
+                        
+                        <% end %>
+                        
+            
+                            <div class="meta">
+                            <small>
+                                <%= msg.created_at.strftime("%d.%m.%Y %H:%M") %>
+                            </small>
+                            </div>
+                        </div>
+            
+                        <% end %>
+                    </div>
+                    <% else %>
+                    <div class="text-muted fst-italic mt-2">
+                        Brak plików od tego kierowcy.
+                    </div>
+                    <% end %>
+            
+                </li>
+                <% end %>
+            
+            </ul>
     </div>
-    <% else %>
-    <p>Brak plików WhatsApp dla tego zamówienia.</p>
-    <% end %>
 
-
-
+   
+  
     <!-- Back -->
     <div class="mt-4">
         <%= link_to dispatcher_orders_path, class: "ios-back-btn ios-btn-back mt-3" do %>
