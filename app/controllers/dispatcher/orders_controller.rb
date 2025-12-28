@@ -74,6 +74,17 @@ module Dispatcher
       @active_group = @active_driver ? 
                       @order.whatsapp_groups.find_by(driver_id: @active_driver.id) : 
                       nil
+
+        @media_messages_by_group =
+                      WhatsappMessage
+                        .joins(:whatsapp_group)
+                        .where(whatsapp_groups: { order_id: @order.id })
+                        .where.associated(:media_attachment)   # 🔥 TO JEST KLUCZ
+                        .includes(
+                          :whatsapp_group,
+                          media_attachment: :blob
+                        )
+                        .group_by(&:whatsapp_group_id)
     end
     
     

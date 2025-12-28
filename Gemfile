@@ -20,6 +20,8 @@ gem "jbuilder"
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 
+gem 'openssl', '~> 4.0'
+
 gem "geocoder"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -41,6 +43,9 @@ gem "bootsnap", require: false
 gem "cssbundling-rails"
 
 gem 'devise'
+
+gem "image_processing", "~> 1.2"
+
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false

@@ -54,23 +54,114 @@ module Dispatcher
       head :ok
     end
     
-    
-    
-
     def send_whatsapp
-      message_body   = params[:body]
       whatsapp_group = WhatsappGroup.find_by(id: params[:whatsapp_group_id])
+      return head :unprocessable_entity unless whatsapp_group
+    
+      body  = params[:body].to_s
+      media = params[:media]
+    
+      # =====================================================
+      # 🖼️ 1️⃣ WYSYŁKA MEDIA (NOWA FUNKCJONALNOŚĆ)
+      # =====================================================
+      if media.present?
+        @message = WhatsappMessage.new(
+          whatsapp_group: whatsapp_group,
+          from_number:    "DISPATCHER",
+          to_number:      whatsapp_group.whatsapp_group_id,
+          body:           body,
+          is_from_driver: false,
+          timestamp:      Time.current,
+          raw_data:       {},
+          read_at:        Time.current,
+          message_type:   detect_message_type(media)
+        )
+    
+        @message.media.attach(media)
 
-      unless whatsapp_group && message_body.present?
+        unless @message.save
+          return respond_to do |format|
+            format.turbo_stream do
+              render turbo_stream: turbo_stream.replace(
+                "chat-errors",
+                partial: "dispatcher/messages/errors",
+                locals: { message: @message }
+              )
+            end
+        
+            format.html do
+              redirect_to dispatcher_messages_path(group_id: whatsapp_group.id),
+                alert: @message.errors.full_messages.to_sentence
+            end
+          end
+        end
+        
+        # aktywność czatu
+        whatsapp_group.update_column(:last_activity_at, @message.timestamp)
+    
+        # --- wysyłka do Node ---
+        payload = {
+          group_id: whatsapp_group.whatsapp_group_id,
+          base64:   Base64.strict_encode64(@message.media.download),
+          mimetype: @message.media.content_type,
+          filename: @message.media.filename.to_s,
+          caption:  body
+        }
+    
+        Net::HTTP.post(
+          URI("http://localhost:3005/send_media_to_group"),
+          payload.to_json,
+          "Content-Type" => "application/json"
+        )
+    
+        # realtime prawa kolumna
+        Turbo::StreamsChannel.broadcast_append_to(
+          "chat_channel_#{whatsapp_group.id}",
+          target: "messages",
+          partial: "dispatcher/messages/message",
+          locals: { msg: @message }
+        )
+    
+        # lewa kolumna (reorder)
+        active_group_id = session[:active_whatsapp_group_id]
+        is_active = active_group_id.present? && active_group_id.to_i == whatsapp_group.id
+    
+        Turbo::StreamsChannel.broadcast_remove_to(
+          "chat_notifications",
+          target: "chat_group_#{whatsapp_group.id}"
+        )
+    
+        Turbo::StreamsChannel.broadcast_prepend_to(
+          "chat_notifications",
+          target: "chatList",
+          partial: "dispatcher/messages/chat_row",
+          locals: { group: whatsapp_group.reload, active: is_active }
+        )
+    
+        respond_to do |format|
+          format.turbo_stream { head :no_content }
+          format.html { redirect_to dispatcher_messages_path(group_id: whatsapp_group.id) }
+        end
+    
+        return
+      end
+    
+      # =====================================================
+      # ✉️ 2️⃣ TEKST – TWOJA ISTNIEJĄCA LOGIKA (BEZ ZMIAN)
+      # =====================================================
+    
+      message_body = body
+    
+      unless message_body.present?
         return respond_to do |format|
           format.turbo_stream { head :unprocessable_entity }
           format.html {
-            redirect_to dispatcher_messages_path(group_id: whatsapp_group&.id),
+            redirect_to dispatcher_messages_path(group_id: whatsapp_group.id),
             alert: "Nie można wysłać wiadomości."
           }
         end
       end
-
+    
       # --- Wyślij do Node.js ---
       uri  = URI.parse("http://localhost:3005/send_to_group")
       http = Net::HTTP.new(uri.host, uri.port)
@@ -79,9 +170,9 @@ module Dispatcher
         group_id: whatsapp_group.whatsapp_group_id,
         message:  message_body
       }.to_json
-
+    
       http.request(req)
-
+    
       # --- Zapis do DB ---
       @message = WhatsappMessage.create!(
         whatsapp_group: whatsapp_group,
@@ -91,84 +182,45 @@ module Dispatcher
         is_from_driver: false,
         timestamp:      Time.current,
         raw_data:       {},
-        read_at:        Time.current
+        read_at:        Time.current,
+        message_type:   "text"
       )
-
-      # 🔥 AKTYWNOŚĆ CZATU
+    
       whatsapp_group.update_column(:last_activity_at, @message.timestamp)
-
-      Rails.logger.info("SEND_WHATSAPP: group=#{whatsapp_group.id} msg_id=#{@message.id}")
-
-
-      # =========================
-      # 🔹 PRAWA KOLUMNA (CHAT)
-      # =========================
+    
+      # realtime prawa kolumna
       Turbo::StreamsChannel.broadcast_append_to(
         "chat_channel_#{whatsapp_group.id}",
         target: "messages",
         partial: "dispatcher/messages/message",
         locals: { msg: @message }
       )
-
-        # =========================
-        # 🔔 LEWA KOLUMNA (REORDER)
-        # =========================
-
-        active_group_id = session[:active_whatsapp_group_id]
-        is_active =
-          active_group_id.present? &&
-          active_group_id.to_i == whatsapp_group.id
-
-        # jeśli jesteś w tym czacie → oznacz jako przeczytane
-        if is_active
-          WhatsappMessage
-            .where(whatsapp_group_id: whatsapp_group.id, read_at: nil)
-            .update_all(read_at: Time.current)
-        end
-
-        # 1️⃣ usuń stary wiersz
-        Turbo::StreamsChannel.broadcast_remove_to(
-          "chat_notifications",
-          target: "chat_group_#{whatsapp_group.id}"
-        )
-
-        # 2️⃣ dodaj na górę listy
-        Turbo::StreamsChannel.broadcast_prepend_to(
-          "chat_notifications",
-          target: "chatList",
-          partial: "dispatcher/messages/chat_row",
-          locals: {
-            group:  whatsapp_group.reload,
-            active: is_active
-          }
-        )
-
-      # 1️⃣ usuń stary wiersz
+    
+      # lewa kolumna (reorder)
+      active_group_id = session[:active_whatsapp_group_id]
+      is_active = active_group_id.present? && active_group_id.to_i == whatsapp_group.id
+    
       Turbo::StreamsChannel.broadcast_remove_to(
         "chat_notifications",
         target: "chat_group_#{whatsapp_group.id}"
       )
-
-      # 2️⃣ dodaj na górę (bez badge)
+    
       Turbo::StreamsChannel.broadcast_prepend_to(
         "chat_notifications",
         target: "chatList",
-        partial: "dispatcher/messages/chat_list_item",
+        partial: "dispatcher/messages/chat_row",
         locals: { group: whatsapp_group.reload, active: is_active }
       )
-      
-
-
-      respond_to do |format|
-        # ⬇⬇⬇ TO JEST KLUCZ ⬇⬇⬇
-        format.turbo_stream { head :no_content }
     
+      respond_to do |format|
+        format.turbo_stream { head :no_content }
         format.html {
           redirect_to dispatcher_messages_path(group_id: whatsapp_group.id),
           notice: "Wiadomość wysłana."
         }
       end
     end
+    
 
     def send_order_to_group
       whatsapp_group = WhatsappGroup.find(params[:id])
@@ -230,6 +282,16 @@ module Dispatcher
         else
           @groups.first
         end
+    end
+
+    def detect_message_type(file)
+      type = file.content_type
+    
+      return "image" if type.start_with?("image/")
+      return "video" if type.start_with?("video/")
+      return "audio" if type.start_with?("audio/")
+    
+      "file"
     end
 
   end

@@ -10,7 +10,37 @@
     </div>
 
     <div class="bubble-body">
+        <% if msg.media.attached? %>
+
+        <% if msg.image? %>
+        <%= link_to msg.media, target: "_blank", rel: "noopener" do %>
+            <%= image_tag msg.media, class: "chat-image" %>
+          <% end %>
+
+        <% elsif msg.video? %>
+        <video controls class="chat-video">
+            <source src="<%= url_for(msg.media) %>" type="<%= msg.media.content_type %>">
+        </video>
+
+        <% elsif msg.audio? %>
+        <audio controls class="chat-audio">
+            <source src="<%= url_for(msg.media) %>" type="<%= msg.media.content_type %>">
+        </audio>
+
+        <% else %>
+        <a href="<%= url_for(msg.media) %>" target="_blank" class="chat-file">
+            📎 <%= msg.media.filename.to_s %>
+        </a>
+        <% end %>
+
+        <%# opcjonalny caption (WhatsApp-style) %>
+        <% if msg.body.present? %>
+        <p class="media-caption"><%= msg.body %></p>
+        <% end %>
+
+        <% else %>
         <%= simple_format(msg.body) %>
+        <% end %>
     </div>
 
     <div class="bubble-time">
