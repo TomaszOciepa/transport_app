@@ -1,361 +1,176 @@
-<div class="container-fluid mt-4">
-    <div class="whatsapp-container">
+<div class="container-fluid mt-4" data-controller="chat">
+  <div class="whatsapp-container">
 
-        <!-- ================= LEFT COLUMN ================= -->
-        <div class="whatsapp-sidebar">
-            <div class="ws-header">
-                <span>Wiadomości</span>
-                <i class="bi bi-chat-dots fs-5"></i>
-            </div>
+    <!-- ================= LEFT COLUMN ================= -->
+    <div class="whatsapp-sidebar">
+      <div class="ws-header">
+        <span>Wiadomości</span>
+        <i class="bi bi-chat-dots fs-5"></i>
+      </div>
 
-            <!-- realtime lewa kolumna -->
-            <%= turbo_stream_from "chat_notifications" %>
+      <!-- realtime lewa kolumna -->
+      <%= turbo_stream_from "chat_notifications" %>
 
-            <div class="chat-list" id="chatList">
-                <% @groups.each do |group| %>
-                <%= render "dispatcher/messages/chat_list_item",
-                        group: group,
-                        active: group == @active_group %>
-                <% end %>
+      <div class="chat-list" id="chatList">
+        <% @groups.each do |group| %>
+          <%= render "dispatcher/messages/chat_list_item",
+                group: group,
+                active: group == @active_group %>
+        <% end %>
+      </div>
+    </div>
 
-            </div>
-        </div>
+    <!-- ================= RIGHT COLUMN ================= -->
+    <%= turbo_frame_tag "chat_panel", class: "whatsapp-chat-area" do %>
 
-        <!-- ================= RIGHT COLUMN ================= -->
-        <%= turbo_frame_tag "chat_panel", class: "whatsapp-chat-area" do %>
-
-        <% if @active_group.present? %>
+      <% if @active_group.present? %>
 
         <!-- HEADER -->
         <div class="chat-header d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-                <div class="chat-avatar">
-                    <%= @active_group.driver&.first_name&.first || "?" %>
-                </div>
-                <div>
-                    <div class="fw-bold">
-                        <%= link_to dispatcher_order_path(@active_group.order),
-                            class: "text-decoration-none text-dark",
-                            title: "Przejdź do zamówienia",
-                            data: { turbo_frame: "_top" } do %>
-                        <%= @active_group.name %>
-                        <% end %>
-                    </div>
-
-                    <div class="text-muted" style="font-size: 0.8rem;">
-                        ID: <%= @active_group.id %> • Order: <%= @active_group.order_id %>
-                    </div>
-                </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="chat-avatar">
+              <%= @active_group.driver&.first_name&.first || "?" %>
             </div>
+            <div>
+              <div class="fw-bold">
+                <%= link_to dispatcher_order_path(@active_group.order),
+                      class: "text-decoration-none text-dark",
+                      title: "Przejdź do zamówienia",
+                      data: { turbo_frame: "_top" } do %>
+                  <%= @active_group.name %>
+                <% end %>
+              </div>
 
-            <%= button_to send_order_to_group_dispatcher_message_path(@active_group),
-    method: :post,
-    class: "chat-header-action text-button",
-    title: "Wyślij zlecenie do tej grupy" do %>
+              <div class="text-muted" style="font-size: 0.8rem;">
+                ID: <%= @active_group.id %> • Order: <%= @active_group.order_id %>
+              </div>
+            </div>
+          </div>
+
+          <%= button_to send_order_to_group_dispatcher_message_path(@active_group),
+                method: :post,
+                class: "chat-header-action text-button",
+                title: "Wyślij zlecenie do tej grupy" do %>
             <i class="bi bi-clipboard-check"></i>
             <span class="action-label">Zlecenie</span>
-            <% end %>
-
+          <% end %>
         </div>
 
         <!-- CHAT -->
-        <div id="chatWrapper" style="position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0;">
+        <div
+          id="chatWrapper"
+          data-chat-target="chatWrapper"
+          style="position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0;"
+        >
 
-            <div class="chat-messages" id="messagesBox">
+          <div
+            class="chat-messages"
+            id="messagesBox"
+            data-chat-target="messagesBox"
+          >
 
-                <!-- MUSI być id="messages" -->
-                <%= turbo_frame_tag "messages" do %>
-                <% if @messages.any? %>
+            <!-- MUSI być id="messages" -->
+            <%= turbo_frame_tag "messages", data: { chat_target: "messagesFrame" } do %>
+              <% if @messages.any? %>
                 <%= render partial: "dispatcher/messages/message",
-                    collection: @messages,
-                    as: :msg %>
-                <% else %>
+                      collection: @messages,
+                      as: :msg %>
+              <% else %>
                 <div class="text-center text-muted">
-                    Brak wiadomości w tej grupie.
+                  Brak wiadomości w tej grupie.
                 </div>
-                <% end %>
-                <% end %>
+              <% end %>
+            <% end %>
 
-                <!-- realtime prawa kolumna -->
-                <%= turbo_stream_from "chat_channel_#{@active_group.id}" %>
-            </div>
+            <!-- realtime prawa kolumna -->
+            <%= turbo_stream_from "chat_channel_#{@active_group.id}" %>
+          </div>
 
-            <!-- indicator nowych wiadomości -->
-            <div id="newMessageIndicator" style="
-              position: absolute;
-              bottom: 10px;
-              left: 50%;
-              transform: translateX(-50%);
-              background: #0d6efd;
-              color: white;
-              padding: 4px 12px;
-              border-radius: 20px;
-              cursor: pointer;
-              display: none;
-              z-index: 10;
-            ">
-                Nowe wiadomości
-            </div>
+          <!-- indicator nowych wiadomości -->
+          <div id="newMessageIndicator" style="
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0d6efd;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: none;
+            z-index: 10;
+          ">
+            Nowe wiadomości
+          </div>
         </div>
-
 
         <!-- ❗ KOMUNIKAT BŁĘDU -->
         <div id="chat-errors"></div>
 
-
         <!-- INPUT -->
         <%= form_with url: send_whatsapp_dispatcher_messages_path,
-          method: :post,
-          local: false,
-          html: { class: "chat-input-area",  multipart: true } do |f| %>
+              method: :post,
+              local: false,
+              html: { class: "chat-input-area", multipart: true } do |f| %>
 
-        <!-- Upload file button -->
-        <div class="chat-attach d-flex align-items-center gap-2" data-controller="file-indicator">
+          <!-- Upload file button -->
+          <div class="chat-attach d-flex align-items-center gap-2" data-controller="file-indicator">
 
             <!-- PRZYCISK PLUS -->
-            <label for="media-input" class="attach-btn" data-file-indicator-target="button" title="Dodaj plik">
-                <i class="bi bi-plus-lg"></i>
+            <label
+              for="media-input"
+              class="attach-btn"
+              title="Dodaj plik"
+              data-chat-target="attachButton"
+              data-file-indicator-target="button"
+            >
+              <i class="bi bi-plus-lg"></i>
             </label>
 
             <!-- INPUT FILE (UKRYTY) -->
             <%= f.file_field :media,
-                id: "media-input",
-                accept: "image/*,video/*,application/pdf",
-                class: "d-none",
-                data: { action: "change->file-indicator#fileSelected" } %>
+                  id: "media-input",
+                  accept: "image/*,video/*,application/pdf",
+                  class: "d-none",
+                  data: {
+                    chat_target: "mediaInput",
+                    action: "change->file-indicator#fileSelected"
+                  } %>
 
             <!-- PODGLĄD NAZWY PLIKU -->
-            <div class="file-preview text-muted small d-none" data-file-indicator-target="preview"></div>
-        </div>
+            <div
+              class="file-preview text-muted small d-none"
+              data-chat-target="filePreview"
+              data-file-indicator-target="preview"
+            ></div>
+          </div>
 
+          <%= f.text_area :body,
+                id: "whatsappMessageBody",
+                class: "form-control",
+                rows: 1,
+                placeholder: "Napisz wiadomość…",
+                autocomplete: "off",
+                data: { chat_target: "textarea" } %>
 
-        <%= f.text_area :body,
-            id: "whatsappMessageBody",
-            class: "form-control",
-            rows: 1,
-            placeholder: "Napisz wiadomość…",
-            autocomplete: "off" %>
+          <%= f.hidden_field :whatsapp_group_id, value: @active_group.id %>
 
-        <%= f.hidden_field :whatsapp_group_id, value: @active_group.id %>
-
-        <button type="submit" class="btn btn-success">
+          <button type="submit" class="btn btn-success">
             <i class="bi bi-send-fill"></i>
-        </button>
+          </button>
         <% end %>
 
-        <% else %>
+      <% else %>
 
         <div class="h-100 d-flex justify-content-center align-items-center text-muted">
-            <div class="text-center">
-                <i class="bi bi-chat fs-1 text-muted"></i>
-                <p>Wybierz rozmowę z listy.</p>
-            </div>
+          <div class="text-center">
+            <i class="bi bi-chat fs-1 text-muted"></i>
+            <p>Wybierz rozmowę z listy.</p>
+          </div>
         </div>
 
-        <% end %>
+      <% end %>
 
-        <% end %>
-    </div>
+    <% end %>
+  </div>
 </div>
-
-<!-- ================= JS ================= -->
-<script>
-    (function() {
-
-        if (!window.__clearTextareaBound) {
-            window.__clearTextareaBound = true;
-
-            document.addEventListener("turbo:submit-end", function(e) {
-                const form = e.target;
-                if (!form.classList.contains("chat-input-area")) return;
-
-                // ===== TEXTAREA =====
-                const textarea = form.querySelector("#whatsappMessageBody");
-                if (textarea) {
-                    textarea.value = "";
-                    textarea.style.height = "";
-                    textarea.focus();
-                }
-
-                // ===== FILE RESET =====
-                const preview = form.querySelector(".file-preview");
-                const button = form.querySelector(".attach-btn");
-                const input = form.querySelector("#media-input");
-
-                if (preview) {
-                    preview.textContent = "";
-                    preview.classList.add("d-none");
-                }
-
-                if (button) {
-                    button.innerHTML = `<i class="bi bi-plus-lg"></i>`;
-                    button.classList.remove("file-selected");
-                }
-
-                if (input) {
-                    input.value = "";
-                }
-            });
-        }
-
-
-        // ================= MARK AS READ =================
-
-        let __markReadInFlight = false;
-
-        function getActiveGroupIdFromDom() {
-            const input = document.querySelector(
-                "input[name='whatsapp_group_id']"
-            );
-            const id = input ? input.value : null;
-            console.log("🔎 getActiveGroupIdFromDom =", id);
-            return id;
-        }
-
-        function markChatAsRead(groupId) {
-            if (!groupId) {
-                console.warn("⚠️ markChatAsRead: no groupId");
-                return;
-            }
-            if (__markReadInFlight) return;
-
-            console.log("➡️ markChatAsRead CALLED with:", groupId);
-            __markReadInFlight = true;
-
-            fetch(`/dispatcher/messages/${groupId}/mark_as_read`, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-Token": document
-                            .querySelector("meta[name='csrf-token']")
-                            .content
-                    }
-                })
-                .then(r => {
-                    console.log("✅ mark_as_read RESPONSE:", r.status);
-                })
-                .catch(err => {
-                    console.error("❌ mark_as_read ERROR:", err);
-                })
-                .finally(() => {
-                    __markReadInFlight = false;
-                });
-        }
-
-        // ================= ACTIVE CHAT (LEFT COLUMN) ================= 
-
-        function markActiveFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            const groupId = params.get("group_id");
-            if (!groupId) return;
-
-            document.querySelectorAll(".chat-item.active")
-                .forEach(el => el.classList.remove("active"));
-
-            const item = document.querySelector(
-                `.chat-item[data-group-id='${groupId}']`
-            );
-            if (item) item.classList.add("active");
-        }
-        
-        document.addEventListener("click", function(e) {
-            const link = e.target.closest(".chat-link");
-            if (!link) return;
-          
-            const groupId = link.dataset.groupId;
-            if (!groupId) return;
-          
-            // 🔥 1️⃣ UPDATE URL (KLUCZ)
-            const newUrl = new URL(window.location);
-            newUrl.searchParams.set("group_id", groupId);
-            window.history.pushState({}, "", newUrl);
-          
-            // 🔥 2️⃣ UPDATE ACTIVE STATE
-            document.querySelectorAll(".chat-item.active")
-              .forEach(el => el.classList.remove("active"));
-          
-            const item = document.querySelector(
-              `.chat-item[data-group-id='${groupId}']`
-            );
-            if (item) item.classList.add("active");
-          });
-          
-
-        // ================= CHAT LOGIC =================
-
-        function initChat() {
-            const textarea = document.getElementById("whatsappMessageBody");
-            const messagesBox = document.getElementById("messagesBox");
-            const messagesFrame = document.getElementById("messages");
-            const chatWrapper = document.getElementById("chatWrapper");
-
-            if (!textarea || !messagesBox || !messagesFrame || !chatWrapper) return;
-
-            // ENTER = SEND 
-            if (!textarea.dataset.enterBound) {
-                textarea.dataset.enterBound = "1";
-                textarea.addEventListener("keydown", e => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        textarea.form.requestSubmit();
-                    }
-                });
-            }
-
-            // CLEAR AFTER SEND 
-            if (!window.__chatSubmitBound) {
-                window.__chatSubmitBound = true;
-                document.addEventListener("turbo:submit-end", e => {
-                    const form = e.target;
-                    if (!form.classList.contains("chat-input-area")) return;
-                    textarea.value = "";
-                    textarea.focus();
-                });
-            }
-
-            // SCROLL TO BOTTOM
-            const scrollToBottom = () => {
-                messagesBox.scrollTop = messagesBox.scrollHeight;
-            };
-
-            if (window.__chatObserver) {
-                try {
-                    window.__chatObserver.disconnect();
-                } catch (e) {}
-            }
-
-            window.__chatObserver = new MutationObserver(() => {
-                scrollToBottom();
-            });
-
-            window.__chatObserver.observe(messagesFrame, {
-                childList: true,
-                subtree: true
-            });
-
-            // 🔥 JEDYNE MIEJSCE mark_as_read
-            if (!textarea.dataset.readBound) {
-                textarea.dataset.readBound = "1";
-                textarea.addEventListener("focus", () => {
-                    console.log("🖱️ TEXTAREA FOCUS");
-                    const groupId = getActiveGroupIdFromDom();
-                    markChatAsRead(groupId);
-                });
-            }
-
-            setTimeout(scrollToBottom, 50);
-        }
-
-        document.addEventListener("turbo:load", () => {
-            markActiveFromUrl();
-            initChat();
-        });
-
-        document.addEventListener("turbo:frame-load", e => {
-            if (e.target.id === "chat_panel") {
-                markActiveFromUrl();
-                initChat();
-            }
-        });
-
-    })();
-</script>
