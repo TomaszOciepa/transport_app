@@ -392,12 +392,41 @@
      FORMS / TABLES / MISC
      ============================================================ */
   
-  .pastel-select { /* bez zmian */ }
-  .table-responsive.shadow-sm.rounded { /* bez zmian */ }
-  .vehicle-marker { /* bez zmian */ }
-  .icon-wrapper { /* bez zmian */ }
-  .status-badge { /* bez zmian */ }
-  .static-warning { /* bez zmian */ }
+  /* ----------------------------
+   Selects
+----------------------------- */
+.pastel-select {
+  background-color: #f9f9f9;
+  border: 1px solid #d1d1d1;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    outline: none;
+  }
+}
+ /* ----------------------------
+   Tables
+----------------------------- */
+.table-responsive.shadow-sm.rounded {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.icon-wrapper {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 
 /* =========================================================
    WHATSAPP CHAT – FULL STYLES (SAFE VERSION)
