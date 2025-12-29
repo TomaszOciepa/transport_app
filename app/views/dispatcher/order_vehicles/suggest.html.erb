@@ -41,9 +41,8 @@
                         <%= vehicle.brand %>
                     </p>
 
-                    <%# Set color depending on distance %>
-                    <%
-                            distance_color =
+                    
+                    <% distance_color =
                                 if distance.nil?
                                 "text-secondary"
                                 elsif distance <= 130

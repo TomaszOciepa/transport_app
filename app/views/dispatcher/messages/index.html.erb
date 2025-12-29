@@ -199,7 +199,7 @@
         }
 
 
-        /* ================= MARK AS READ ================= */
+        // ================= MARK AS READ =================
 
         let __markReadInFlight = false;
 
@@ -241,7 +241,7 @@
                 });
         }
 
-        /* ================= ACTIVE CHAT (LEFT COLUMN) ================= */
+        // ================= ACTIVE CHAT (LEFT COLUMN) ================= 
 
         function markActiveFromUrl() {
             const params = new URLSearchParams(window.location.search);
@@ -273,7 +273,7 @@
             if (item) item.classList.add("active");
         });
 
-        /* ================= CHAT LOGIC ================= */
+        // ================= CHAT LOGIC =================
 
         function initChat() {
             const textarea = document.getElementById("whatsappMessageBody");
@@ -283,7 +283,7 @@
 
             if (!textarea || !messagesBox || !messagesFrame || !chatWrapper) return;
 
-            /* ENTER = SEND */
+            // ENTER = SEND 
             if (!textarea.dataset.enterBound) {
                 textarea.dataset.enterBound = "1";
                 textarea.addEventListener("keydown", e => {
@@ -294,7 +294,7 @@
                 });
             }
 
-            /* CLEAR AFTER SEND */
+            // CLEAR AFTER SEND 
             if (!window.__chatSubmitBound) {
                 window.__chatSubmitBound = true;
                 document.addEventListener("turbo:submit-end", e => {
@@ -305,7 +305,7 @@
                 });
             }
 
-            /* SCROLL TO BOTTOM */
+            // SCROLL TO BOTTOM
             const scrollToBottom = () => {
                 messagesBox.scrollTop = messagesBox.scrollHeight;
             };
@@ -325,7 +325,7 @@
                 subtree: true
             });
 
-            /* 🔥 JEDYNE MIEJSCE mark_as_read */
+            // 🔥 JEDYNE MIEJSCE mark_as_read
             if (!textarea.dataset.readBound) {
                 textarea.dataset.readBound = "1";
                 textarea.addEventListener("focus", () => {
