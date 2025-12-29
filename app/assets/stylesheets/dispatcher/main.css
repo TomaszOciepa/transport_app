@@ -9,6 +9,41 @@ body {
   background-color: #f7f9fb;
 }
 
+html {
+  overflow-y: scroll;
+}
+
+
+/* =========================================================
+   DISPATCHER SIDEBAR – STABILNA SZEROKOŚĆ
+   ========================================================= */
+
+   .dispatcher-sidebar {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+  
+    flex-shrink: 0; /* 🔥 NAJWAŻNIEJSZE */
+  }
+  
+  /* Mobile */
+  @media (max-width: 768px) {
+    .dispatcher-sidebar {
+      width: 220px;
+      min-width: 220px;
+      max-width: 220px;
+    }
+  }
+
+  /* =========================================================
+   CONTENT – ZABEZPIECZENIE PRZED SKAKANIEM
+   ========================================================= */
+
+.dispatcher-content {
+  min-width: 0; /* 🔥 ważne dla flexboxa */
+  overflow-x: hidden;
+}
+
 /* ----------------------------
   Pastel boxes
 ----------------------------- */
@@ -36,6 +71,195 @@ body {
 .pastel-box-pink {
   background: rgba(255, 183, 178, 0.2);
 }
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+   .dispatcher-dashboard-title {
+    color: #2c2c2c;
+    font-size: 2rem;
+    letter-spacing: 0.5px;
+  }
+  
+  /* =========================================================
+     DASHBOARD CARDS
+     ========================================================= */
+  
+  .dashboard-card {
+    width: 150px;
+    height: 130px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .dashboard-card__icon {
+    font-size: 2rem;
+    color: #212529;
+  }
+  
+  .dashboard-card__title {
+    color: #2c2c2c;
+    font-size: 1rem;
+  }
+  
+/* =========================================================
+   BACKGROUND COLOR UTILITIES (GLOBAL)
+   ========================================================= */
+
+   .bg-blue {
+    background-color: #a3cef1;
+  }
+  
+  .bg-green {
+    background-color: #b5ead7;
+  }
+  
+  .bg-yellow {
+    background-color: #ffd6a5;
+  }
+  
+  .bg-mint {
+    background-color: #c7e9b0;
+  }
+  
+  .bg-pink {
+    background-color: #ffb7b2;
+  }
+  
+  .bg-purple {
+    background-color: #e2c1f0;
+  }
+  
+  /* neutral */
+  .bg-gray {
+    background-color: #f0f0f0;
+  }
+
+
+  /* =========================================================
+   PASTEL ALERTS – KOLORY Z BOOTSTRAPA
+   ========================================================= */
+
+.alert {
+  backdrop-filter: blur(12px);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* SUCCESS */
+.alert-success {
+  background-color: rgba(25, 135, 84, 0.18);
+  color: #0f5132;
+}
+
+/* DANGER */
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.18);
+  color: #842029;
+}
+
+/* INFO */
+.alert-info {
+  background-color: rgba(13, 202, 240, 0.18);
+  color: #055160;
+}
+
+
+/* =========================================================
+   SUGGESTIONS HEADER
+   ========================================================= */
+
+   .suggestions-header {
+    color: #1c1c1e;
+    font-family: "SF Pro Display", "Poppins", sans-serif;
+    letter-spacing: -0.3px;
+  }
+  
+  .suggestions-header__icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  
+  .suggestions-header__title {
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+  
+  .suggestions-header__accent {
+    color: #007aff;
+  }
+  
+  .suggestions-badge {
+    background-color: #007aff;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  /* =========================================================
+     SUGGESTION CARDS
+     ========================================================= */
+  
+  .suggestion-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  
+  .suggestion-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .suggestion-icon {
+    font-size: 1.5rem;
+    color: #f0ad4e;
+  }
+  
+  .suggestion-title {
+    color: #2c2c2c;
+  }
+  
+  .suggestion-link {
+    text-decoration: none;
+    color: #2c2c2c;
+  }
+  
+  .suggestion-link:hover {
+    text-decoration: underline;
+  }
+  
+  .suggestion-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+  }
+  
+  /* =========================================================
+     BACKGROUND UTILITIES – SOFT STATES
+     ========================================================= */
+  
+  .bg-danger-soft {
+    background-color: #ffe5e5;
+  }
+  
+  .bg-warning-soft {
+    background-color: #fff6e5;
+  }
+  
+  .bg-warning-light {
+    background-color: #fff3cd;
+  }
+  
+  .bg-success-soft {
+    background-color: #e9fbef;
+  }
+  
+  
+  
 
 /* ----------------------------
    iOS Cards & Map containers

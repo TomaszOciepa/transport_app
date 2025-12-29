@@ -1,7 +1,7 @@
 <div class="container-fluid py-5">
     <!-- Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-        <h2 class="fw-bold mb-2" style="color: #2c2c2c;"><%= @page_title %></h2>
+        <h2 class="fw-bold mb-2"><%= @page_title %></h2>
         <%= render "orders_menu" %>
     </div>
 
@@ -13,49 +13,50 @@
 
         <!-- Right column: Statistics -->
         <div class="col-lg-6">
-            <h4 class="fw-bold mb-3" style="color: #2c2c2c;">📊 Statystyki</h4>
+            <h4 class="fw-bold mb-3">📊 Statystyki</h4>
 
             <div class="row g-3">
-                <div class="col-6">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #9AD0EC;">
-                        <i class="bi bi-list-check fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">Wszystkie</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @total_orders %></p>
-                    </div>
-                </div>
-
-                <div class="col-6">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #FFD6A5;">
-                        <i class="bi bi-clock-history fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">Oczekujące</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @pending_orders %></p>
-                    </div>
-                </div>
-
-                <div class="col-6">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #B5EAD7;">
-                        <i class="bi bi-calendar-check fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">Zaplanowane</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @planned_orders %></p>
-                    </div>
-                </div>
-
-                <div class="col-6">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #FFB7B2;">
-                        <i class="bi bi-truck fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">W drodze</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @in_progress_orders %></p>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #E2C1F0;">
-                        <i class="bi bi-check2-circle fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">Zakończone</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @completed_orders %></p>
-                    </div>
-                </div>
+            <div class="col-6">
+              <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card bg-blue">
+                <i class="bi bi-list-check fs-2 text-white mb-2"></i>
+                <h6 class="fw-semibold text-white mb-1">Wszystkie</h6>
+                <p class="fs-5 fw-bold text-white mb-0"><%= @total_orders %></p>
+              </div>
             </div>
+          
+            <div class="col-6">
+              <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card bg-yellow">
+                <i class="bi bi-clock-history fs-2 text-white mb-2"></i>
+                <h6 class="fw-semibold text-white mb-1">Oczekujące</h6>
+                <p class="fs-5 fw-bold text-white mb-0"><%= @pending_orders %></p>
+              </div>
+            </div>
+          
+            <div class="col-6">
+              <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card bg-green">
+                <i class="bi bi-calendar-check fs-2 text-white mb-2"></i>
+                <h6 class="fw-semibold text-white mb-1">Zaplanowane</h6>
+                <p class="fs-5 fw-bold text-white mb-0"><%= @planned_orders %></p>
+              </div>
+            </div>
+          
+            <div class="col-6">
+              <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card bg-pink">
+                <i class="bi bi-truck fs-2 text-white mb-2"></i>
+                <h6 class="fw-semibold text-white mb-1">W drodze</h6>
+                <p class="fs-5 fw-bold text-white mb-0"><%= @in_progress_orders %></p>
+              </div>
+            </div>
+          
+            <div class="col-12">
+              <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card bg-purple">
+                <i class="bi bi-check2-circle fs-2 text-white mb-2"></i>
+                <h6 class="fw-semibold text-white mb-1">Zakończone</h6>
+                <p class="fs-5 fw-bold text-white mb-0"><%= @completed_orders %></p>
+              </div>
+            </div>
+          </div>
+          
         </div>
     </div>
 </div>

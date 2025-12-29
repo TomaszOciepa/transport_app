@@ -1,23 +1,25 @@
 <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
     <div class="d-flex flex-wrap gap-2">
+    <%= link_to dispatcher_orders_path,
+    class: "btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3 py-2 border bg-gray text-dark" do %>
+    <i class="bi bi-house-door-fill me-2 fs-5"></i>
+    <% end %>
 
-        <%= link_to dispatcher_orders_path, class: "btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3 py-2 border border-1", style: "background-color: #F0F0F0; color: #2c2c2c;" do %>
-        <i class="bi bi-house-door-fill me-2 fs-5"></i>
-        <span class="fw-semibold"></span>
-        <% end %>
-        <% dashboard_cards = [
-      { title: "Wszystkie", path: all_orders_dispatcher_orders_path, icon: "bi-list-check", color: "#9AD0EC" },
-      { title: "Oczekujące", path: pending_orders_dispatcher_orders_path, icon: "bi-clock-history", color: "#FFD6A5" },
-      { title: "Zaplanowane", path: planned_orders_dispatcher_orders_path, icon: "bi-calendar-check", color: "#B5EAD7" },
-      { title: "W drodze", path: in_progress_orders_dispatcher_orders_path, icon: "bi-truck", color: "#FFB7B2" },
-      { title: "Zakończone", path: completed_orders_dispatcher_orders_path, icon: "bi-check2-circle", color: "#E2C1F0" }
+    <% dashboard_cards = [
+    { title: "Wszystkie", path: all_orders_dispatcher_orders_path, icon: "bi-list-check", color: "blue" },
+    { title: "Oczekujące", path: pending_orders_dispatcher_orders_path, icon: "bi-clock-history", color: "yellow" },
+    { title: "Zaplanowane", path: planned_orders_dispatcher_orders_path, icon: "bi-calendar-check", color: "green" },
+    { title: "W drodze", path: in_progress_orders_dispatcher_orders_path, icon: "bi-truck", color: "pink" },
+    { title: "Zakończone", path: completed_orders_dispatcher_orders_path, icon: "bi-check2-circle", color: "purple" }
     ] %>
 
-        <% dashboard_cards.each do |card| %>
-        <%= link_to card[:path], class: "btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3 py-2 border border-1", style: "background-color: #{card[:color]}; color: #2c2c2c;" do %>
+    <% dashboard_cards.each do |card| %>
+    <%= link_to card[:path],
+        class: "btn d-flex align-items-center shadow-sm rounded-pill px-3 py-2 border bg-#{card[:color]} text-dark" do %>
         <i class="bi <%= card[:icon] %> me-2 fs-5"></i>
         <span class="fw-semibold"><%= card[:title] %></span>
-        <% end %>
-        <% end %>
+    <% end %>
+    <% end %>
     </div>
+
 </div>

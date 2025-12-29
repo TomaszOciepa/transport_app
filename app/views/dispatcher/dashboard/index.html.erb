@@ -1,25 +1,26 @@
-<div class="container-fluid py-5">
-    <h2 class="fw-bold mb-5 text-center" style="color: #2c2c2c; font-size: 2rem; letter-spacing: 0.5px;">
-        🚀 Panel dyspozytora
-    </h2>
+<div class="container-fluid py-5 dispatcher-dashboard">
+  <h2 class="dispatcher-dashboard-title text-center fw-bold mb-5">
+    🚀 Panel dyspozytora
+  </h2>
 
-    <div class="d-flex flex-wrap justify-content-center gap-4">
-        <% dashboard_cards = [
-            { title: "Zamówienia", path: dispatcher_orders_path, icon: "bi-box-seam", color: "#A3CEF1" },
-            { title: "Pojazdy", path: dispatcher_vehicles_path, icon: "bi-truck", color: "#B5EAD7" },
-            { title: "Kierowcy", path: dispatcher_drivers_path, icon: "bi-person-circle", color: "#FFD6A5" },
-            { title: "Wiadomości", path: dispatcher_messages_path, icon: "bi-chat-dots-fill", color: "#C7E9B0" },
-            { title: "Kalendarz", path: dispatcher_calendar_path, icon: "bi-calendar-event", color: "#FFB7B2" },
-            { title: "Powiadomienia", path: dispatcher_notifications_path, icon: "bi-bell-fill", color: "#E2C1F0" },
-            ] %>
+  <div class="d-flex flex-wrap justify-content-center gap-4">
+    <% dashboard_cards = [
+      { title: "Zamówienia", path: dispatcher_orders_path, icon: "bi-box-seam", color: "blue" },
+      { title: "Pojazdy", path: dispatcher_vehicles_path, icon: "bi-truck", color: "green" },
+      { title: "Kierowcy", path: dispatcher_drivers_path, icon: "bi-person-circle", color: "yellow" },
+      { title: "Wiadomości", path: dispatcher_messages_path, icon: "bi-chat-dots-fill", color: "mint" },
+      { title: "Kalendarz", path: dispatcher_calendar_path, icon: "bi-calendar-event", color: "pink" },
+      { title: "Powiadomienia", path: dispatcher_notifications_path, icon: "bi-bell-fill", color: "purple" }
+    ] %>
 
+    <% dashboard_cards.each do |card| %>
+      <%= link_to card[:path],
+        class: "menu-card dashboard-card bg-#{card[:color]} text-center d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-decoration-none fw-bold" do %>
 
-        <% dashboard_cards.each do |card| %>
-        <%= link_to card[:path], class: "menu-card text-center d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-decoration-none fw-bold", 
-                  style: "width: 150px; height: 130px; background-color: #{card[:color]}; transition: all 0.2s ease;" do %>
-        <i class="bi <%= card[:icon] %> fs-2 text-dark mb-2"></i>
-        <span style="color: #2c2c2c; font-size: 1rem;"><%= card[:title] %></span>
-        <% end %>
-        <% end %>
-    </div>
+        <i class="bi <%= card[:icon] %> dashboard-card__icon mb-2"></i>
+        <span class="dashboard-card__title"><%= card[:title] %></span>
+
+      <% end %>
+    <% end %>
+  </div>
 </div>
