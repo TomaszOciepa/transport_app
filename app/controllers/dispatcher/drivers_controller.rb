@@ -9,7 +9,7 @@ module Dispatcher
       @available_drivers   = @drivers.count { |d| d.current_status == "available" }
       @unavailable_drivers = @drivers.count { |d| d.current_status == "unavailable" }
     
-      @page_title = "📋 Pulpit kierowców"
+      @page_title = "📋 Kierowcy"
     
       @drivers_availability_alerts = @drivers.flat_map do |driver|
         driver.availabilities.select { |a| a.end_time >= Time.current }.map do |a|

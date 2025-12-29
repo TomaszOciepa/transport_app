@@ -3,7 +3,7 @@ module Dispatcher
     before_action :set_order, only: [:show, :edit, :update, :destroy]
 
     def index
-      @page_title = "📦 Pulpit zamówień"
+      @page_title = "📦 Zamówienia"
     
       @orders = Order.all
     

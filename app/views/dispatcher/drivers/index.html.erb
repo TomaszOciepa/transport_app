@@ -1,57 +1,70 @@
 <div class="container-fluid py-5">
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-        <h2 class="fw-bold mb-2" style="color: #2c2c2c;"><%= @page_title %></h2>
+    <div class="d-flex flex-column mb-4">
+        <h2 class="fw-bold mb-2"><%= @page_title %></h2>
         <%= render "drivers_menu" %>
     </div>
+    
 
     <div class="row g-4">
         <!-- Left Column: Suggestions -->
         <div class="col-lg-6">
-            <h4 class="fw-bold mb-3 d-flex justify-content-between align-items-center px-1" style="color: #1c1c1e; font-family: 'SF Pro Display', 'Poppins', sans-serif; letter-spacing: -0.3px;">
-                <span class="d-flex align-items-center gap-2">
-                    <span class="fs-4" style="line-height: 1;">🧭</span>
-                    <span style="font-weight: 700; font-size: 1.25rem;">
-                        Checklist <span style="color: #007aff;">– Suggestions</span>
-                    </span>
-                </span>
-
-                <% if @drivers_availability_alerts.any? %>
-                <span class="badge rounded-pill px-3 py-2 shadow-sm" style="background-color: #007aff; color: white; font-weight: 600; font-size: 0.9rem;">
-                    <%= @drivers_availability_alerts.size %> zadań
-                </span>
-                <% end %>
-            </h4>
-
+            <h4 class="suggestions-header fw-bold mb-3 d-flex justify-content-between align-items-center px-1">
+            <span class="d-flex align-items-center gap-2">
+            <span class="suggestions-header__icon">🧭</span>
+            <span class="suggestions-header__title">
+                Checklist <span class="suggestions-header__accent">– Suggestions</span>
+            </span>
+            </span>
+    
+            <% if @drivers_availability_alerts.any? %>
+            <span class="badge suggestions-badge rounded-pill px-3 py-2 shadow-sm">
+                <%= @drivers_availability_alerts.size %> zadań
+            </span>
+            <% end %>
+        </h4>
             <div class="suggestions-container d-flex flex-column gap-3">
-                <% if @drivers_availability_alerts.any? %>
-                <% @drivers_availability_alerts.each do |alert| %>
-                <% driver = alert[:driver] %>
+            <% if @drivers_availability_alerts.any? %>
+        
+            <% @drivers_availability_alerts.each do |alert| %>
+                <% driver    = alert[:driver] %>
                 <% days_left = alert[:days_left] %>
-                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: <%= days_left < 4 ? '#FFE5E5' : '#FFF6E5' %>;">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi <%= days_left < 4 ? 'bi-exclamation-octagon-fill text-danger' : 'bi-exclamation-triangle-fill text-warning' %> fs-3"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;"><%= driver.full_name %></h6>
-                            <p class="text-muted small mb-0">
-                                Dostępność kończy się za <strong><%= days_left %></strong> dni.
-                            </p>
-                            <%= link_to "Zarządzaj dostępnością", dispatcher_driver_path(driver), class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
-                        </div>
+        
+                <% card_class  = days_left < 4 ? "bg-danger-soft" : "bg-warning-soft" %>
+                <% icon_class  = days_left < 4 ? "bi-exclamation-octagon-fill text-danger" : "bi-exclamation-triangle-fill text-warning" %>
+        
+                <div class="card suggestion-card shadow-sm rounded-4 border-0 p-4 <%= card_class %>">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="bi <%= icon_class %> fs-3"></i>
+        
+                    <div>
+                    <h6 class="fw-bold mb-1 suggestion-title"><%= driver.full_name %></h6>
+        
+                    <p class="suggestion-text">
+                        Dostępność kończy się za <strong><%= days_left %></strong> dni.
+                    </p>
+        
+                    <%= link_to "Zarządzaj dostępnością",
+                        dispatcher_driver_path(driver),
+                        class: "btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold mt-1" %>
                     </div>
                 </div>
-                <% end %>
-                <% else %>
-                <div class="card shadow-sm rounded-4 border-0 p-4" style="background-color: #E9FBEF;">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
-                        <div>
-                            <h6 class="fw-bold mb-1" style="color: #2c2c2c;">Wszystko w porządku!</h6>
-                            <p class="text-muted small mb-0">
-                                Wszyscy kierowcy mają wystarczającą dostępność na najbliższe dni.
-                            </p>
-                        </div>
-                    </div>
                 </div>
+            <% end %>
+        
+            <% else %>
+      
+            <div class="card suggestion-card shadow-sm rounded-4 border-0 p-4 bg-success-soft">
+            <div class="d-flex align-items-start gap-3">
+              <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+              <div>
+                <h6 class="fw-bold mb-1 suggestion-title">Wszystko w porządku!</h6>
+                <p class="suggestion-text">
+                  Wszyscy kierowcy mają wystarczającą dostępność na najbliższe dni.
+                </p>
+              </div>
+            </div>
+          </div>
+          
                 <% end %>
             </div>
         </div>
@@ -59,33 +72,34 @@
 
         <!-- Right column: Statistics -->
         <div class="col-lg-6">
-            <h4 class="fw-bold mb-3" style="color: #2c2c2c;">📊 Statystyki kierowców</h4>
+            <h4 class="fw-bold mb-3 page-subtitle">📊 Statystyki kierowców</h4>
 
             <div class="row g-3">
                 <div class="col-6">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #9AD0EC;">
-                        <i class="bi bi-people-fill fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">Wszyscy</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @total_drivers %></p>
-                    </div>
+                <div class="card stat-card bg-blue text-center border-0 p-3">
+                    <i class="bi bi-people-fill fs-2 text-white mb-2"></i>
+                    <h6 class="fw-semibold text-white mb-1">Wszyscy</h6>
+                    <p class="fs-5 fw-bold text-white mb-0"><%= @total_drivers %></p>
+                </div>
                 </div>
 
                 <div class="col-6">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #B5EAD7;">
-                        <i class="bi bi-check-circle-fill fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">Dostępni</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @available_drivers %></p>
-                    </div>
+                <div class="card stat-card bg-green text-center border-0 p-3">
+                    <i class="bi bi-check-circle-fill fs-2 text-white mb-2"></i>
+                    <h6 class="fw-semibold text-white mb-1">Dostępni</h6>
+                    <p class="fs-5 fw-bold text-white mb-0"><%= @available_drivers %></p>
+                </div>
                 </div>
 
                 <div class="col-6">
-                    <div class="card shadow-sm rounded-4 text-center border-0 p-3 stat-card" style="background-color: #FFB7B2;">
-                        <i class="bi bi-x-circle-fill fs-2 text-white mb-2"></i>
-                        <h6 class="fw-semibold text-white mb-1">Niedostępni</h6>
-                        <p class="fs-5 fw-bold text-white mb-0"><%= @unavailable_drivers %></p>
-                    </div>
+                <div class="card stat-card bg-pink text-center border-0 p-3">
+                    <i class="bi bi-x-circle-fill fs-2 text-white mb-2"></i>
+                    <h6 class="fw-semibold text-white mb-1">Niedostępni</h6>
+                    <p class="fs-5 fw-bold text-white mb-0"><%= @unavailable_drivers %></p>
+                </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>

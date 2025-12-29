@@ -10,7 +10,7 @@ module Dispatcher
       @available_vehicles   = @vehicles.count { |v| v.current_status == "available" }
       @unavailable_vehicles = @vehicles.count { |v| v.current_status == "unavailable" }
     
-      @page_title = "🚗 Pulpit pojazdów"
+      @page_title = "🚗 Pojazdy"
     
     # --- Main suggestion logic ---
       @vehicles_needing_attention = []
