@@ -256,22 +256,29 @@
             );
             if (item) item.classList.add("active");
         }
-
+        
         document.addEventListener("click", function(e) {
             const link = e.target.closest(".chat-link");
             if (!link) return;
-
+          
             const groupId = link.dataset.groupId;
             if (!groupId) return;
-
+          
+            // 🔥 1️⃣ UPDATE URL (KLUCZ)
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set("group_id", groupId);
+            window.history.pushState({}, "", newUrl);
+          
+            // 🔥 2️⃣ UPDATE ACTIVE STATE
             document.querySelectorAll(".chat-item.active")
-                .forEach(el => el.classList.remove("active"));
-
+              .forEach(el => el.classList.remove("active"));
+          
             const item = document.querySelector(
-                `.chat-item[data-group-id='${groupId}']`
+              `.chat-item[data-group-id='${groupId}']`
             );
             if (item) item.classList.add("active");
-        });
+          });
+          
 
         // ================= CHAT LOGIC =================
 

@@ -279,10 +279,15 @@ module Dispatcher
       @active_group =
         if params[:group_id].present?
           @groups.find { |g| g.id == params[:group_id].to_i }
+    
+        elsif session[:active_whatsapp_group_id].present?
+          @groups.find { |g| g.id == session[:active_whatsapp_group_id] }
+    
         else
           @groups.first
         end
     end
+    
 
     def detect_message_type(file)
       type = file.content_type
