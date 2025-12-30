@@ -66,14 +66,19 @@ export default class extends Controller {
 
   markActiveFromUrl() {
     const groupId = new URLSearchParams(window.location.search).get("group_id")
-    if (!groupId) return
-
+  
+    // 🔥 ZAWSZE resetuj stary stan
     document.querySelectorAll(".chat-item.active")
       .forEach(el => el.classList.remove("active"))
-
+  
+    // jeśli nie ma group_id → NIE zaznaczaj nic
+    // backend już zrobił to poprawnie w HTML
+    if (!groupId) return
+  
     const item = document.querySelector(`.chat-item[data-group-id='${groupId}']`)
     if (item) item.classList.add("active")
   }
+  
 
   // ================= FORM SUBMIT =================
 

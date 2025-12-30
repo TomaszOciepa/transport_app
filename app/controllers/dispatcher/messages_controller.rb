@@ -7,8 +7,21 @@ module Dispatcher
     def index
       @page_title = "Wiadomości"
     
+      # lista czatów – zakładam, że już masz last_activity_at
+      @groups = WhatsappGroup.order(last_activity_at: :desc)
+    
+      # 🔥 ŹRÓDŁO PRAWDY: aktywny czat
+      @active_group =
+        if params[:group_id].present?
+          @groups.find { |g| g.id == params[:group_id].to_i }
+        else
+          @groups.first
+        end
+    
+      # zapamiętaj aktywny czat (dla API / mark_as_read)
       session[:active_whatsapp_group_id] = @active_group&.id
     
+      # wiadomości do prawego panelu
       @messages =
         if @active_group
           @active_group.whatsapp_messages.order(:timestamp)
@@ -16,6 +29,7 @@ module Dispatcher
           []
         end
     end
+    
 
     def mark_as_read
       Rails.logger.warn("🔥 MARK_AS_READ CALLED id=#{params[:id]}")
