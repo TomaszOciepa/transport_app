@@ -8,22 +8,24 @@ export default class extends Controller {
     "chatWrapper",
     "filePreview",
     "attachButton",
-    "mediaInput"
+    "mediaInput",
+    "newMessageIndicator"
   ]
 
   connect() {
     this.markReadInFlight = false
     this.observer = null
+    this.suppressIndicatorUntil = 0
 
-    // bindowane handlery
+    // turbo handlers
     this._onTurboLoad = this.onTurboLoad.bind(this)
     this._onTurboFrameLoad = this.onTurboFrameLoad.bind(this)
-    this._onDocClick = this.onDocClick.bind(this)
+    this._onBeforeFrameRender = this.onBeforeFrameRender.bind(this)
     this._onSubmitEnd = this.onSubmitEnd.bind(this)
 
     document.addEventListener("turbo:load", this._onTurboLoad)
     document.addEventListener("turbo:frame-load", this._onTurboFrameLoad)
-    document.addEventListener("click", this._onDocClick)
+    document.addEventListener("turbo:before-frame-render", this._onBeforeFrameRender)
     document.addEventListener("turbo:submit-end", this._onSubmitEnd)
 
     this.markActiveFromUrl()
@@ -33,7 +35,7 @@ export default class extends Controller {
   disconnect() {
     document.removeEventListener("turbo:load", this._onTurboLoad)
     document.removeEventListener("turbo:frame-load", this._onTurboFrameLoad)
-    document.removeEventListener("click", this._onDocClick)
+    document.removeEventListener("turbo:before-frame-render", this._onBeforeFrameRender)
     document.removeEventListener("turbo:submit-end", this._onSubmitEnd)
 
     this.cleanup()
@@ -47,45 +49,29 @@ export default class extends Controller {
   }
 
   onTurboFrameLoad(e) {
-    if (e.target && e.target.id === "chat_panel") {
+    if (e.target?.id === "chat_panel") {
       this.markActiveFromUrl()
       this.initChat()
     }
   }
 
-  // ================= ACTIVE CHAT (LEFT) =================
-
-  onDocClick(e) {
-    const link = e.target.closest(".chat-link")
-    if (!link) return
-
-    const groupId = link.dataset.groupId
-    if (!groupId) return
-
-    const newUrl = new URL(window.location)
-    newUrl.searchParams.set("group_id", groupId)
-    window.history.pushState({}, "", newUrl)
-
-    document.querySelectorAll(".chat-item.active")
-      .forEach(el => el.classList.remove("active"))
-
-    const item = document.querySelector(
-      `.chat-item[data-group-id='${groupId}']`
-    )
-    if (item) item.classList.add("active")
+  // 🔥 KLUCZOWE: cleanup PRZED swapem frame
+  onBeforeFrameRender(e) {
+    if (e.target?.id === "chat_panel") {
+      this.cleanup()
+    }
   }
 
+  // ================= ACTIVE CHAT =================
+
   markActiveFromUrl() {
-    const params = new URLSearchParams(window.location.search)
-    const groupId = params.get("group_id")
+    const groupId = new URLSearchParams(window.location.search).get("group_id")
     if (!groupId) return
 
     document.querySelectorAll(".chat-item.active")
       .forEach(el => el.classList.remove("active"))
 
-    const item = document.querySelector(
-      `.chat-item[data-group-id='${groupId}']`
-    )
+    const item = document.querySelector(`.chat-item[data-group-id='${groupId}']`)
     if (item) item.classList.add("active")
   }
 
@@ -94,6 +80,24 @@ export default class extends Controller {
   onSubmitEnd(e) {
     const form = e.target
     if (!form?.classList?.contains("chat-input-area")) return
+
+    this.suppressIndicatorUntil = Date.now() + 800
+    this.hideNewMessageIndicator()
+    this.scrollToBottom()
+
+    // 🔥 DOMKNIĘCIE CYKLU OBSERVERA
+    requestAnimationFrame(() => {
+    if (this.observer) {
+        try {
+        this.observer.disconnect()
+        this.observer.observe(this.messagesFrameTarget, {
+            childList: true,
+            subtree: true
+        })
+        } catch (_) {}
+    }
+    })
+
 
     const textarea = form.querySelector("#whatsappMessageBody")
     if (textarea) {
@@ -116,9 +120,7 @@ export default class extends Controller {
       button.classList.remove("file-selected")
     }
 
-    if (input) {
-      input.value = ""
-    }
+    if (input) input.value = ""
   }
 
   // ================= CHAT INIT =================
@@ -130,58 +132,103 @@ export default class extends Controller {
     }
 
     this.cleanup()
+    this.hideNewMessageIndicator()
 
-    // ENTER = SEND
     this._onTextareaKeydown = (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault()
+        this.suppressIndicatorUntil = Date.now() + 800
+        this.hideNewMessageIndicator()
+        this.scrollToBottom()
         this.textareaTarget.form?.requestSubmit()
       }
     }
     this.textareaTarget.addEventListener("keydown", this._onTextareaKeydown)
 
-    // helper: czy user jest na dole
     const isAtBottom = () => {
       const el = this.messagesBoxTarget
       return el.scrollTop + el.clientHeight >= el.scrollHeight - 10
     }
 
-    const scrollToBottom = () => {
-      this.messagesBoxTarget.scrollTop = this.messagesBoxTarget.scrollHeight
-    }
+    // 🔥 MutationObserver — BEZ dead-locków
+    this.observer = new MutationObserver((mutations) => {
+      if (!document.body.contains(this.messagesFrameTarget)) return
 
-    // MutationObserver — reaguje na nowe wiadomości
-    this.observer = new MutationObserver(() => {
-      if (isAtBottom()) {
-        scrollToBottom()
-        const groupId = this.getActiveGroupIdFromDom()
-        this.markChatAsRead(groupId)
-      }
+      setTimeout(() => {
+        if (Date.now() < this.suppressIndicatorUntil) {
+          this.scrollToBottom()
+          this.hideNewMessageIndicator()
+          return
+        }
+
+        const addedOutgoing = mutations.some(m =>
+          Array.from(m.addedNodes || []).some(node =>
+            node instanceof HTMLElement &&
+            (node.matches(".bubble.outgoing") || node.querySelector(".bubble.outgoing"))
+          )
+        )
+
+        if (addedOutgoing) {
+          this.scrollToBottom()
+          this.hideNewMessageIndicator()
+          return
+        }
+
+        if (isAtBottom()) {
+          this.scrollToBottom()
+          this.hideNewMessageIndicator()
+          this.markChatAsRead(this.getActiveGroupIdFromDom())
+        } else {
+          this.showNewMessageIndicator()
+        }
+      }, 0)
     })
 
-    this.observer.observe(this.messagesFrameTarget, {
-      childList: true,
-      subtree: true
-    })
+    this.observer.observe(this.messagesFrameTarget, { childList: true, subtree: true })
 
-    // scroll listener — odczyt dopiero gdy user dojedzie na dół
     this._onMessagesScroll = () => {
       if (isAtBottom()) {
-        const groupId = this.getActiveGroupIdFromDom()
-        this.markChatAsRead(groupId)
+        this.hideNewMessageIndicator()
+        this.markChatAsRead(this.getActiveGroupIdFromDom())
       }
     }
     this.messagesBoxTarget.addEventListener("scroll", this._onMessagesScroll)
 
-    // initial scroll + ewentualny read
     setTimeout(() => {
-      scrollToBottom()
+      this.scrollToBottom()
       if (isAtBottom()) {
-        const groupId = this.getActiveGroupIdFromDom()
-        this.markChatAsRead(groupId)
+        this.markChatAsRead(this.getActiveGroupIdFromDom())
       }
     }, 80)
   }
+
+  // ================= INDICATOR =================
+
+  showNewMessageIndicator() {
+    if (this.hasNewMessageIndicatorTarget) {
+      this.newMessageIndicatorTarget.style.display = "block"
+    }
+  }
+
+  hideNewMessageIndicator() {
+    if (this.hasNewMessageIndicatorTarget) {
+      this.newMessageIndicatorTarget.style.display = "none"
+    }
+  }
+
+  scrollToBottom() {
+    if (this.hasMessagesBoxTarget) {
+      this.messagesBoxTarget.scrollTop = this.messagesBoxTarget.scrollHeight
+    }
+  }
+
+  scrollToBottomFromIndicator() {
+    this.scrollToBottom()
+    this.hideNewMessageIndicator()
+    this.markChatAsRead(this.getActiveGroupIdFromDom())
+  }
+
+  // ================= CLEANUP =================
 
   cleanup() {
     if (this._onTextareaKeydown && this.hasTextareaTarget) {
@@ -208,8 +255,7 @@ export default class extends Controller {
   }
 
   markChatAsRead(groupId) {
-    if (!groupId) return
-    if (this.markReadInFlight) return
+    if (!groupId || this.markReadInFlight) return
 
     this.markReadInFlight = true
 
@@ -219,7 +265,6 @@ export default class extends Controller {
         "X-CSRF-Token": document.querySelector("meta[name='csrf-token']")?.content
       }
     })
-      .catch(() => {})
       .finally(() => {
         this.markReadInFlight = false
       })

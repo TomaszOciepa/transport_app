@@ -87,21 +87,27 @@
           </div>
 
           <!-- indicator nowych wiadomości -->
-          <div id="newMessageIndicator" style="
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0d6efd;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: none;
-            z-index: 10;
-          ">
-            Nowe wiadomości
-          </div>
+          <div
+            id="newMessageIndicator"
+            data-chat-target="newMessageIndicator"
+            data-action="click->chat#scrollToBottomFromIndicator"
+            style="
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #0d6efd;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                cursor: pointer;
+                display: none;
+                z-index: 10;
+            "
+            >
+            🔔 Nowe wiadomości ↓
+            </div>
+
         </div>
 
         <!-- ❗ KOMUNIKAT BŁĘDU -->
