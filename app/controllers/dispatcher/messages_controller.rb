@@ -21,7 +21,6 @@ module Dispatcher
       Rails.logger.warn("🔥 MARK_AS_READ CALLED id=#{params[:id]}")
     
       whatsapp_group = WhatsappGroup.find(params[:id])
-    
       Rails.logger.warn("🔥 GROUP FOUND id=#{whatsapp_group.id}")
     
       updated =
@@ -40,19 +39,12 @@ module Dispatcher
           active: true
         }
       )
-
-      has_unread = WhatsappMessage.where(read_at: nil).exists?
-
-      Turbo::StreamsChannel.broadcast_replace_to(
-        "dispatcher_menu",
-        target: "menu-messages-badge",
-        partial: "dispatcher/shared/menu_messages_badge",
-        locals: { has_unread: has_unread }
-      )
-
+    
+      MenuBroadcaster.broadcast!
     
       head :ok
     end
+    
     
     def send_whatsapp
       whatsapp_group = WhatsappGroup.find_by(id: params[:whatsapp_group_id])
@@ -62,7 +54,7 @@ module Dispatcher
       media = params[:media]
     
       # =====================================================
-      # 🖼️ 1️⃣ WYSYŁKA MEDIA (NOWA FUNKCJONALNOŚĆ)
+      # MEDIA SHIPPING (NEW FUNCTIONALITY)
       # =====================================================
       if media.present?
         @message = WhatsappMessage.new(
@@ -96,10 +88,10 @@ module Dispatcher
           end
         end
         
-        # aktywność czatu
+        # chat activity
         whatsapp_group.update_column(:last_activity_at, @message.timestamp)
     
-        # --- wysyłka do Node ---
+        # --- shipping to Node ---
         payload = {
           group_id: whatsapp_group.whatsapp_group_id,
           base64:   Base64.strict_encode64(@message.media.download),
@@ -114,7 +106,7 @@ module Dispatcher
           "Content-Type" => "application/json"
         )
     
-        # realtime prawa kolumna
+        # realtime right column
         Turbo::StreamsChannel.broadcast_append_to(
           "chat_channel_#{whatsapp_group.id}",
           target: "messages",
@@ -122,7 +114,7 @@ module Dispatcher
           locals: { msg: @message }
         )
     
-        # lewa kolumna (reorder)
+       # left column (reorder)
         active_group_id = session[:active_whatsapp_group_id]
         is_active = active_group_id.present? && active_group_id.to_i == whatsapp_group.id
     
@@ -146,9 +138,6 @@ module Dispatcher
         return
       end
     
-      # =====================================================
-      # ✉️ 2️⃣ TEKST – TWOJA ISTNIEJĄCA LOGIKA (BEZ ZMIAN)
-      # =====================================================
     
       message_body = body
     
@@ -162,7 +151,7 @@ module Dispatcher
         end
       end
     
-      # --- Wyślij do Node.js ---
+   # --- Send to Node.js ---
       uri  = URI.parse("http://localhost:3005/send_to_group")
       http = Net::HTTP.new(uri.host, uri.port)
       req  = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
@@ -173,7 +162,7 @@ module Dispatcher
     
       http.request(req)
     
-      # --- Zapis do DB ---
+      # --- Save to DB ---
       @message = WhatsappMessage.create!(
         whatsapp_group: whatsapp_group,
         from_number:    "DISPATCHER",
@@ -188,7 +177,7 @@ module Dispatcher
     
       whatsapp_group.update_column(:last_activity_at, @message.timestamp)
     
-      # realtime prawa kolumna
+      # realtime right column
       Turbo::StreamsChannel.broadcast_append_to(
         "chat_channel_#{whatsapp_group.id}",
         target: "messages",
@@ -196,7 +185,7 @@ module Dispatcher
         locals: { msg: @message }
       )
     
-      # lewa kolumna (reorder)
+      # left column (reorder)
       active_group_id = session[:active_whatsapp_group_id]
       is_active = active_group_id.present? && active_group_id.to_i == whatsapp_group.id
     

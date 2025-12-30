@@ -57,9 +57,9 @@ class Api::WhatsappMessagesController < ApplicationController
       Rails.logger.info("API_INCOMING: group=#{group.id} msg_id=#{message.id}")
       Rails.logger.info("BROADCAST_CHAT: stream=chat_channel_#{group.id} target=messages msg_id=#{message.id}")
 
-      # =========================
-      # 🔹 PRAWA KOLUMNA (CHAT)
-      # =========================
+      # ==========================
+      # RIGHT COLUMN (CHAT)
+      # ===========================
       Turbo::StreamsChannel.broadcast_append_to(
         "chat_channel_#{group.id}",
         target: "messages",
@@ -67,25 +67,25 @@ class Api::WhatsappMessagesController < ApplicationController
         locals: { msg: message }
       )
 
-        # =========================
-        # 🔔 LEWA KOLUMNA (REORDER + BADGE)
-        # =========================
+        # ==========================
+        # LEFT COLUMN (REORDER + BADGE)
+        # ===========================
 
         active_group_id = session[:active_whatsapp_group_id]
         is_active = active_group_id.present? && active_group_id.to_i == group.id
 
-        # jeśli użytkownik jest w tym czacie → od razu oznacz jako przeczytane
+        # if user is in this chat → immediately mark as read
         if is_active
           message.update_column(:read_at, Time.current)
         end
 
-        # 1️⃣ USUŃ stary wiersz z listy
+       #1 REMOVE the old row from the list
         Turbo::StreamsChannel.broadcast_remove_to(
           "chat_notifications",
           target: "chat_group_#{group.id}"
         )
 
-        # 2️⃣ DODAJ na górę listy
+       #2 ADD to top of list
         Turbo::StreamsChannel.broadcast_prepend_to(
           "chat_notifications",
           target: "chatList",
@@ -93,17 +93,10 @@ class Api::WhatsappMessagesController < ApplicationController
           locals: { group: group.reload, active: is_active }
         )
         
-         # =========================
-        # 🔔 Globalne menu
+        # ========================= 
+        # Global menu 
         # =========================
-        has_unread = WhatsappMessage.where(read_at: nil).exists?
-
-        Turbo::StreamsChannel.broadcast_replace_to(
-          "dispatcher_menu",
-          target: "menu-messages-badge",
-          partial: "dispatcher/shared/menu_messages_badge",
-          locals: { has_unread: has_unread }
-        )
+        MenuBroadcaster.broadcast!
 
 
       render json: { ok: true }
