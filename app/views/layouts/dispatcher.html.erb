@@ -2,7 +2,10 @@
 <html>
 
 <head>
-    <title id="page-title">Panel Dyspozytora - TransportApp</title>
+    <title id="page-title">
+    <%= WhatsappMessage.where(read_at: nil).exists? ? "🔔 Nowa wiadomość • TransportApp" : "Panel Dyspozytora - TransportApp" %>
+    </title>
+
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <!-- Leaflet Map -->
@@ -68,7 +71,11 @@
 
                     <!-- 🔔 BADGE -->
 
-                    <span id="menu-messages-badge" class="ms-auto"></span>
+                    <span id="menu-messages-badge" class="ms-auto">
+                        <%= render "dispatcher/shared/menu_messages_badge",
+                                has_unread: WhatsappMessage.where(read_at: nil).exists? %>
+                    </span>
+
 
 
                     <% end %>

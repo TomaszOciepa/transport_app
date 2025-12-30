@@ -15,7 +15,7 @@ export default class extends Controller {
     this.markReadInFlight = false
     this.observer = null
 
-    // Bindowane handlery (żeby móc je zdejmować)
+    // bindowane handlery
     this._onTurboLoad = this.onTurboLoad.bind(this)
     this._onTurboFrameLoad = this.onTurboFrameLoad.bind(this)
     this._onDocClick = this.onDocClick.bind(this)
@@ -26,7 +26,6 @@ export default class extends Controller {
     document.addEventListener("click", this._onDocClick)
     document.addEventListener("turbo:submit-end", this._onSubmitEnd)
 
-    // Pierwszy init (np. przy wejściu od razu w aktywną rozmowę)
     this.markActiveFromUrl()
     this.initChat()
   }
@@ -37,11 +36,10 @@ export default class extends Controller {
     document.removeEventListener("click", this._onDocClick)
     document.removeEventListener("turbo:submit-end", this._onSubmitEnd)
 
-    this.disconnectObserver()
-    this.unbindTextareaEvents()
+    this.cleanup()
   }
 
-  // ================= TURBO EVENTS =================
+  // ================= TURBO =================
 
   onTurboLoad() {
     this.markActiveFromUrl()
@@ -49,14 +47,13 @@ export default class extends Controller {
   }
 
   onTurboFrameLoad(e) {
-    // Po przeładowaniu prawego panelu musimy ponownie spiąć textarea/scroll/observer
     if (e.target && e.target.id === "chat_panel") {
       this.markActiveFromUrl()
       this.initChat()
     }
   }
 
-  // ================= CLICK: ACTIVE CHAT + URL =================
+  // ================= ACTIVE CHAT (LEFT) =================
 
   onDocClick(e) {
     const link = e.target.closest(".chat-link")
@@ -65,16 +62,16 @@ export default class extends Controller {
     const groupId = link.dataset.groupId
     if (!groupId) return
 
-    // Update URL
     const newUrl = new URL(window.location)
     newUrl.searchParams.set("group_id", groupId)
     window.history.pushState({}, "", newUrl)
 
-    // Active state in left column
     document.querySelectorAll(".chat-item.active")
       .forEach(el => el.classList.remove("active"))
 
-    const item = document.querySelector(`.chat-item[data-group-id='${groupId}']`)
+    const item = document.querySelector(
+      `.chat-item[data-group-id='${groupId}']`
+    )
     if (item) item.classList.add("active")
   }
 
@@ -86,17 +83,18 @@ export default class extends Controller {
     document.querySelectorAll(".chat-item.active")
       .forEach(el => el.classList.remove("active"))
 
-    const item = document.querySelector(`.chat-item[data-group-id='${groupId}']`)
+    const item = document.querySelector(
+      `.chat-item[data-group-id='${groupId}']`
+    )
     if (item) item.classList.add("active")
   }
 
-  // ================= SUBMIT END: CLEAR INPUTS =================
+  // ================= FORM SUBMIT =================
 
   onSubmitEnd(e) {
     const form = e.target
-    if (!form || !form.classList || !form.classList.contains("chat-input-area")) return
+    if (!form?.classList?.contains("chat-input-area")) return
 
-    // textarea
     const textarea = form.querySelector("#whatsappMessageBody")
     if (textarea) {
       textarea.value = ""
@@ -104,7 +102,6 @@ export default class extends Controller {
       textarea.focus()
     }
 
-    // file reset
     const preview = form.querySelector(".file-preview")
     const button = form.querySelector(".attach-btn")
     const input = form.querySelector("#media-input")
@@ -127,61 +124,76 @@ export default class extends Controller {
   // ================= CHAT INIT =================
 
   initChat() {
-    // Targets mogą nie istnieć (np. brak aktywnej rozmowy)
     if (!this.hasTextareaTarget || !this.hasMessagesBoxTarget || !this.hasMessagesFrameTarget) {
-      this.disconnectObserver()
-      this.unbindTextareaEvents()
+      this.cleanup()
       return
     }
 
-    // Żeby nie dublować eventów po frame-load
-    this.unbindTextareaEvents()
+    this.cleanup()
 
     // ENTER = SEND
     this._onTextareaKeydown = (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault()
-        // requestSubmit działa lepiej z Turbo niż submit()
         this.textareaTarget.form?.requestSubmit()
       }
     }
     this.textareaTarget.addEventListener("keydown", this._onTextareaKeydown)
 
-    // MARK AS READ na focus textarea
-    this._onTextareaFocus = () => {
-      const groupId = this.getActiveGroupIdFromDom()
-      this.markChatAsRead(groupId)
+    // helper: czy user jest na dole
+    const isAtBottom = () => {
+      const el = this.messagesBoxTarget
+      return el.scrollTop + el.clientHeight >= el.scrollHeight - 10
     }
-    this.textareaTarget.addEventListener("focus", this._onTextareaFocus)
-
-    // SCROLL + observer
-    this.disconnectObserver()
 
     const scrollToBottom = () => {
       this.messagesBoxTarget.scrollTop = this.messagesBoxTarget.scrollHeight
     }
 
-    this.observer = new MutationObserver(scrollToBottom)
-    this.observer.observe(this.messagesFrameTarget, { childList: true, subtree: true })
-
-    // initial scroll
-    setTimeout(scrollToBottom, 50)
-  }
-
-  unbindTextareaEvents() {
-    if (this.hasTextareaTarget) {
-      if (this._onTextareaKeydown) {
-        this.textareaTarget.removeEventListener("keydown", this._onTextareaKeydown)
+    // MutationObserver — reaguje na nowe wiadomości
+    this.observer = new MutationObserver(() => {
+      if (isAtBottom()) {
+        scrollToBottom()
+        const groupId = this.getActiveGroupIdFromDom()
+        this.markChatAsRead(groupId)
       }
-      if (this._onTextareaFocus) {
-        this.textareaTarget.removeEventListener("focus", this._onTextareaFocus)
+    })
+
+    this.observer.observe(this.messagesFrameTarget, {
+      childList: true,
+      subtree: true
+    })
+
+    // scroll listener — odczyt dopiero gdy user dojedzie na dół
+    this._onMessagesScroll = () => {
+      if (isAtBottom()) {
+        const groupId = this.getActiveGroupIdFromDom()
+        this.markChatAsRead(groupId)
       }
     }
-    this._onTextareaKeydown = null
-    this._onTextareaFocus = null
+    this.messagesBoxTarget.addEventListener("scroll", this._onMessagesScroll)
+
+    // initial scroll + ewentualny read
+    setTimeout(() => {
+      scrollToBottom()
+      if (isAtBottom()) {
+        const groupId = this.getActiveGroupIdFromDom()
+        this.markChatAsRead(groupId)
+      }
+    }, 80)
   }
 
-  disconnectObserver() {
+  cleanup() {
+    if (this._onTextareaKeydown && this.hasTextareaTarget) {
+      this.textareaTarget.removeEventListener("keydown", this._onTextareaKeydown)
+    }
+    this._onTextareaKeydown = null
+
+    if (this._onMessagesScroll && this.hasMessagesBoxTarget) {
+      this.messagesBoxTarget.removeEventListener("scroll", this._onMessagesScroll)
+    }
+    this._onMessagesScroll = null
+
     if (this.observer) {
       try { this.observer.disconnect() } catch (_) {}
       this.observer = null
