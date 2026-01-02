@@ -1,0 +1,46 @@
+<h1>Messages</h1>
+
+<% if @whatsapp_session.nil? || @whatsapp_session.status == "disconnected" %>
+
+  <p>You are not connected to WhatsApp.</p>
+  <%= button_to "Connect WhatsApp", connect_messages_path, method: :post %>
+
+<% elsif @whatsapp_session.status == "pending" %>
+
+  <p>Scan QR code with WhatsApp:</p>
+
+  <% if @whatsapp_session.qr_code.present? %>
+    <%= image_tag(
+      "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=#{CGI.escape(@whatsapp_session.qr_code)}"
+    ) %>
+  <% else %>
+    <p>Waiting for QR…</p>
+  <% end %>
+
+<% elsif @whatsapp_session.status == "ready" %>
+
+  <div class="mb-3">
+    <p>✅ WhatsApp connected</p>
+    <p>Phone: <%= @whatsapp_session.phone %></p>
+
+    <%= button_to "Disconnect WhatsApp",
+          disconnect_messages_path,
+          method: :post,
+          class: "btn btn-outline-danger btn-sm" %>
+  </div>
+
+  <hr>
+
+  <!-- CHAT UI -->
+  <% if @conversations.any? %>
+    <% @conversations.each do |conversation| %>
+      <div class="conversation">
+        <strong><%= conversation.whatsapp_chat_id %></strong>
+        <small><%= conversation.last_message_at %></small>
+      </div>
+    <% end %>
+  <% else %>
+    <p>No conversations yet.</p>
+  <% end %>
+
+<% end %>

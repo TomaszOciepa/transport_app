@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  whatsapp_chat_id: MyString
+  chat_type: MyString
+  order: one
+  driver: one
+  last_message_at: 2026-01-02 13:29:03
+
+two:
+  user: two
+  whatsapp_chat_id: MyString
+  chat_type: MyString
+  order: two
+  driver: two
+  last_message_at: 2026-01-02 13:29:03

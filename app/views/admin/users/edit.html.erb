@@ -12,6 +12,11 @@
             </div>
 
             <div class="mb-3">
+            <%= f.label :phone, "telefon", class: "form-label fw-bold" %>
+            <%= f.phone_field :phone, class: "form-control", required: true %>
+          </div>
+
+            <div class="mb-3">
               <%= f.label :role, "Rola", class: "form-label fw-bold" %>
               <%= f.select :role, User.roles.keys.map { |r| [r.humanize, r] }, {}, class: "form-select" %>
             </div>

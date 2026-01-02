@@ -6,9 +6,6 @@ class Order < ApplicationRecord
   has_many :order_vehicles, dependent: :destroy
   has_many :vehicle_history, through: :order_vehicles, source: :vehicle
 
-  has_many :whatsapp_groups, dependent: :destroy
-  has_many :whatsapp_messages, through: :whatsapp_groups
-
   attr_accessor :pickup_city, :pickup_postcode, :delivery_city, :delivery_postcode
 
   enum :status, [ :pending, :planned, :in_progress, :completed, :canceled ]
@@ -108,13 +105,6 @@ class Order < ApplicationRecord
 
   def delivery_place
     delivery_address&.split(',')&.last&.strip
-  end
-
-  def whatsapp_media_messages
-    whatsapp_messages
-      .with_media
-      .includes(media_attachment: :blob)
-      .order(created_at: :asc)
   end
   
   private

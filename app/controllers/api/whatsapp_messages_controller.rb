@@ -1,111 +1,44 @@
 class Api::WhatsappMessagesController < ApplicationController
-  skip_before_action :verify_authenticity_token
+    skip_before_action :verify_authenticity_token
 
-  def create
-    params[:message] ||= ""
+    # POST /api/whatsapp_messages
+    def create
+      user = User.find(params[:user_id])
 
-    group = WhatsappGroup.find_by(whatsapp_group_id: params[:group_id])
-    unless group
-      Rails.logger.error(
-        "Nie znaleziono WhatsappGroup dla group_id=#{params[:group_id]}"
+      # Normalize phone numbers
+      from_number = params[:from]
+      owner_phone = user.phone
+
+      # Find or create PRIVATE conversation
+      conversation = WhatsappConversation.find_or_create_by!(
+        user: user,
+        chat_type: "private",
+        whatsapp_chat_id: private_chat_id(user.phone, from_number)
       )
-      return head :unprocessable_entity
+
+      message = conversation.whatsapp_messages.create!(
+        direction: incoming_or_outgoing?(from_number, owner_phone),
+        from_number: from_number,
+        to_number: owner_phone,
+        body: params[:message],
+        message_type: "text",
+        raw_payload: params.to_json,
+        sent_at: Time.at(params[:timestamp])
+      )
+
+      conversation.update!(last_message_at: message.sent_at)
+
+      head :ok
     end
 
-    # --- sender z Node.js / WhatsApp ---
-    participant_jid =
-      params.dig(:raw, "participant") || params[:from]
+    private
 
-    is_driver =
-      params.dig(:raw, "fromMe") == false && participant_jid.present?
-
-    message = WhatsappMessage.new(
-      whatsapp_group: group,
-      from_number:    participant_jid,
-      to_number:      params[:to],
-      body:           params[:message],
-      is_from_driver: is_driver,
-      timestamp:      Time.at(params[:timestamp].to_i),
-      raw_data:       params[:raw],
-      read_at:        nil 
-    )
-
-      # ======================================
-      # 📎 MEDIA (ZDJĘCIA / PLIKI / AUDIO / VIDEO)
-      # ======================================
-      if params[:media].present?
-        message.message_type = params[:media][:type] || "file"
-
-        message.media.attach(
-          io: StringIO.new(Base64.decode64(params[:media][:data])),
-          filename: params[:media][:filename],
-          content_type: params[:media][:mimetype]
-        )
-      else
-        message.message_type = "text"
-      end
-
-    if message.save
-
-      group.update_column(:last_activity_at, message.timestamp)
-
-
-      Rails.logger.info(
-        "💾 Wiadomość zapisana: #{message.body} | group=#{group.id}"
-      )
-
-      Rails.logger.info("API_INCOMING: group=#{group.id} msg_id=#{message.id}")
-      Rails.logger.info("BROADCAST_CHAT: stream=chat_channel_#{group.id} target=messages msg_id=#{message.id}")
-
-      # ==========================
-      # RIGHT COLUMN (CHAT)
-      # ===========================
-      Turbo::StreamsChannel.broadcast_append_to(
-        "chat_channel_#{group.id}",
-        target: "messages",
-        partial: "dispatcher/messages/message",
-        locals: { msg: message }
-      )
-
-        # ==========================
-        # LEFT COLUMN (REORDER + BADGE)
-        # ===========================
-
-        active_group_id = session[:active_whatsapp_group_id]
-        is_active = active_group_id.present? && active_group_id.to_i == group.id
-
-        # if user is in this chat → immediately mark as read
-        if is_active
-          message.update_column(:read_at, Time.current)
-        end
-
-       #1 REMOVE the old row from the list
-        Turbo::StreamsChannel.broadcast_remove_to(
-          "chat_notifications",
-          target: "chat_group_#{group.id}"
-        )
-
-       #2 ADD to top of list
-        Turbo::StreamsChannel.broadcast_prepend_to(
-          "chat_notifications",
-          target: "chatList",
-          partial: "dispatcher/messages/chat_list_item",
-          locals: { group: group.reload, active: is_active }
-        )
-        
-        # ========================= 
-        # Global menu 
-        # =========================
-        MenuBroadcaster.broadcast!
-
-
-      render json: { ok: true }
-    else
-      Rails.logger.error(
-        "❌ Nie udało się zapisać wiadomości: #{message.errors.full_messages.join(', ')}"
-      )
-      render json: { error: message.errors.full_messages },
-             status: :unprocessable_entity
+    # Deterministic ID for 1-to-1 chat
+    def private_chat_id(a, b)
+      [a, b].sort.join("_")
     end
-  end
+
+    def incoming_or_outgoing?(from, owner_phone)
+      from == owner_phone ? "outgoing" : "incoming"
+    end
 end

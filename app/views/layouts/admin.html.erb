@@ -48,6 +48,13 @@
           </li>
 
           <li class="nav-item mb-2">
+              <%= link_to messages_path,
+                      class: "nav-link text-white #{'fw-bold' if current_page?(messages_path)}" do %>
+                  <i class="bi bi-chat-dots me-2"></i> WhatsApp
+              <% end %>
+          </li>
+
+          <li class="nav-item mb-2">
             <%= link_to admin_settings_path, class: "nav-link text-white #{'fw-bold' if current_page?(admin_settings_path)}" do %>
               <i class="bi bi-gear-fill me-2"></i> Ustawienia
             <% end %>

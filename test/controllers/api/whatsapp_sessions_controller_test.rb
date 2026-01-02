@@ -1,6 +1,6 @@
 require "test_helper"
 
-class WhatsappGroupTest < ActiveSupport::TestCase
+class Api::WhatsappSessionsControllerTest < ActionDispatch::IntegrationTest
   # test "the truth" do
   #   assert true
   # end

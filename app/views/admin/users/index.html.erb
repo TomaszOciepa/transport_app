@@ -5,6 +5,7 @@
     <thead class="table-dark">
       <tr>
         <th>Email</th>
+        <th>Telefon</th>
         <th>Rola</th>
         <th>Utworzono</th>
         <th>Akcje</th>
@@ -14,6 +15,7 @@
       <% @users.each do |user| %>
         <tr>
           <td><%= user.email %></td>
+          <td><%= user.phone %></td>
           <td><span class="badge bg-secondary"><%= user.role %></span></td>
           <td><%= user.created_at.localtime.strftime("%d.%m.%Y %H:%M") %></td>
           <td>

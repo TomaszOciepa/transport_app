@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_13_103342) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_02_133355) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -175,6 +175,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_13_103342) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "role", default: 0, null: false
+    t.string "phone"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -210,34 +211,43 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_13_103342) do
     t.index ["vehicle_type_id"], name: "index_vehicles_on_vehicle_type_id"
   end
 
-  create_table "whatsapp_groups", force: :cascade do |t|
-    t.string "whatsapp_group_id"
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+  create_table "whatsapp_conversations", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "whatsapp_chat_id"
+    t.string "chat_type"
     t.bigint "order_id"
     t.bigint "driver_id"
-    t.boolean "order_sent", default: false, null: false
-    t.datetime "last_activity_at"
-    t.index ["driver_id"], name: "index_whatsapp_groups_on_driver_id"
-    t.index ["last_activity_at"], name: "index_whatsapp_groups_on_last_activity_at"
-    t.index ["order_id", "driver_id"], name: "index_whatsapp_groups_on_order_id_and_driver_id", unique: true
-    t.index ["order_id"], name: "index_whatsapp_groups_on_order_id"
+    t.datetime "last_message_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["driver_id"], name: "index_whatsapp_conversations_on_driver_id"
+    t.index ["order_id"], name: "index_whatsapp_conversations_on_order_id"
+    t.index ["user_id"], name: "index_whatsapp_conversations_on_user_id"
   end
 
   create_table "whatsapp_messages", force: :cascade do |t|
-    t.bigint "whatsapp_group_id", null: false
+    t.bigint "whatsapp_conversation_id", null: false
+    t.string "direction"
     t.string "from_number"
     t.string "to_number"
     t.text "body"
-    t.boolean "is_from_driver"
-    t.datetime "timestamp"
-    t.jsonb "raw_data"
+    t.string "message_type"
+    t.jsonb "raw_payload"
+    t.datetime "sent_at"
+    t.datetime "read_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "read_at"
-    t.string "message_type", default: "text", null: false
-    t.index ["whatsapp_group_id"], name: "index_whatsapp_messages_on_whatsapp_group_id"
+    t.index ["whatsapp_conversation_id"], name: "index_whatsapp_messages_on_whatsapp_conversation_id"
+  end
+
+  create_table "whatsapp_sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "status"
+    t.text "qr_code"
+    t.string "phone"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_whatsapp_sessions_on_user_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -257,7 +267,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_13_103342) do
   add_foreign_key "vehicle_drivers", "users"
   add_foreign_key "vehicle_drivers", "vehicles"
   add_foreign_key "vehicles", "vehicle_types"
-  add_foreign_key "whatsapp_groups", "drivers"
-  add_foreign_key "whatsapp_groups", "orders"
-  add_foreign_key "whatsapp_messages", "whatsapp_groups"
+  add_foreign_key "whatsapp_conversations", "drivers"
+  add_foreign_key "whatsapp_conversations", "orders"
+  add_foreign_key "whatsapp_conversations", "users"
+  add_foreign_key "whatsapp_messages", "whatsapp_conversations"
+  add_foreign_key "whatsapp_sessions", "users"
 end

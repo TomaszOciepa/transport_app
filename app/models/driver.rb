@@ -4,8 +4,6 @@ class Driver < ApplicationRecord
     has_many :vehicle_drivers, dependent: :restrict_with_error
     has_many :vehicles, through: :vehicle_drivers
 
-    has_many :whatsapp_groups, dependent: :nullify
-    has_many :whatsapp_messages, through: :whatsapp_groups
 
     validates :first_name, :last_name, :email, :license_category, presence: true
     validates :email, uniqueness: true

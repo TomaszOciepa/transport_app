@@ -2,9 +2,7 @@
 <html>
 
 <head>
-    <title id="page-title">
-    <%= WhatsappMessage.where(read_at: nil).exists? ? "🔔 Nowa wiadomość • TransportApp" : "Panel Dyspozytora - TransportApp" %>
-    </title>
+    <title>Panel dyspozytora</title>
 
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -26,7 +24,6 @@
         <!-- Sidebar -->
         <nav class="dispatcher-sidebar bg-dark text-white vh-100 p-3">
 
-            <%= turbo_stream_from "dispatcher_menu" %>
 
             <div class="mb-4 text-center">
                 <%= link_to root_path, class: "text-white text-decoration-none d-inline-block mb-3" do %>
@@ -62,24 +59,14 @@
                     <i class="bi bi-person-circle me-2"></i> Kierowcy
                     <% end %>
                 </li>
+
                 <li class="nav-item mb-2">
-                    <%= link_to dispatcher_messages_path,
-                    class: "nav-link text-white d-flex align-items-center gap-2 #{'fw-bold' if current_page?(dispatcher_messages_path)}" do %>
-
-                    <i class="bi bi-chat-dots-fill"></i>
-                    <span>Wiadomości</span>
-
-                    <!-- 🔔 BADGE -->
-
-                    <span id="menu-messages-badge" class="ms-auto">
-                        <%= render "dispatcher/shared/menu_messages_badge",
-                                has_unread: WhatsappMessage.where(read_at: nil).exists? %>
-                    </span>
-
-
-
+                    <%= link_to messages_path,
+                            class: "nav-link text-white #{'fw-bold' if current_page?(messages_path)}" do %>
+                        <i class="bi bi-chat-dots me-2"></i> WhatsApp
                     <% end %>
                 </li>
+
                 <li class="nav-item mb-2">
                     <%= link_to dispatcher_calendar_path, class: "nav-link text-white #{'fw-bold' if current_page?(dispatcher_calendar_path)}" do %>
                     <i class="bi bi-calendar-event me-2"></i> Kalendarz

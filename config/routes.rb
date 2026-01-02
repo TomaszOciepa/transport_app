@@ -1,9 +1,17 @@
 Rails.application.routes.draw do
+  get "messages/index"
   devise_for :users
   resources :orders, only: [:new, :show, :create] do
     collection do
       get :preview
       post :preview 
+    end
+  end
+
+  resources :messages, only: [:index] do
+    collection do
+      post :connect
+      post :disconnect
     end
   end
 
@@ -61,18 +69,7 @@ Rails.application.routes.draw do
     end
     resources :availabilities
   
-    resources :messages, only: [:index] do
-      collection do
-        post :send_whatsapp
-      end
-      
-      member do
-        post :mark_as_read
-        post :send_order_to_group
-      end
-
-    end
-
+    
     get "calendar", to: "dashboard#calendar"
     get "notifications", to: "dashboard#notifications"
   end
@@ -86,6 +83,11 @@ Rails.application.routes.draw do
   end
 
   namespace :api do
+    post "whatsapp_session/qr",     to: "whatsapp_sessions#qr"
+    post "whatsapp_session/status", to: "whatsapp_sessions#status"
+    post "whatsapp_session/disconnect", to: "whatsapp_sessions#disconnect"
+
+    resource :whatsapp_session, only: [:create]
     resources :whatsapp_messages, only: [:create]
   end
   
