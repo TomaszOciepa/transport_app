@@ -54,8 +54,6 @@ class MessagesController < ApplicationController
   end
   
   
-  
-
   def disconnect
     Faraday.post(
     "http://localhost:3000/api/whatsapp_session/disconnect",

@@ -1,8 +1,6 @@
 <%= turbo_stream_from "whatsapp_session_#{current_user.id}" %>
 <%= turbo_stream_from "whatsapp_conversations_#{current_user.id}" %>
-
-<h1>Messages</h1>
-
+  
 <%= render "messages/whatsapp_session",
       whatsapp_session: @whatsapp_session %>
 

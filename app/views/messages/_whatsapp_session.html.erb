@@ -2,60 +2,108 @@
 
   <% if whatsapp_session.nil? || whatsapp_session.status == "disconnected" %>
 
-    <div class="whatsapp-session-disconnected">
-      <p class="whatsapp-session-text">
-        You are not connected to WhatsApp.
-      </p>
+    <div class="whatsapp-login">
 
-      <%= button_to "Connect WhatsApp",
-            connect_messages_path,
-            method: :post,
-            class: "whatsapp-button whatsapp-button-primary" %>
+      <div class="whatsapp-login-header">
+        <h2>Połącz WhatsApp</h2>
+        <p>
+          Połącz swoje konto z aplikacją WhatsApp, aby wysyłać i odbierać wiadomości.
+        </p>
+      </div>
+
+      <div class="whatsapp-login-content">
+
+        <div class="whatsapp-login-instructions">
+          <ol>
+            <li>Otwórz aplikację <strong>WhatsApp</strong> na swoim telefonie.</li>
+            <li>Przejdź do <strong>Ustawienia → Połączone urządzenia</strong>.</li>
+            <li>Kliknij <strong>Połącz urządzenie</strong> i zeskanuj kod QR.</li>
+          </ol>
+
+          <p class="whatsapp-login-note">
+            ⚠️ Użyj aplikacji WhatsApp powiązanej z Twoim numerem służbowym.
+          </p>
+        </div>
+
+        <div class="whatsapp-login-action">
+          <%= button_to "Połącz",
+                connect_messages_path,
+                method: :post,
+                class: "whatsapp-button whatsapp-button-primary whatsapp-button-large" %>
+        </div>
+
+      </div>
     </div>
 
   <% elsif whatsapp_session.status == "pending" %>
 
-    <% if whatsapp_session.qr_code.present? %>
+    <div class="whatsapp-login">
 
-      <div class="whatsapp-session-qr">
-        <p class="whatsapp-session-text">
-          Scan QR code with WhatsApp:
-        </p>
-
-        <%= image_tag(
-          "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=#{CGI.escape(whatsapp_session.qr_code)}",
-          class: "whatsapp-session-qr-image"
-        ) %>
+      <div class="whatsapp-login-header">
+        <h2>Połącz WhatsApp</h2>
+        <p>Zeskanuj kod QR w aplikacji WhatsApp.</p>
       </div>
 
-    <% else %>
+      <div class="whatsapp-login-content">
 
-      <div class="whatsapp-session-pending">
-        <div class="whatsapp-spinner"></div>
+        <div class="whatsapp-login-instructions">
+          <ol>
+            <li>Otwórz aplikację <strong>WhatsApp</strong> na swoim telefonie.</li>
+            <li>Przejdź do <strong>Ustawienia → Połączone urządzenia</strong>.</li>
+            <li>Kliknij <strong>Połącz urządzenie</strong> i zeskanuj kod QR.</li>
+          </ol>
 
-        <p class="whatsapp-session-text">
-          Connecting to WhatsApp…<br>
-          Please wait, QR code is being generated.
-        </p>
+          <p class="whatsapp-login-note">
+            ⚠️ Skanuj kod aplikacją WhatsApp powiązaną z Twoim numerem.
+          </p>
+        </div>
+
+        <div class="whatsapp-login-qr">
+
+          <% if whatsapp_session.qr_code.present? %>
+
+            <%= image_tag(
+              "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=#{CGI.escape(whatsapp_session.qr_code)}",
+              class: "whatsapp-session-qr-image"
+            ) %>
+
+          <% else %>
+
+            <div class="whatsapp-session-pending">
+              <div class="whatsapp-spinner"></div>
+              <p>Generowanie kodu QR…</p>
+            </div>
+
+          <% end %>
+
+        </div>
+
       </div>
-
-    <% end %>
+    </div>
 
   <% elsif whatsapp_session.status == "ready" %>
 
     <div class="whatsapp-session-ready">
-      <p class="whatsapp-session-status">
-        ✅ WhatsApp connected
-      </p>
 
-      <p class="whatsapp-session-phone">
-        Phone: <%= whatsapp_session.phone %>
-      </p>
+      <div class="whatsapp-session-ready-header">
+        <h2>WhatsApp połączony</h2>
+        <p>Połączenie zostało ustanowione pomyślnie.</p>
+      </div>
 
-      <%= button_to "Disconnect WhatsApp",
-            disconnect_messages_path,
-            method: :post,
-            class: "whatsapp-button whatsapp-button-danger" %>
+      <div class="whatsapp-session-ready-info">
+        <p>
+          <strong>Numer WhatsApp:</strong><br>
+          <%= whatsapp_session.phone %>
+        </p>
+      </div>
+
+      <div class="whatsapp-session-ready-action">
+        <%= button_to "Rozłącz WhatsApp",
+              disconnect_messages_path,
+              method: :post,
+              class: "whatsapp-button whatsapp-button-danger" %>
+      </div>
+
     </div>
 
   <% end %>
