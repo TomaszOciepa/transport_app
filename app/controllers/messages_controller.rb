@@ -4,15 +4,26 @@ class MessagesController < ApplicationController
 
   def index
     @whatsapp_session = current_user.whatsapp_session
-
+  
     if @whatsapp_session&.status == "ready"
-      @conversations = WhatsappConversation
-        .where(user: current_user)
-        .order(last_message_at: :desc)
+      @conversations =
+        WhatsappConversation
+          .where(user: current_user)
+          .order(last_message_at: :desc)
+  
+      @active_conversation = @conversations.first
+  
+      @messages =
+        @active_conversation ?
+          @active_conversation.whatsapp_messages.order(:created_at) :
+          []
     else
       @conversations = []
+      @active_conversation = nil
+      @messages = []
     end
   end
+  
 
   def connect
     session =

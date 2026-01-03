@@ -2,30 +2,20 @@
 
 <h1>Messages</h1>
 
-<!--
-  Ten kontener jest podmieniany w czasie rzeczywistym
-  (status / QR / ready / disconnected)
--->
-
-  <%= render "messages/whatsapp_session",
-        whatsapp_session: @whatsapp_session %>
-
-
-<%# ===================================================== %>
-<%# CHAT UI – renderowane TYLKO gdy WhatsApp jest READY %>
-<%# ===================================================== %>
+<%= render "messages/whatsapp_session",
+      whatsapp_session: @whatsapp_session %>
 
 <% if @whatsapp_session&.status == "ready" %>
   <hr>
 
-  <% if @conversations.any? %>
-    <% @conversations.each do |conversation| %>
-      <div class="conversation">
-        <strong><%= conversation.whatsapp_chat_id %></strong>
-        <small><%= conversation.last_message_at %></small>
-      </div>
-    <% end %>
-  <% else %>
-    <p>No conversations yet.</p>
-  <% end %>
+  <div class="whatsapp-layout">
+
+    <%= render "conversations/list",
+          conversations: @conversations %>
+
+    <%= render "conversations/chat",
+          conversation: @active_conversation,
+          messages: @messages %>
+
+  </div>
 <% end %>
