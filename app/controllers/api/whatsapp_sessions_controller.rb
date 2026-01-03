@@ -1,10 +1,8 @@
 class Api::WhatsappSessionsController < ApplicationController
-      # Node nie ma cookies ani sesji Devise
       skip_before_action :verify_authenticity_token
   
       # POST /api/whatsapp_session/qr
       def qr
-        # user_id przychodzi z Node
         session = WhatsappSession.find_or_create_by!(user_id: params[:user_id])
   
         session.update!(
@@ -12,7 +10,7 @@ class Api::WhatsappSessionsController < ApplicationController
           status: "pending"
         )
   
-        Rails.logger.info "✅ WhatsApp QR saved for user #{params[:user_id]}"
+        Rails.logger.info "WhatsApp QR saved for user #{params[:user_id]}"
   
         head :ok
       end
@@ -25,29 +23,30 @@ class Api::WhatsappSessionsController < ApplicationController
         incoming_phone  = params[:phone]
       
         # ============================
-        # STATUS READY → WE VALIDATE
+        # STATUS READY → VALIDATION
         # ============================
         if incoming_status == "ready"
+      
           if normalize_phone(incoming_phone) != normalize_phone(user.phone)
             Rails.logger.warn(
-              "❌ WhatsApp phone mismatch for user #{user.id}: " \
+              "WhatsApp phone mismatch for user #{user.id}: " \
               "expected #{user.phone}, got #{incoming_phone}"
             )
       
-            # disconnect Node
+            # disconnect Node (cleanup only)
             Faraday.post(
               "http://localhost:3005/sessions/disconnect",
               { user_id: user.id }.to_json,
               "Content-Type" => "application/json"
             )
       
-            # We do NOT save ready
-            session.update!(status: "disconnected")
+            # IMPORTANT: special state for UI
+            session.update!(status: "invalid_phone")
       
             return head :ok
           end
       
-          # THE NUMBERS ARE EQUAL → WE WRITE READY
+          # NUMBERS MATCH → READY
           session.update!(
             status: "ready",
             phone: incoming_phone
@@ -57,12 +56,13 @@ class Api::WhatsappSessionsController < ApplicationController
         end
       
         # ============================
-        # OTHER STATUS
+        # OTHER STATUSES
         # ============================
         session.update!(status: incoming_status)
       
         head :ok
       end
+      
       
       
       def connect
@@ -84,7 +84,7 @@ class Api::WhatsappSessionsController < ApplicationController
             "Content-Type" => "application/json"
           )
         rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED => e
-          Rails.logger.error "❌ WhatsApp Node unavailable: #{e.message}"
+          Rails.logger.error "WhatsApp Node unavailable: #{e.message}"
       
           # WE REVERSE THE STATUS - the spinner disappears
           session.update!(status: "disconnected")
@@ -102,7 +102,7 @@ class Api::WhatsappSessionsController < ApplicationController
       def disconnect
         session = WhatsappSession.find_by!(user_id: params[:user_id])
       
-        Rails.logger.info "🔴 Disconnect requested for user #{params[:user_id]}"
+        Rails.logger.info "Disconnect requested for user #{params[:user_id]}"
       
         # Call Node to properly close WhatsApp Web session
         Faraday.post(

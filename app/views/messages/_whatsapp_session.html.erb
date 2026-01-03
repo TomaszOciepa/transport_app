@@ -59,27 +59,64 @@
         </div>
 
         <div class="whatsapp-login-qr">
-
           <% if whatsapp_session.qr_code.present? %>
-
             <%= image_tag(
               "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=#{CGI.escape(whatsapp_session.qr_code)}",
               class: "whatsapp-session-qr-image"
             ) %>
-
           <% else %>
-
             <div class="whatsapp-session-pending">
               <div class="whatsapp-spinner"></div>
               <p>Generowanie kodu QR…</p>
             </div>
-
           <% end %>
-
         </div>
 
       </div>
     </div>
+
+    <% elsif whatsapp_session.status == "invalid_phone" %>
+
+    <div class="whatsapp-login whatsapp-login-error">
+  
+      <div class="whatsapp-login-header">
+        <h2>❌ Nieprawidłowy numer WhatsApp</h2>
+        <p>
+          Połączenie nie mogło zostać ustanowione.
+        </p>
+      </div>
+  
+      <div class="whatsapp-login-content">
+  
+        <div class="whatsapp-login-instructions">
+          <p class="whatsapp-session-text">
+            Zeskanowałeś kod QR aplikacją WhatsApp, która <strong>nie jest powiązana</strong>
+            z Twoim kontem służbowym.
+          </p>
+  
+          <p class="whatsapp-session-text">
+            Użyj aplikacji WhatsApp powiązanej z numerem:
+          </p>
+  
+          <p class="whatsapp-session-phone whatsapp-session-phone-error">
+            <strong><%= whatsapp_session.user.phone %></strong>
+          </p>
+  
+          <p class="whatsapp-login-note">
+            ⚠️ Jeśli nie masz dostępu do tego numeru, skontaktuj się z administratorem.
+          </p>
+        </div>
+  
+        <div class="whatsapp-login-action">
+          <%= button_to "Spróbuj ponownie",
+                connect_messages_path,
+                method: :post,
+                class: "whatsapp-button whatsapp-button-primary whatsapp-button-large" %>
+        </div>
+  
+      </div>
+    </div>
+  
 
   <% elsif whatsapp_session.status == "ready" %>
 

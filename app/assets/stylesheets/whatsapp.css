@@ -293,3 +293,13 @@
   padding: 24px;
   color: #667781;
 }
+
+.whatsapp-login-error .whatsapp-login-header h2 {
+  color: #dc3545;
+}
+
+.whatsapp-session-phone-error {
+  font-size: 18px;
+  color: #dc3545;
+  margin: 8px 0 16px;
+}
