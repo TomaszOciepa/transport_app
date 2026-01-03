@@ -118,31 +118,43 @@
     </div>
   
 
-  <% elsif whatsapp_session.status == "ready" %>
+    <% elsif whatsapp_session.status == "ready" %>
 
-    <div class="whatsapp-session-ready">
-
-      <div class="whatsapp-session-ready-header">
+    <div class="whatsapp-login whatsapp-login-ready">
+  
+      <div class="whatsapp-login-header">
         <h2>WhatsApp połączony</h2>
         <p>Połączenie zostało ustanowione pomyślnie.</p>
       </div>
-
-      <div class="whatsapp-session-ready-info">
-        <p>
-          <strong>Numer WhatsApp:</strong><br>
-          <%= whatsapp_session.phone %>
-        </p>
+  
+      <div class="whatsapp-login-content">
+  
+        <div class="whatsapp-login-instructions">
+          <p class="whatsapp-session-text">
+            Konto WhatsApp zostało poprawnie połączone z systemem.
+          </p>
+  
+          <p class="whatsapp-session-text">
+            Aktywny numer WhatsApp:
+          </p>
+  
+          <p class="whatsapp-session-phone whatsapp-session-phone-ready">
+            <strong><%= whatsapp_session.phone %></strong>
+          </p>
+        </div>
+  
+        <div class="whatsapp-login-action">
+          <%= button_to "Rozłącz WhatsApp",
+                disconnect_messages_path,
+                method: :post,
+                class: "whatsapp-button whatsapp-button-danger whatsapp-button-large" %>
+        </div>
+  
       </div>
-
-      <div class="whatsapp-session-ready-action">
-        <%= button_to "Rozłącz WhatsApp",
-              disconnect_messages_path,
-              method: :post,
-              class: "whatsapp-button whatsapp-button-danger" %>
-      </div>
-
+  
     </div>
-
+  
   <% end %>
+  
 
 </div>

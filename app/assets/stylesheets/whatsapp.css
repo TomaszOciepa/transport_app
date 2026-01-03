@@ -303,3 +303,22 @@
   color: #dc3545;
   margin: 8px 0 16px;
 }
+
+/* ============================= */
+/* WhatsApp – READY state */
+/* ============================= */
+
+.whatsapp-login-ready .whatsapp-login-header h2 {
+  color: #128c7e; /* WhatsApp dark green */
+}
+
+.whatsapp-session-phone-ready {
+  font-size: 18px;
+  color: #128c7e;
+  margin: 8px 0 16px;
+}
+
+/* lekko „success feel” */
+.whatsapp-login-ready {
+  border-left: 4px solid #25d366;
+}
