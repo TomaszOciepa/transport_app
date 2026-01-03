@@ -29,35 +29,30 @@ class MessagesController < ApplicationController
     session =
       current_user.whatsapp_session ||
       current_user.create_whatsapp_session!(status: "disconnected")
-
-    # set pending
-    # this will call after_update_commit
-    # Turbo will immediately show the spinner
-    session.update!(status: "pending", qr_code: nil)
-
-    # WATCHDOG – in 60 seconds we check if anything has changed
-    WhatsappConnectTimeoutJob.set(wait: 60.seconds).perform_later(session.id)
-   
   
-    begin
+   #show spinner
+    session.update!(status: "pending", qr_code: nil)
+  
+    # watchdog
+    WhatsappConnectTimeoutJob.set(wait: 60.seconds).perform_later(session.id)
+  
+    # API call (no rescue!)
+    response =
       Faraday.post(
-        "http://localhost:3005/sessions",
+        "http://localhost:3000/api/whatsapp_session/connect",
         { user_id: current_user.id }.to_json,
         "Content-Type" => "application/json"
       )
-    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED => e
-      Rails.logger.error "WhatsApp Node unavailable: #{e.message}"
   
-     # we are withdrawing the status because we are not waiting for anything anymore
-      session.update!(status: "disconnected")
-  
-      redirect_to messages_path,
-        alert: "WhatsApp service is currently unavailable. Please try again later."
-      return
+    # UX feedback
+    if response.status == 503
+      flash[:alert] =
+        "WhatsApp service is currently unavailable. Please try again later."
     end
   
     redirect_to messages_path
   end
+  
   
   
 

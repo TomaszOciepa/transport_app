@@ -85,6 +85,7 @@ Rails.application.routes.draw do
   namespace :api do
     post "whatsapp_session/qr",     to: "whatsapp_sessions#qr"
     post "whatsapp_session/status", to: "whatsapp_sessions#status"
+    post "whatsapp_session/connect", to: "whatsapp_sessions#connect"
     post "whatsapp_session/disconnect", to: "whatsapp_sessions#disconnect"
 
     resource :whatsapp_session, only: [:create]
