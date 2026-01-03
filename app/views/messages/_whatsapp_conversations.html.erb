@@ -1,0 +1,14 @@
+<% if whatsapp_session&.status == "ready" %>
+
+  <div class="whatsapp-layout">
+
+    <%= render "conversations/list",
+          conversations: conversations %>
+
+    <%= render "conversations/chat",
+          conversation: active_conversation,
+          messages: messages %>
+
+  </div>
+
+<% end %>

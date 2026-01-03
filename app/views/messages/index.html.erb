@@ -1,21 +1,24 @@
 <%= turbo_stream_from "whatsapp_session_#{current_user.id}" %>
+<%= turbo_stream_from "whatsapp_conversations_#{current_user.id}" %>
 
 <h1>Messages</h1>
 
 <%= render "messages/whatsapp_session",
       whatsapp_session: @whatsapp_session %>
 
-<% if @whatsapp_session&.status == "ready" %>
-  <hr>
+<div id="whatsapp_conversations">
+  <% if @whatsapp_session&.status == "ready" %>
 
-  <div class="whatsapp-layout">
+    <div class="whatsapp-layout">
 
-    <%= render "conversations/list",
-          conversations: @conversations %>
+      <%= render "conversations/list",
+            conversations: @conversations %>
 
-    <%= render "conversations/chat",
-          conversation: @active_conversation,
-          messages: @messages %>
+      <%= render "conversations/chat",
+            conversation: @active_conversation,
+            messages: @messages %>
 
-  </div>
-<% end %>
+    </div>
+
+  <% end %>
+</div>
