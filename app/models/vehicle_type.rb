@@ -8,8 +8,7 @@ class VehicleType < ApplicationRecord
 
 
     def can_driver_operate?(driver)
-        driver_categories = [driver.license_category.name] + driver.license_category.included_categories
+        driver_categories = [ driver.license_category.name ] + driver.license_category.included_categories
         license_categories.any? { |lc| driver_categories.include?(lc.name) }
       end
-      
 end

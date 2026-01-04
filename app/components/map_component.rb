@@ -6,5 +6,4 @@ class MapComponent < ViewComponent::Base
       @delivery_lon = delivery_lon.presence || 18.648424
       @ors_api_key = ENV["ORS_API_KEY"]
     end
-  end
-  
+end

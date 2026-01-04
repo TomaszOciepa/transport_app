@@ -61,7 +61,7 @@ class Order < ApplicationRecord
     end
   end
 
- 
+
   def calculate_price_and_delivery
     if pickup_lat.present? && pickup_lon.present? && delivery_lat.present? && delivery_lon.present?
       self.distance_km = OpenRouteService.distance_km(
@@ -74,7 +74,7 @@ class Order < ApplicationRecord
       self.distance_km ||= 0
     end
 
-  
+
     self.price = vehicle_type.price_per_km * distance_km * service_type.multiplier
 
 
@@ -91,22 +91,22 @@ class Order < ApplicationRecord
 
   def combine_full_addresses
     if pickup_address.present?
-      self.pickup_address = [pickup_address, pickup_postcode, pickup_city].compact.join(', ')
+      self.pickup_address = [ pickup_address, pickup_postcode, pickup_city ].compact.join(", ")
     end
-  
+
     if delivery_address.present?
-      self.delivery_address = [delivery_address, delivery_postcode, delivery_city].compact.join(', ')
+      self.delivery_address = [ delivery_address, delivery_postcode, delivery_city ].compact.join(", ")
     end
   end
 
   def pickup_place
-    pickup_address&.split(',')&.last&.strip
+    pickup_address&.split(",")&.last&.strip
   end
 
   def delivery_place
-    delivery_address&.split(',')&.last&.strip
+    delivery_address&.split(",")&.last&.strip
   end
-  
+
   private
 
   def generate_order_number
@@ -115,18 +115,14 @@ class Order < ApplicationRecord
     # Count how many orders there are already on this day
     count_today = Order.where("created_at >= ? AND created_at < ?", Time.current.beginning_of_day, Time.current.end_of_day).count
 
-    sequence_number = (count_today + 1).to_s.rjust(5, '0') # 00001, 00002, ...
+    sequence_number = (count_today + 1).to_s.rjust(5, "0") # 00001, 00002, ...
     self.order_number = "#{date_prefix}-#{sequence_number}"
 
     # collision protection (uniqueness)
     while Order.exists?(order_number: self.order_number)
       count_today += 1
-      sequence_number = (count_today + 1).to_s.rjust(5, '0')
+      sequence_number = (count_today + 1).to_s.rjust(5, "0")
       self.order_number = "#{date_prefix}-#{sequence_number}"
     end
   end
-
-
-
- 
 end

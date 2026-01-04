@@ -35,7 +35,7 @@ class Api::WhatsappMessagesController < ApplicationController
 
     # Deterministic ID for 1-to-1 chat
     def private_chat_id(a, b)
-      [a, b].sort.join("_")
+      [ a, b ].sort.join("_")
     end
 
     def incoming_or_outgoing?(from, owner_phone)

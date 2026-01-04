@@ -1,10 +1,10 @@
 module Admin
     class DashboardController < ApplicationController
       def index; end
-        
+
         def settings
             @page_title = "Ustawienia w budowie"
-            render "coming_soon" 
+            render "coming_soon"
         end
 
         def reports
@@ -12,5 +12,4 @@ module Admin
             render "coming_soon"
         end
     end
-  end
-  
+end

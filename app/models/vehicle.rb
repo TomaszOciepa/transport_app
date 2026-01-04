@@ -16,7 +16,7 @@ class Vehicle < ApplicationRecord
     # def current_order_vehicle
     #   order_vehicles.find_by(current: true)
     # end
-    
+
     def current_orders
       Order.joins(:order_vehicles)
           .where(order_vehicles: { vehicle_id: id, current: true })
@@ -25,7 +25,7 @@ class Vehicle < ApplicationRecord
 
     def current_status
       now = Time.current
-      
+
       if availabilities.any? { |a| a.start_time <= now && a.end_time >= now }
         "available"
       else
@@ -56,10 +56,10 @@ class Vehicle < ApplicationRecord
                   .first
 
       start_lat, start_lon = if last_order
-                              [last_order.delivery_lat, last_order.delivery_lon]
-                            else
-                              [54.399063, 18.6675238] # default starting point Gdańsk
-                            end
+                              [ last_order.delivery_lat, last_order.delivery_lon ]
+      else
+                              [ 54.399063, 18.6675238 ] # default starting point Gdańsk
+      end
 
       return 0 unless order.pickup_lat.present? && order.pickup_lon.present?
 
@@ -108,5 +108,4 @@ class Vehicle < ApplicationRecord
             start_date, end_date, start_date, end_date)
     overlapping_orders.exists?
   end
-
 end

@@ -1,10 +1,10 @@
 module Client
     class DashboardController < ApplicationController
       def index; end
-        
+
         def calendar
             @page_title = "Kalendarz w budowie"
-            render "coming_soon" 
+            render "coming_soon"
         end
 
         def notifications
@@ -12,5 +12,4 @@ module Client
             render "coming_soon"
         end
     end
-  end
-  
+end

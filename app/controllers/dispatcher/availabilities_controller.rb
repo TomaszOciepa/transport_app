@@ -8,7 +8,7 @@ module Dispatcher
 
         def create
             @availability = @availableable.availabilities.new(availability_params)
-          
+
             if @availability.save
               if @availableable.is_a?(Driver)
                 redirect_to dispatcher_driver_path(@availableable), notice: "Dostępność została dodana."
@@ -21,8 +21,8 @@ module Dispatcher
               render :new
             end
         end
-          
-          
+
+
 
         def edit
             @availability = @availableable.availabilities.find(params[:id])
@@ -40,21 +40,21 @@ module Dispatcher
         def destroy
             @availability = Availability.find(params[:id])
             @availability.destroy
-          
+
             redirect_to case @availableable
-                        when Driver then dispatcher_driver_path(@availableable)
-                        when Vehicle then dispatcher_vehicle_path(@availableable)
-                        else dispatcher_root_path
-                        end,
+            when Driver then dispatcher_driver_path(@availableable)
+            when Vehicle then dispatcher_vehicle_path(@availableable)
+            else dispatcher_root_path
+            end,
                         notice: "Dostępność została usunięta."
-          end
-          
-          
-          
+        end
+
+
+
 
         private
 
-        
+
         def set_availableable
             type = params[:availableable_type]
             id   = params[:availableable_id]

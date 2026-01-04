@@ -10,9 +10,9 @@ class LicenseCategory < ApplicationRecord
     def included_categories
         case name
         when "C+E"
-          ["C", "B"]
+          [ "C", "B" ]
         when "C"
-          ["B"]
+          [ "B" ]
         else
           []
         end

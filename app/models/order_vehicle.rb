@@ -5,7 +5,7 @@ class OrderVehicle < ApplicationRecord
 
   validates :vehicle_id, :order_id, :user_id, presence: true
   validate :vehicle_must_be_available
-  
+
   before_create :unset_previous_current
 
   private
@@ -21,5 +21,4 @@ class OrderVehicle < ApplicationRecord
       errors.add(:vehicle, "nie jest dostępny w okresie tego zamówienia")
     end
   end
-
 end

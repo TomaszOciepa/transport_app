@@ -1,6 +1,6 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: [:show]
-  before_action :authenticate_user!, only: [:create]
+  before_action :set_order, only: [ :show ]
+  before_action :authenticate_user!, only: [ :create ]
 
   def new
     @order = Order.new
@@ -8,29 +8,28 @@ class OrdersController < ApplicationController
   end
 
   def preview
-  
     if request.post?
-      
+
       @order = Order.new(order_params)
-      
+
       if params[:order][:pickup_address][" address-search"].present? &&
         params[:order][:delivery_address][" address-search"].present?
-       
+
         pickup_address = params[:order][:pickup_address][" address-search"]
         delivery_address = params[:order][:delivery_address][" address-search"]
 
         @order.pickup_address = pickup_address
         @order.delivery_address = delivery_address
 
-     end
-      
+      end
+
       @order.combine_full_addresses
       @order.geocode_addresses
       @order.calculate_price_and_delivery
-  
+
       session[:preview_order] = @order
     elsif session[:preview_order]
-      
+
       @order = Order.new(session[:preview_order])
       @order.combine_full_addresses
       @order.geocode_addresses
@@ -38,10 +37,10 @@ class OrdersController < ApplicationController
     else
       redirect_to new_order_path, alert: "No data to preview."
     end
-  
+
     load_collections
   end
-  
+
 
 
   def create
@@ -49,7 +48,7 @@ class OrdersController < ApplicationController
       @order = Order.new(session[:preview_order])
       @order.user = current_user
       @order.status = :pending
-      
+
       if @order.save
         session.delete(:preview_order)
         redirect_to @order, notice: "The order has been saved."
@@ -62,10 +61,9 @@ class OrdersController < ApplicationController
       redirect_to new_order_path, alert: "No data to save."
     end
   end
-  
+
 
   def show
-
   end
 
   private
@@ -85,13 +83,13 @@ class OrdersController < ApplicationController
       :vehicle_type_id,
       :service_type_id,
       :pickup_date,
-      pickup_address: [" address-search"],
-      delivery_address: [" address-search"]
+      pickup_address: [ " address-search" ],
+      delivery_address: [ " address-search" ]
     )
-  
+
     permitted
   end
-  
+
 
   def load_collections
     @vehicle_types = VehicleType.all

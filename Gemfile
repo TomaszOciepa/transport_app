@@ -86,3 +86,5 @@ group :test do
   gem "selenium-webdriver"
   gem 'dotenv-rails'
 end
+
+gem "ruby-lsp", "~> 0.26.4", group: :development

@@ -8,7 +8,7 @@ class Driver < ApplicationRecord
     validates :first_name, :last_name, :email, :license_category, presence: true
     validates :email, uniqueness: true
 
-    
+
     def current_vehicles
       Vehicle.joins(:vehicle_drivers)
              .where(vehicle_drivers: { driver_id: id, current: true })
@@ -23,8 +23,8 @@ class Driver < ApplicationRecord
         "unavailable"
       end
     end
-    
-    
+
+
     def current_status_i18n
       I18n.t("activerecord.attributes.driver.statuses.#{current_status}")
     end
@@ -36,11 +36,11 @@ class Driver < ApplicationRecord
     def can_drive?(vehicle_type)
       case vehicle_type.name
       when "Samochód osobowy"
-        ["B", "C", "C+E"].include?(license_category.name)
+        [ "B", "C", "C+E" ].include?(license_category.name)
       when "Bus"
-        ["B", "C", "C+E"].include?(license_category.name)
+        [ "B", "C", "C+E" ].include?(license_category.name)
       when "Ciężarówka solo"
-        ["C", "C+E"].include?(license_category.name)
+        [ "C", "C+E" ].include?(license_category.name)
       when "Ciężarówka z naczepą"
         license_category.name == "C+E"
       else
@@ -64,5 +64,4 @@ class Driver < ApplicationRecord
         a.start_time <= start_date && a.end_time >= end_date
       end
     end
-  
 end
