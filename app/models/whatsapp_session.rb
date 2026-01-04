@@ -7,7 +7,7 @@ class WhatsappSession < ApplicationRecord
   private
 
   def broadcast_session_changes
-    Rails.logger.info "BROADCAST WhatsappSession #{id} STATUS=#{status}"
+    Rails.logger.info "broadcast_session_changes #{id} STATUS=#{status}"
 
     broadcast_replace_to(
       "whatsapp_session_#{user_id}",
@@ -18,16 +18,20 @@ class WhatsappSession < ApplicationRecord
   end
 
   def broadcast_conversations_if_ready
+    Rails.logger.info "broadcast_conversations_if_ready #{id} STATUS=#{status}"
     return unless status == "ready"
 
     Rails.logger.info "BROADCAST Conversations for user #{user_id}"
+
+    conversations ||= []
 
     conversations =
       WhatsappConversation
         .where(user_id: user_id)
         .order(last_message_at: :desc)
 
-    active_conversation = conversations.first
+    active_conversation = conversations.first || nil
+ Rails.logger.info "BROADCAST active_conversation #{active_conversation }"
 
     messages =
       active_conversation ?

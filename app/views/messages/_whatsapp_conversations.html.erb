@@ -1,3 +1,11 @@
+<%
+  whatsapp_session    ||= nil
+  conversations       ||= []
+  active_conversation ||= nil
+  messages            ||= []
+%>
+
+
 <% if whatsapp_session&.status == "ready" %>
 
   <div class="whatsapp-layout">
