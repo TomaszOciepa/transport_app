@@ -317,3 +317,36 @@
   color: #667781;
   text-align: center;
 }
+
+turbo-frame#chat {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+turbo-frame#chat .whatsapp-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.whatsapp-conversation {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.whatsapp-sidebar,
+.whatsapp-chat {
+  height: 100%;
+}
+
+.whatsapp-conversation.active {
+  background: #f0f2f5;
+  border-left: 4px solid #25d366;
+  padding-left: 12px;
+}
+
+.whatsapp-conversation.active .whatsapp-conversation-title {
+  font-weight: 600;
+}

@@ -11,7 +11,12 @@ class MessagesController < ApplicationController
           .where(user: current_user)
           .order(last_message_at: :desc)
 
-      @active_conversation = @conversations.first
+      @active_conversation =
+        if params[:conversation_id].present?
+          @conversations.find { |c| c.id == params[:conversation_id].to_i }
+        else
+          @conversations.first
+        end
 
       @messages =
         @active_conversation ?
@@ -23,6 +28,7 @@ class MessagesController < ApplicationController
       @messages = []
     end
   end
+
 
 
   def connect

@@ -1,27 +1,9 @@
-<div class="whatsapp-sidebar">
+<div class="whatsapp-sidebar"
+     id="whatsapp_conversation_list"
+     data-controller="conversation-list">
 
-  <% if conversations.present? %>
-
-    <% conversations.each do |conversation| %>
-      <div class="whatsapp-conversation">
-
-        <div class="whatsapp-conversation-title">
-          <%= conversation.whatsapp_chat_id %>
-        </div>
-
-        <div class="whatsapp-conversation-meta">
-          <%= conversation.last_message_at&.strftime("%H:%M %d.%m") %>
-        </div>
-
-      </div>
-    <% end %>
-
-  <% else %>
-
-    <div class="whatsapp-conversation-empty">
-      Brak rozmów
-    </div>
-
+  <% conversations.each do |conversation| %>
+    <%= render "conversations/conversation", conversation: conversation %>
   <% end %>
 
 </div>

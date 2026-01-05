@@ -1,0 +1,14 @@
+<div class="whatsapp-message-row
+  <%= message.direction == "outgoing" ? "whatsapp-message-out" : "whatsapp-message-in" %>">
+
+  <div class="whatsapp-message-bubble">
+    <div class="whatsapp-message-body">
+      <%= message.body %>
+    </div>
+
+    <div class="whatsapp-message-time">
+      <%= message.sent_at&.strftime("%H:%M") %>
+    </div>
+  </div>
+
+</div>

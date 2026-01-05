@@ -8,38 +8,21 @@
     </div>
 
     <!-- MESSAGES -->
-    <div class="whatsapp-chat-messages">
+    <div
+      class="whatsapp-chat-messages"
+      id="whatsapp_messages_<%= conversation.id %>">
+
+      <%= turbo_stream_from "whatsapp_messages_#{conversation.id}" %>
 
       <% messages.each do |message| %>
-        <div class="whatsapp-message-row
-          <%= message.direction == "outbound" ? "whatsapp-message-out" : "whatsapp-message-in" %>">
-
-          <div class="whatsapp-message-bubble">
-            <div class="whatsapp-message-body">
-              <%= message.body %>
-            </div>
-
-            <div class="whatsapp-message-time">
-              <%= message.sent_at&.strftime("%H:%M") %>
-            </div>
-          </div>
-
-          </div>
+        <%= render "conversations/message", message: message %>
       <% end %>
-
-    </div>
-
-    <!-- INPUT (later) -->
-    <div class="whatsapp-chat-input">
-      Message input (later)
     </div>
 
   <% else %>
-
     <div class="whatsapp-chat-empty">
       Select a conversation
     </div>
-
   <% end %>
 
 </div>

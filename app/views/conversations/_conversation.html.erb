@@ -1,0 +1,19 @@
+<%= link_to messages_path(conversation_id: conversation.id),
+      data: {
+        turbo_frame: "chat",
+        controller: "conversation",
+        action: "click->conversation#select",
+        conversation_id: conversation.id
+      },
+      class: "whatsapp-conversation",
+      id: dom_id(conversation) do %>
+
+  <div class="whatsapp-conversation-title">
+    <%= conversation.whatsapp_chat_id %>
+  </div>
+
+  <div class="whatsapp-conversation-meta">
+    <%= conversation.last_message_at&.strftime("%H:%M %d.%m") %>
+  </div>
+
+<% end %>

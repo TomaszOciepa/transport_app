@@ -11,12 +11,15 @@
   <div class="whatsapp-layout">
 
     <%= render "conversations/list",
-          conversations: conversations %>
+          conversations: conversations,
+          user_id: whatsapp_session.user_id,
+          autofocus_first: params[:conversation_id].blank? %>
 
-    <%= render "conversations/chat",
-          conversation: active_conversation,
-          messages: messages %>
-
+    <turbo-frame id="chat">
+        <%= render "conversations/chat",
+              conversation: active_conversation,
+              messages: messages %>
+    </turbo-frame>
   </div>
 
 <% end %>
