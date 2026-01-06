@@ -1,6 +1,7 @@
 <%= link_to messages_path(conversation_id: conversation.id),
       data: {
         turbo_frame: "chat",
+        turbo_prefetch: false,
         controller: "conversation",
         action: "click->conversation#select",
         conversation_id: conversation.id
@@ -10,6 +11,12 @@
 
   <div class="whatsapp-conversation-title">
     <%= conversation.whatsapp_chat_id %>
+
+    <% if conversation.unread_count.to_i > 0 %>
+        <span class="whatsapp-unread-badge">
+          <%= conversation.unread_count %>
+        </span>
+    <% end %>
   </div>
 
   <div class="whatsapp-conversation-meta">

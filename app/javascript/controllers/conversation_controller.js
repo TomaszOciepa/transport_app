@@ -4,7 +4,8 @@ export default class extends Controller {
   connect() {
     const savedId = sessionStorage.getItem("activeConversationId")
 
-    // jeśli to jest reload / wejście
+    // reload / entry
+    // We do NOT clear the badge
     if (savedId && this.element.dataset.conversationId === savedId) {
       this.activate()
       this.open()
@@ -12,13 +13,22 @@ export default class extends Controller {
   }
 
   select(event) {
-    // zapisz kliknięty czat
-    sessionStorage.setItem(
-      "activeConversationId",
-      this.element.dataset.conversationId
-    )
+    event.preventDefault()
 
+    const conversationId = this.element.dataset.conversationId
+
+    // 1 UX – active chat
+    sessionStorage.setItem("activeConversationId", conversationId)
     this.activate()
+
+   // 2 OPTIMISTIC UI – remove badge IMMEDIATELY
+    this.removeBadge()
+
+   // 3 Backend – lasting truth
+    this.markAsRead(conversationId)
+
+    // 4 Open chat
+    this.open()
   }
 
   activate() {
@@ -30,10 +40,31 @@ export default class extends Controller {
   }
 
   open() {
-    // ręcznie załaduj czat do turbo-frame
     const frame = document.getElementById("chat")
     if (!frame) return
 
     frame.src = this.element.href
+  }
+
+  // =========================
+  // Optimistic UI helpers
+  // =========================
+  removeBadge() {
+    const badge = this.element.querySelector(".whatsapp-unread-badge")
+    if (badge) badge.remove()
+  }
+
+  // =========================
+  // Backend
+  // =========================
+  markAsRead(conversationId) {
+    fetch(`/messages/mark_as_read/${conversationId}`, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": document
+          .querySelector("meta[name='csrf-token']")
+          .content
+      }
+    })
   }
 }

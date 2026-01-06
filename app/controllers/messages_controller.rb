@@ -5,6 +5,10 @@ class MessagesController < ApplicationController
   def index
     @whatsapp_session = current_user.whatsapp_session
 
+    if params[:conversation_id].present?
+      session[:active_whatsapp_conversation_id] = params[:conversation_id].to_i
+    end
+
     if @whatsapp_session&.status == "ready"
       @conversations =
         WhatsappConversation
@@ -12,11 +16,8 @@ class MessagesController < ApplicationController
           .order(last_message_at: :desc)
 
       @active_conversation =
-        if params[:conversation_id].present?
-          @conversations.find { |c| c.id == params[:conversation_id].to_i }
-        else
-          @conversations.first
-        end
+        @conversations.find { |c| c.id == session[:active_whatsapp_conversation_id] } ||
+        @conversations.first
 
       @messages =
         @active_conversation ?
@@ -27,6 +28,17 @@ class MessagesController < ApplicationController
       @active_conversation = nil
       @messages = []
     end
+  end
+
+  def mark_as_read
+    conversation = WhatsappConversation
+      .find_by(id: params[:conversation_id], user_id: current_user.id)
+
+    return head :not_found unless conversation
+
+    conversation.update!(unread_count: 0)
+
+    head :ok
   end
 
 

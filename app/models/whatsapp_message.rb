@@ -3,13 +3,32 @@ class WhatsappMessage < ApplicationRecord
 
   validates :direction, inclusion: { in: %w[incoming outgoing] }
 
+  after_create_commit :increment_unread_counter, if: :incoming?
   after_create_commit :broadcast_message
   after_create_commit :broadcast_sidebar_reorder
 
+
+  def incoming?
+    direction == "incoming"
+  end
+
   private
 
+  def increment_unread_counter
+    return if conversation_opened?
+
+    whatsapp_conversation.increment!(:unread_count)
+  end
+
+  def conversation_opened?
+    # value written at the beginning of the request in ApplicationController
+    active_id = RequestStore.store[:active_whatsapp_conversation_id]
+
+    active_id.to_i == whatsapp_conversation_id
+  end
+
   # =========================
-  # Realtime: wiadomości w czacie
+  # Realtime: Chat Messages
   # =========================
   def broadcast_message
     Turbo::StreamsChannel.broadcast_append_to(
@@ -27,13 +46,13 @@ class WhatsappMessage < ApplicationRecord
     conversation = whatsapp_conversation
     user_id      = conversation.user_id
 
-    # 1️⃣ Usuń starą pozycję rozmowy z listy
+    # 1 Delete old conversation entry from list
     Turbo::StreamsChannel.broadcast_remove_to(
       "whatsapp_conversations_#{user_id}",
       target: ActionView::RecordIdentifier.dom_id(conversation)
     )
 
-    # 2️⃣ Dodaj ją na górę listy
+    # 2 Add it to the top of the list
     Turbo::StreamsChannel.broadcast_prepend_to(
       "whatsapp_conversations_#{user_id}",
       target: "whatsapp_conversation_list",

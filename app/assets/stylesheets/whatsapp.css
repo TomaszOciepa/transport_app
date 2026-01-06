@@ -350,3 +350,13 @@ turbo-frame#chat .whatsapp-chat {
 .whatsapp-conversation.active .whatsapp-conversation-title {
   font-weight: 600;
 }
+
+.whatsapp-unread-badge {
+  background: #25d366;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  margin-left: 6px;
+  font-weight: 600;
+}

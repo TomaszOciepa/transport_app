@@ -9,7 +9,8 @@ class WhatsappConversation < ApplicationRecord
   validates :chat_type, inclusion: { in: %w[private group] }
 
   after_create_commit :broadcast_sidebar
-  after_update_commit :broadcast_sidebar, if: :saved_change_to_last_message_at?
+  after_update_commit :broadcast_sidebar,
+  if: -> { saved_change_to_last_message_at? || saved_change_to_unread_count? }
 
   private
 
@@ -20,7 +21,7 @@ class WhatsappConversation < ApplicationRecord
         .order(last_message_at: :desc)
 
     Turbo::StreamsChannel.broadcast_replace_to(
-      "whatsapp_conversation_list_#{user_id}",
+      "whatsapp_conversations_#{user_id}",
       target: "whatsapp_conversation_list",
       partial: "conversations/list",
       locals: {

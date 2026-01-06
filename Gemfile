@@ -20,11 +20,13 @@ gem "jbuilder"
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 
-gem 'openssl', '~> 4.0'
+gem "openssl", "~> 4.0"
 
 gem "geocoder"
 
 gem "faraday"
+
+gem "request_store"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -44,7 +46,7 @@ gem "bootsnap", require: false
 
 gem "cssbundling-rails"
 
-gem 'devise'
+gem "devise"
 
 gem "image_processing", "~> 1.2"
 
@@ -60,7 +62,7 @@ gem "thruster", require: false
 
 gem "view_component"
 
-gem 'openssl', '~> 4.0'
+gem "openssl", "~> 4.0"
 
 
 group :development, :test do
@@ -77,14 +79,14 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
-  gem 'dotenv-rails'
+  gem "dotenv-rails"
 end
 
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
-  gem 'dotenv-rails'
+  gem "dotenv-rails"
 end
 
 gem "ruby-lsp", "~> 0.26.4", group: :development
