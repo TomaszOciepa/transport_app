@@ -41,6 +41,33 @@ class MessagesController < ApplicationController
     head :ok
   end
 
+  def send_message
+    conversation = WhatsappConversation
+      .find_by!(id: params[:conversation_id], user: current_user)
+
+    body = params[:body].to_s.strip
+    return head :unprocessable_entity if body.blank?
+
+    to_number =
+      conversation.whatsapp_chat_id
+        .split("_")
+        .reject { |n| n == current_user.phone }
+        .first
+
+    response = Faraday.post(
+      "http://localhost:3005/send",
+      {
+        user_id: current_user.id,
+        phone: to_number,
+        message: body
+      }.to_json,
+      "Content-Type" => "application/json"
+    )
+
+    return head :service_unavailable unless response.success?
+
+    head :ok
+  end
 
 
   def connect

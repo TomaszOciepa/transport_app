@@ -19,6 +19,24 @@
       <% end %>
     </div>
 
+     <!-- INPUT -->
+    <div class="whatsapp-chat-input">
+      <%= form_with url: send_message_messages_path,
+            method: :post,
+            data: { turbo: true },
+            class: "d-flex gap-2" do |f| %>
+
+        <%= hidden_field_tag :conversation_id, conversation.id %>
+
+        <%= f.text_field :body,
+              placeholder: "Napisz wiadomość...",
+              class: "form-control",
+              autocomplete: "off" %>
+
+        <%= f.submit "Wyślij", class: "btn btn-success" %>
+      <% end %>
+    </div>
+
   <% else %>
     <div class="whatsapp-chat-empty">
       Select a conversation
