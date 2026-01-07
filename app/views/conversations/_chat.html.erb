@@ -1,4 +1,6 @@
-<div class="whatsapp-chat">
+<div class="whatsapp-chat"  
+    data-controller="chat" 
+    data-conversation-id="<%= conversation.id if conversation %>">
 
   <% if conversation.present? %>
 
@@ -14,9 +16,18 @@
 
       <%= turbo_stream_from "whatsapp_messages_#{conversation.id}" %>
 
-      <% messages.each do |message| %>
+      <% unread_index = conversation.first_unread_message_index %>
+
+      <% messages.each_with_index do |message, index| %>
+
+        <% if unread_index && index == unread_index %>
+          <%= render "conversations/new_messages_separator" %>
+        <% end %>
+
         <%= render "conversations/message", message: message %>
+
       <% end %>
+
     </div>
 
      <!-- INPUT -->

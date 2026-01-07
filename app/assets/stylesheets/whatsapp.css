@@ -370,3 +370,34 @@ turbo-frame#chat .whatsapp-chat {
   border-radius: 999px;
   margin-left: 6px;
 }
+
+
+.whatsapp-new-messages-separator {
+  display: flex;
+  align-items: center;
+  margin: 12px 0;
+  font-size: 12px;
+  color: #8696a0;
+}
+
+.whatsapp-new-messages-separator::before,
+.whatsapp-new-messages-separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}
+
+.whatsapp-new-messages-separator span {
+  margin: 0 8px;
+  white-space: nowrap;
+}
+
+.whatsapp-new-messages-separator {
+  transition: opacity 3s ease, transform 3s ease;
+}
+
+.whatsapp-new-messages-separator.fade-out {
+  opacity: 0;
+  transform: translateY(-4px);
+}

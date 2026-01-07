@@ -23,6 +23,13 @@ class WhatsappConversation < ApplicationRecord
     where(user_id: user_id).sum(:unread_count)
   end
 
+  def first_unread_message_index
+    return nil if unread_count.to_i == 0
+
+    total = whatsapp_messages.count
+    [ total - unread_count, 0 ].max
+  end
+
   def broadcast_global_unread
     total_unread = WhatsappConversation.total_unread_for(user_id)
 
