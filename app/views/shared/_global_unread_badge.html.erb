@@ -1,0 +1,7 @@
+<% total_unread ||= 0 %>
+
+<span id="global-unread-badge"
+      class="global-unread-badge"
+      style="<%= 'display:none' if total_unread.to_i == 0 %>">
+  <%= total_unread %>
+</span>

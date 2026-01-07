@@ -360,3 +360,13 @@ turbo-frame#chat .whatsapp-chat {
   margin-left: 6px;
   font-weight: 600;
 }
+
+.global-unread-badge {
+  background: #25d366;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-left: 6px;
+}

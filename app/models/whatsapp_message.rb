@@ -6,6 +6,8 @@ class WhatsappMessage < ApplicationRecord
   after_create_commit :increment_unread_counter, if: :incoming?
   after_create_commit :broadcast_message
   after_create_commit :broadcast_sidebar_reorder
+  after_create_commit :broadcast_global_unread_if_needed, if: :incoming?
+
 
 
   def incoming?
@@ -59,5 +61,9 @@ class WhatsappMessage < ApplicationRecord
       partial: "conversations/conversation",
       locals: { conversation: conversation }
     )
+  end
+
+  def broadcast_global_unread_if_needed
+    whatsapp_conversation.broadcast_global_unread
   end
 end
