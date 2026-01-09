@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       post :disconnect
       post "mark_as_read/:conversation_id", action: :mark_as_read, as: :mark_as_read
       post :send_message
+      post :ensure_driver_conversation
     end
   end
 
