@@ -16,8 +16,20 @@ class WhatsappConversation < ApplicationRecord
   after_update_commit :broadcast_global_unread,
                     if: :saved_change_to_unread_count?
 
+  def assign_driver_if_possible!(phone_number)
+    return if driver_id.present?
+    return if phone_number.blank?
 
+    normalized = normalize_phone(phone_number)
 
+    # @lid / g.us / broadcast itp. → nie przypisujemy kierowcy
+    return if normalized.blank?
+
+    driver = Driver.find_by(phone: normalized)
+    return unless driver
+
+    update!(driver_id: driver.id)
+  end
 
   def self.total_unread_for(user_id)
     where(user_id: user_id).sum(:unread_count)
@@ -67,5 +79,17 @@ class WhatsappConversation < ApplicationRecord
         user_id: user_id
       }
     )
+  end
+
+  def normalize_phone(value)
+    s = value.to_s.strip
+    return "" if s.blank?
+
+    # If it's a WhatsApp ID (e.g., 123@lid, 123@c.us, ...),
+    # then we strip everything after the "@"
+    s = s.split("@").first
+
+    # leave only numbers
+    s.gsub(/\D/, "")
   end
 end

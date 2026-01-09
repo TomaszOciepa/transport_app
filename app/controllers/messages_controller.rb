@@ -54,6 +54,8 @@ class MessagesController < ApplicationController
         .reject { |n| n == current_user.phone }
         .first
 
+    conversation.assign_driver_if_possible!(to_number)
+
     response = Faraday.post(
       "http://localhost:3005/send",
       {

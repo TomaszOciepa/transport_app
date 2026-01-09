@@ -9,15 +9,24 @@
       class: "whatsapp-conversation",
       id: dom_id(conversation) do %>
 
-  <div class="whatsapp-conversation-title">
-    <%= conversation.whatsapp_chat_id %>
+  <div class="whatsapp-conversation-title d-flex justify-content-between align-items-center">
+    <div class="whatsapp-conversation-name">
+      <% if conversation.driver.present? %>
+        <strong>
+          <%= conversation.driver.first_name %> <%= conversation.driver.last_name %>
+        </strong>
+      <% else %>
+        <%= conversation.whatsapp_chat_id %>
+      <% end %>
+    </div>
 
     <% if conversation.unread_count.to_i > 0 %>
-        <span class="whatsapp-unread-badge">
-          <%= conversation.unread_count %>
-        </span>
+      <span class="whatsapp-unread-badge">
+        <%= conversation.unread_count %>
+      </span>
     <% end %>
   </div>
+
 
   <div class="whatsapp-conversation-meta">
     <%= conversation.last_message_at&.strftime("%H:%M %d.%m") %>

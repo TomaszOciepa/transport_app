@@ -26,6 +26,8 @@ class Api::WhatsappMessagesController < ApplicationController
         whatsapp_chat_id: private_chat_id(owner_phone, chat_partner)
       )
 
+      conversation.assign_driver_if_possible!(chat_partner)
+
       message = conversation.whatsapp_messages.create!(
         direction: direction,
         from_number: from_number,

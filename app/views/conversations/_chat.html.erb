@@ -4,10 +4,17 @@
 
   <% if conversation.present? %>
 
-    <!-- HEADER -->
+   <!-- HEADER -->
     <div class="whatsapp-chat-header">
-      <%= conversation.whatsapp_chat_id %>
+      <% if conversation.driver.present? %>
+        <strong>
+          <%= conversation.driver.first_name %> <%= conversation.driver.last_name %>
+        </strong>
+      <% else %>
+        <%= conversation.whatsapp_chat_id %>
+      <% end %>
     </div>
+
 
     <!-- MESSAGES -->
     <div
