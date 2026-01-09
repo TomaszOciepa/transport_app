@@ -3,22 +3,54 @@
      data-controller="conversation-list">
 
   <!-- HEADER -->
-  <div class="whatsapp-sidebar-header d-flex align-items-center justify-content-between">
+  <div class="whatsapp-sidebar-header d-flex align-items-center justify-content-between px-2 py-2 border-bottom">
     <div class="d-flex align-items-center gap-2">
-      <!-- ICON (future menu trigger) -->
-    <button type="button"
-        class="btn btn-sm btn-link p-0 whatsapp-sidebar-menu-btn"
-        title="Kontakty">
-        <i class="bi bi-chat-dots text-dark"></i>
-    </button>
 
+      <!-- MENU WRAPPER (RELATIVE!) -->
+      <div class="whatsapp-menu-wrapper"
+           data-controller="drivers-menu">
+
+        <!-- MENU BUTTON -->
+        <button type="button"
+                class="btn btn-sm btn-link p-0 whatsapp-sidebar-menu-btn"
+                data-action="click->drivers-menu#toggle">
+          <i class="bi bi-chat-dots text-dark"></i>
+        </button>
+
+        <!-- DRIVERS MENU (ABSOLUTE) -->
+        <div class="whatsapp-drivers-menu"
+             data-drivers-menu-target="menu"
+             hidden>
+
+          <div class="whatsapp-drivers-menu-header mb-2">
+            <strong>Kierowcy</strong>
+
+            <input type="text"
+                   class="form-control form-control-sm mt-2"
+                   placeholder="Szukaj kierowcy…"
+                   data-action="input->drivers-menu#filter"
+                   data-drivers-menu-target="search" />
+          </div>
+
+          <ul class="whatsapp-drivers-list list-unstyled mb-0"
+              data-drivers-menu-target="list">
+            <% Driver.order(:last_name, :first_name).each do |driver| %>
+              <li class="whatsapp-driver-item py-1 px-1"
+                  data-drivers-menu-target="item"
+                  data-search-text="<%= "#{driver.first_name} #{driver.last_name}".downcase %>">
+                <%= driver.first_name %> <%= driver.last_name %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
 
       <h6 class="m-0 fw-bold">Czaty</h6>
     </div>
   </div>
 
-  <!-- CONVERSATIONS -->
-  <div class="whatsapp-sidebar-list">
+  <!-- LISTA CZATÓW -->
+  <div class="whatsapp-conversation-items">
     <% conversations.each do |conversation| %>
       <%= render "conversations/conversation", conversation: conversation %>
     <% end %>

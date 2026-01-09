@@ -426,4 +426,40 @@ turbo-frame#chat .whatsapp-chat {
   font-size: 1.2rem;
 }
 
+/* wrapper kotwiczący menu */
+.whatsapp-menu-wrapper {
+  position: relative;
+}
+
+/* dymek */
+.whatsapp-drivers-menu {
+  position: absolute;
+  top: 100%;          /* dokładnie pod buttonem */
+  left: 0;            /* lewa krawędź przycisku */
+  margin-top: 0.5rem;
+
+  width: 220px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 1000;
+  padding: 0.5rem 0;
+}
+
+.whatsapp-sidebar-menu-btn {
+  line-height: 1;
+}
+
+.whatsapp-drivers-menu-header input {
+  font-size: 0.85rem;
+}
+
+.whatsapp-driver-item[hidden] {
+  display: none;
+}
+
+.whatsapp-conversation-items {
+  overflow-y: auto;
+  flex: 1;
+}
 
