@@ -119,12 +119,15 @@ class MessagesController < ApplicationController
         .sort
         .join("_")
 
-    conversation =
-      WhatsappConversation.find_or_create_by!(
-        user: current_user,
-        chat_type: "private",
-        whatsapp_chat_id: chat_id
-      )
+      conversation =
+        WhatsappConversation.find_or_create_by!(
+          user: current_user,
+          chat_type: "private",
+          whatsapp_chat_id: chat_id
+        ) do |c|
+          c.driver = driver
+        end
+
 
     # przypisz kierowcę (jeśli jeszcze nie)
     if conversation.driver_id != driver.id
