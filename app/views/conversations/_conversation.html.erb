@@ -20,24 +20,35 @@
       <% end %>
     </div>
 
-    <% if conversation.unread_count.to_i > 0 %>
-      <span class="whatsapp-unread-badge">
-        <%= conversation.unread_count %>
-      </span>
-    <% end %>
+    <!-- ✅ PRAWA STRONA: badge + delete -->
+    <div class="whatsapp-conversation-actions d-flex align-items-center gap-2">
+
+      <% if conversation.unread_count.to_i > 0 %>
+        <span class="whatsapp-unread-badge">
+          <%= conversation.unread_count %>
+        </span>
+      <% end %>
+
+      <button type="button"
+              class="btn btn-sm btn-link text-danger p-0 whatsapp-conversation-delete"
+              title="Usuń czat"
+              data-controller="conversation-delete"
+              data-conversation-delete-id-value="<%= conversation.id %>"
+              data-action="click->conversation-delete#confirm">
+        <i class="bi bi-trash"></i>
+      </button>
+
+    </div>
   </div>
 
+  <div class="whatsapp-conversation-meta">
+    <div class="whatsapp-conversation-time">
+      <%= conversation.last_message_at&.strftime("%H:%M %d.%m") %>
+    </div>
 
-<div class="whatsapp-conversation-meta">
-  <div class="whatsapp-conversation-time">
-    <%= conversation.last_message_at&.strftime("%H:%M %d.%m") %>
+    <div class="whatsapp-conversation-preview">
+      <%= conversation.last_message_preview.presence || " " %>
+    </div>
   </div>
-
-  <div class="whatsapp-conversation-preview">
-    <%= conversation.last_message_preview.presence || " " %>
-  </div>
-</div>
-
-
 
 <% end %>

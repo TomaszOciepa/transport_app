@@ -15,6 +15,9 @@ Rails.application.routes.draw do
       post "mark_as_read/:conversation_id", action: :mark_as_read, as: :mark_as_read
       post :send_message
       post :ensure_driver_conversation
+      delete "delete_conversation/:conversation_id",
+           action: :delete_conversation,
+           as: :delete_conversation
     end
   end
 

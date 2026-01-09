@@ -137,6 +137,22 @@ class MessagesController < ApplicationController
     render json: { conversation_id: conversation.id }
   end
 
+  def delete_conversation
+    conversation =
+      WhatsappConversation.find_by!(
+        id: params[:conversation_id],
+        user: current_user
+      )
+
+    conversation.destroy!
+
+    # jeśli usunięto aktualnie otwarty czat
+    if session[:active_whatsapp_conversation_id] == conversation.id
+      session.delete(:active_whatsapp_conversation_id)
+    end
+
+    head :ok
+  end
 
 
   private
