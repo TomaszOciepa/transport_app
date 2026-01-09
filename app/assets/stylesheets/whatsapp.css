@@ -463,3 +463,57 @@ turbo-frame#chat .whatsapp-chat {
   flex: 1;
 }
 
+/* ===================================================== */
+/* WhatsApp – READY SESSION (collapsible, isolated) */
+/* ===================================================== */
+
+/* header niższy niż standardowy */
+.whatsapp-session-ready-header {
+  padding: 12px 16px;
+  position: relative;
+  cursor: pointer;
+}
+
+.whatsapp-session-ready-header h2 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.whatsapp-session-ready-header p {
+  font-size: 12px;
+}
+
+/* strzałka */
+.whatsapp-session-ready-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #667781;
+  transition: transform 0.25s ease;
+}
+
+/* CONTENT – domyślnie ZWINIĘTY */
+.whatsapp-session-ready-content {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding: 0 32px;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    padding 0.25s ease;
+}
+
+/* CONTENT – OTWARTY */
+.whatsapp-session-ready-content.is-open {
+  max-height: 300px;
+  opacity: 1;
+  padding: 32px;
+}
+
+/* obrót strzałki */
+.whatsapp-session-ready-chevron.is-open {
+  transform: translateY(-50%) rotate(180deg);
+}
