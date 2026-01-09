@@ -111,22 +111,29 @@ class MessagesController < ApplicationController
   redirect_to messages_path, notice: "WhatsApp disconnecting…"
   end
 
-    def ensure_driver_conversation
-      driver = Driver.find(params[:driver_id])
+  def ensure_driver_conversation
+    driver = Driver.find(params[:driver_id])
 
-      chat_id = [ current_user.phone, driver.phone ].sort.join("_")
+    chat_id =
+      [ current_user.phone, driver.phone ]
+        .sort
+        .join("_")
 
-      conversation =
-        WhatsappConversation.find_or_create_by!(
-          user: current_user,
-          chat_type: "private",
-          whatsapp_chat_id: chat_id
-        )
+    conversation =
+      WhatsappConversation.find_or_create_by!(
+        user: current_user,
+        chat_type: "private",
+        whatsapp_chat_id: chat_id
+      )
 
-      conversation.update!(driver: driver) if conversation.driver_id != driver.id
-
-      render json: { conversation_id: conversation.id }
+    # przypisz kierowcę (jeśli jeszcze nie)
+    if conversation.driver_id != driver.id
+      conversation.update!(driver: driver)
     end
+
+    render json: { conversation_id: conversation.id }
+  end
+
 
 
   private

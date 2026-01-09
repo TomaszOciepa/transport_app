@@ -35,12 +35,19 @@
           <ul class="whatsapp-drivers-list list-unstyled mb-0"
               data-drivers-menu-target="list">
             <% Driver.order(:last_name, :first_name).each do |driver| %>
-              <li
-                class="whatsapp-driver-item"
-                data-action="click->drivers-menu#openConversation"
-                data-driver-id="<%= driver.id %>">
-                <%= driver.first_name %> <%= driver.last_name %>
+              <li class="whatsapp-driver-item py-1 px-1"
+                  data-controller="driver-item"
+                  data-driver-item-driver-id-value="<%= driver.id %>">
+
+                <button type="button"
+                        class="btn btn-link text-start w-100 p-0 text-decoration-none"
+                        data-action="click->driver-item#open">
+                  <%= driver.first_name %> <%= driver.last_name %>
+                </button>
+
               </li>
+
+
             <% end %>
           </ul>
         </div>
