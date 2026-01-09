@@ -38,12 +38,16 @@ class Api::WhatsappMessagesController < ApplicationController
         sent_at: Time.at(params[:timestamp].to_i)
       )
 
-      conversation.update!(last_message_at: message.sent_at)
+      preview =
+      message.body.present? ? message.body.truncate(60) : "📎 Załącznik"
+
+      conversation.update!(
+        last_message_at: message.sent_at,
+        last_message_preview: preview
+      )
 
       head :ok
     end
-
-
 
     private
 

@@ -401,3 +401,19 @@ turbo-frame#chat .whatsapp-chat {
   opacity: 0;
   transform: translateY(-4px);
 }
+
+
+.whatsapp-conversation-time {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.whatsapp-conversation-preview {
+  font-size: 0.85rem;
+  color: #adb5bd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+

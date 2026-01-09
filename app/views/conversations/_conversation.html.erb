@@ -28,8 +28,16 @@
   </div>
 
 
-  <div class="whatsapp-conversation-meta">
+<div class="whatsapp-conversation-meta">
+  <div class="whatsapp-conversation-time">
     <%= conversation.last_message_at&.strftime("%H:%M %d.%m") %>
   </div>
+
+  <div class="whatsapp-conversation-preview">
+    <%= conversation.last_message_preview.presence || " " %>
+  </div>
+</div>
+
+
 
 <% end %>
