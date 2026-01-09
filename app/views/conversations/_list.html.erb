@@ -58,7 +58,8 @@
   </div>
 
   <!-- LISTA CZATÓW -->
-  <div class="whatsapp-conversation-items">
+  <div class="whatsapp-conversation-items"
+        id="whatsapp_conversation_items">
     <% conversations.each do |conversation| %>
       <%= render "conversations/conversation", conversation: conversation %>
     <% end %>

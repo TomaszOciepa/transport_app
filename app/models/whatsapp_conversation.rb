@@ -9,9 +9,11 @@ class WhatsappConversation < ApplicationRecord
   validates :whatsapp_chat_id, presence: true
   validates :chat_type, inclusion: { in: %w[private group] }
 
-  after_create_commit :broadcast_sidebar
   after_update_commit :broadcast_sidebar,
   if: -> { saved_change_to_last_message_at? || saved_change_to_unread_count? }
+  after_create_commit :broadcast_sidebar_create
+
+
 
   after_update_commit :broadcast_global_unread,
                     if: :saved_change_to_unread_count?
@@ -41,6 +43,17 @@ class WhatsappConversation < ApplicationRecord
     total = whatsapp_messages.count
     [ total - unread_count, 0 ].max
   end
+
+  def broadcast_sidebar_create
+    Turbo::StreamsChannel.broadcast_prepend_to(
+      "whatsapp_conversations_#{user_id}",
+      target: "whatsapp_conversation_items",
+      partial: "conversations/conversation",
+      locals: { conversation: self }
+    )
+  end
+
+
 
   def broadcast_global_unread
     total_unread = WhatsappConversation.total_unread_for(user_id)
