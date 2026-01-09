@@ -2,8 +2,26 @@
      id="whatsapp_conversation_list"
      data-controller="conversation-list">
 
-  <% conversations.each do |conversation| %>
-    <%= render "conversations/conversation", conversation: conversation %>
-  <% end %>
+  <!-- HEADER -->
+  <div class="whatsapp-sidebar-header d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <!-- ICON (future menu trigger) -->
+    <button type="button"
+        class="btn btn-sm btn-link p-0 whatsapp-sidebar-menu-btn"
+        title="Kontakty">
+        <i class="bi bi-chat-dots text-dark"></i>
+    </button>
+
+
+      <h6 class="m-0 fw-bold">Czaty</h6>
+    </div>
+  </div>
+
+  <!-- CONVERSATIONS -->
+  <div class="whatsapp-sidebar-list">
+    <% conversations.each do |conversation| %>
+      <%= render "conversations/conversation", conversation: conversation %>
+    <% end %>
+  </div>
 
 </div>

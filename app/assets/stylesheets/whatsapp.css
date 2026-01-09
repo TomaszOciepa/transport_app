@@ -417,3 +417,13 @@ turbo-frame#chat .whatsapp-chat {
   max-width: 220px;
 }
 
+.whatsapp-sidebar-header {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.whatsapp-sidebar-menu-btn i {
+  font-size: 1.2rem;
+}
+
+
