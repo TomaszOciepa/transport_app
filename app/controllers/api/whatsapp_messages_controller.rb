@@ -5,29 +5,31 @@ class Api::WhatsappMessagesController < ApplicationController
     def create
       user = User.find(params[:user_id])
 
-      # Normalize phone numbers
-      from_number = params[:from]
       owner_phone = user.phone
 
-      # Determine direction (Node can override)
       direction =
         params[:direction].presence ||
-        incoming_or_outgoing?(from_number, owner_phone)
+        incoming_or_outgoing?(params[:from], owner_phone)
 
-      # Determine chat id (for private chat)
+      from_number =
+        direction == "outgoing" ? owner_phone : params[:from]
+
+      to_number =
+        direction == "outgoing" ? params[:to] : owner_phone
+
       chat_partner =
-        direction == "outgoing" ? params[:to] : from_number
+        direction == "outgoing" ? to_number : from_number
 
       conversation = WhatsappConversation.find_or_create_by!(
         user: user,
         chat_type: "private",
-        whatsapp_chat_id: private_chat_id(user.phone, chat_partner)
+        whatsapp_chat_id: private_chat_id(owner_phone, chat_partner)
       )
 
       message = conversation.whatsapp_messages.create!(
         direction: direction,
         from_number: from_number,
-        to_number: owner_phone,
+        to_number: to_number,
         body: params[:message],
         message_type: "text",
         raw_payload: params.to_json,
@@ -38,6 +40,8 @@ class Api::WhatsappMessagesController < ApplicationController
 
       head :ok
     end
+
+
 
     private
 
