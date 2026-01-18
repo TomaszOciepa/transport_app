@@ -120,6 +120,60 @@ class MessagesController < ApplicationController
     head :ok
   end
 
+  def send_order_details
+    conversation = WhatsappConversation.find_by!(
+      id: params[:conversation_id],
+      user: current_user,
+      chat_type: "group"
+    )
+
+    order = Order.find(conversation.order_id)
+
+    body = <<~MSG.strip
+      📦 Zamówienie numer: #{order.order_number}
+
+      📍 Odbiór:
+      #{order.pickup_address}
+      🕒 #{order.pickup_date.strftime("%Y-%m-%d %H:%M")}
+
+      📦 Dostawa:
+      #{order.delivery_address}
+      🕒 #{order.delivery_date.strftime("%Y-%m-%d %H:%M")}
+    MSG
+
+    # 🔁 wysyłka przez TEN SAM mechanizm co normalna wiadomość
+    response = Faraday.post(
+      "http://localhost:3005/groups/send",
+      {
+        user_id: current_user.id,
+        group_id: conversation.whatsapp_chat_id,
+        message: body
+      }.to_json,
+      "Content-Type" => "application/json"
+    )
+
+    unless response.success?
+      Rails.logger.error("[WHATSAPP ORDER DETAILS ERROR] #{response.body}")
+      return head :service_unavailable
+    end
+
+    # 💾 ZAPIS DO BAZY (KLUCZOWE!)
+    message = conversation.whatsapp_messages.create!(
+      direction: "outgoing",
+      from_number: current_user.phone,
+      to_number: conversation.whatsapp_chat_id,
+      body: body,
+      message_type: "text",
+      sent_at: Time.current
+    )
+
+    conversation.update!(
+      last_message_at: message.sent_at,
+      last_message_preview: body.truncate(60)
+    )
+
+    head :ok
+  end
 
 
   def connect
@@ -214,5 +268,19 @@ class MessagesController < ApplicationController
     when "client"     then "client"
     else "application"
     end
+  end
+
+  def build_order_details_message(order)
+    <<~MSG.strip
+      📦 *Zamówienie numer:* #{order.order_number}
+
+      📍 *Odbiór:*
+      #{order.pickup_address}
+      🕒 #{order.pickup_date.strftime("%Y-%m-%d %H:%M")}
+
+      🚚 *Dostawa:*
+      #{order.delivery_address}
+      🕒 #{order.delivery_date.strftime("%Y-%m-%d %H:%M")}
+    MSG
   end
 end

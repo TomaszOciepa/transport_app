@@ -5,22 +5,59 @@
   <% if conversation.present? %>
 
    <!-- HEADER -->
-    <div class="whatsapp-chat-header">
-      <% if conversation.chat_type == "group" %>
+   <div class="whatsapp-chat-header d-flex justify-content-between align-items-center">
+
+  <!-- LEWA STRONA: tytuł -->
+  <div>
+    <% if conversation.chat_type == "group" && conversation.order_id.present? %>
+
+      <%= link_to dispatcher_order_path(conversation.order_id),
+            class: "text-decoration-none text-dark",
+            title: "Przejdź do zamówienia",
+            data: { turbo: false } do %>
+
         <strong>
           <i class="bi bi-people me-1"></i>
           <%= conversation.group_name.presence || "Grupa WhatsApp" %>
         </strong>
 
-      <% elsif conversation.driver.present? %>
+      <% end %>
+
+    <% elsif conversation.driver.present? %>
+
+      <%= link_to dispatcher_driver_path(conversation.driver),
+            class: "text-decoration-none text-dark",
+            title: "Przejdź do kierowcy",
+            data: { turbo: false } do %>
+
         <strong>
+          <i class="bi bi-person me-1"></i>
           <%= conversation.driver.first_name %> <%= conversation.driver.last_name %>
         </strong>
 
-      <% else %>
-        <%= conversation.whatsapp_chat_id %>
       <% end %>
-    </div>
+
+    <% else %>
+      <strong><%= conversation.whatsapp_chat_id %></strong>
+    <% end %>
+  </div>
+
+  <!-- PRAWA STRONA: przycisk (TYLKO DLA GRUPY) -->
+  <% if conversation.chat_type == "group" && conversation.order_id.present? %>
+    <%= button_to send_order_details_messages_path,
+          method: :post,
+          params: { conversation_id: conversation.id },
+          class: "btn btn-sm btn-outline-primary",
+          title: "Wyślij szczegóły zamówienia",
+          data: { turbo: true } do %>
+
+      <i class="bi bi-send"></i>
+
+    <% end %>
+  <% end %>
+
+</div>
+
 
 
 
