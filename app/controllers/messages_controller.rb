@@ -129,19 +129,27 @@ class MessagesController < ApplicationController
 
     order = Order.find(conversation.order_id)
 
+    pickup_map_url =
+      "https://www.google.com/maps/search/?api=1&query=#{CGI.escape(order.pickup_address)}"
+
+    delivery_map_url =
+      "https://www.google.com/maps/search/?api=1&query=#{CGI.escape(order.delivery_address)}"
+
     body = <<~MSG.strip
       📦 Zamówienie numer: #{order.order_number}
 
       📍 Odbiór:
       #{order.pickup_address}
       🕒 #{order.pickup_date.strftime("%Y-%m-%d %H:%M")}
+      🗺️ Mapa: #{pickup_map_url}
 
       📦 Dostawa:
       #{order.delivery_address}
       🕒 #{order.delivery_date.strftime("%Y-%m-%d %H:%M")}
+      🗺️ Mapa: #{delivery_map_url}
     MSG
 
-    # 🔁 wysyłka przez TEN SAM mechanizm co normalna wiadomość
+    # 🔁 wysyłka do WhatsApp (Node)
     response = Faraday.post(
       "http://localhost:3005/groups/send",
       {
@@ -157,7 +165,7 @@ class MessagesController < ApplicationController
       return head :service_unavailable
     end
 
-    # 💾 ZAPIS DO BAZY (KLUCZOWE!)
+    # 💾 zapis wiadomości w DB (jak normalny chat)
     message = conversation.whatsapp_messages.create!(
       direction: "outgoing",
       from_number: current_user.phone,
@@ -174,6 +182,7 @@ class MessagesController < ApplicationController
 
     head :ok
   end
+
 
 
   def connect
