@@ -11,14 +11,21 @@
 
   <div class="whatsapp-conversation-title d-flex justify-content-between align-items-center">
     <div class="whatsapp-conversation-name">
-      <% if conversation.driver.present? %>
-        <strong>
-          <%= conversation.driver.first_name %> <%= conversation.driver.last_name %>
-        </strong>
-      <% else %>
-        <%= conversation.whatsapp_chat_id %>
-      <% end %>
-    </div>
+        <% if conversation.chat_type == "group" %>
+          <strong>
+            <%= conversation.group_name.presence || "Grupa WhatsApp" %>
+          </strong>
+
+        <% elsif conversation.driver.present? %>
+          <strong>
+            <%= conversation.driver.first_name %> <%= conversation.driver.last_name %>
+          </strong>
+
+        <% else %>
+          <%= conversation.whatsapp_chat_id %>
+        <% end %>
+      </div>
+
 
     <!-- ✅ PRAWA STRONA: badge + delete -->
     <div class="whatsapp-conversation-actions d-flex align-items-center gap-2">

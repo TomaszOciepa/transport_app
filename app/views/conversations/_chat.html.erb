@@ -6,14 +6,22 @@
 
    <!-- HEADER -->
     <div class="whatsapp-chat-header">
-      <% if conversation.driver.present? %>
+      <% if conversation.chat_type == "group" %>
+        <strong>
+          <i class="bi bi-people me-1"></i>
+          <%= conversation.group_name.presence || "Grupa WhatsApp" %>
+        </strong>
+
+      <% elsif conversation.driver.present? %>
         <strong>
           <%= conversation.driver.first_name %> <%= conversation.driver.last_name %>
         </strong>
+
       <% else %>
         <%= conversation.whatsapp_chat_id %>
       <% end %>
     </div>
+
 
 
     <!-- MESSAGES -->
