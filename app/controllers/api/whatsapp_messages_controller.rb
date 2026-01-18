@@ -3,6 +3,11 @@ class Api::WhatsappMessagesController < ApplicationController
 
     # POST /api/whatsapp_messages
     def create
+      if params[:from].to_s.include?("@g.us") || params[:to].to_s.include?("@g.us")
+        Rails.logger.info("[WHATSAPP] Ignoring group message in Api::WhatsappMessagesController#create")
+        return head :ok
+      end
+
       user = User.find(params[:user_id])
 
       owner_phone = user.phone

@@ -48,6 +48,14 @@ class MessagesController < ApplicationController
     body = params[:body].to_s.strip
     return head :unprocessable_entity if body.blank?
 
+    if conversation.chat_type == "group"
+      send_group_message(conversation, body)
+    else
+      send_private_message(conversation, body)
+    end
+  end
+
+  def send_private_message(conversation, body)
     to_number =
       conversation.whatsapp_chat_id
         .split("_")
@@ -70,6 +78,48 @@ class MessagesController < ApplicationController
 
     head :ok
   end
+
+  def send_group_message(conversation, body)
+    Faraday.post(
+      "http://localhost:3005/sessions/ensure",
+      { user_id: current_user.id }.to_json,
+      "Content-Type" => "application/json"
+    )
+
+
+    response = Faraday.post(
+      "http://localhost:3005/groups/send",
+      {
+        user_id: current_user.id,
+        group_id: conversation.whatsapp_chat_id,
+        message: body
+      }.to_json,
+      "Content-Type" => "application/json"
+    )
+
+    unless response.success?
+      Rails.logger.error("[WHATSAPP GROUP SEND ERROR] #{response.body}")
+      return head :service_unavailable
+    end
+
+    # zapis wiadomości w DB (dla UI)
+    message = conversation.whatsapp_messages.create!(
+      direction: "outgoing",
+      from_number: current_user.phone,
+      to_number: conversation.whatsapp_chat_id,
+      body: body,
+      message_type: "text",
+      sent_at: Time.current
+    )
+
+    conversation.update!(
+      last_message_at: message.sent_at,
+      last_message_preview: body.truncate(60)
+    )
+
+    head :ok
+  end
+
 
 
   def connect

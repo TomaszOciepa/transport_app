@@ -8,7 +8,20 @@ class OrderVehicle < ApplicationRecord
 
   before_create :unset_previous_current
 
+  # after_commit :ensure_whatsapp_groups_for_vehicle, on: [ :create, :update ]
+
+
   private
+
+  # def ensure_whatsapp_groups_for_vehicle
+  #   return unless current?
+  #   return unless vehicle.present?
+
+  #   driver = vehicle.current_driver
+  #   return unless driver.present?
+
+  #   Whatsapp::EnsureGroupsForVehicle.call(vehicle)
+  # end
 
   def unset_previous_current
     if current

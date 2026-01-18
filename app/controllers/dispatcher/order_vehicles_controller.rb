@@ -1,12 +1,12 @@
 module Dispatcher
     class OrderVehiclesController < ApplicationController
       before_action :set_order
-      before_action :set_order_vehicle, only: [:edit, :update]
-      
+      before_action :set_order_vehicle, only: [ :edit, :update ]
+
       def index
         @order_vehicles = @order.order_vehicles.includes(:vehicle, :user).order(updated_at: :desc)
       end
-     
+
       def new
         @order_vehicle = @order.order_vehicles.new
         @selected_vehicle = params[:vehicle_id] ? Vehicle.find(params[:vehicle_id]) : nil
@@ -17,27 +17,33 @@ module Dispatcher
         end
       end
 
-      
+
       def create
         @order_vehicle = @order.order_vehicles.new(order_vehicle_params)
-        @order_vehicle.user_id = current_user.id  
+        @order_vehicle.user_id = current_user.id
         @order_vehicle.current = true
-      
+
         @order.order_vehicles.where.not(id: @order_vehicle.id).update_all(current: false)
-      
+
         if @order_vehicle.save
+          Whatsapp::EnsureGroupsForVehicle.call(
+            order_vehicle: @order_vehicle,
+            dispatcher: current_user
+          )
+
           redirect_to dispatcher_order_path(@order), notice: "Pojazd został przypisany."
         else
           @vehicles = Vehicle.all
           render :new
         end
       end
-      
-  
+
+
+
       def edit
         @vehicles = Vehicle.all
       end
-  
+
       def update
         @order.order_vehicles.update_all(current: false)
         if @order_vehicle.update(order_vehicle_params.merge(current: true))
@@ -56,14 +62,14 @@ module Dispatcher
 
       def suggest
         @order = Order.find(params[:order_id])
-      
+
         # Filter only vehicles that meet type and availability requirements
         @vehicles = Vehicle.includes(:orders).select do |v|
           v.vehicle_type_id == @order.vehicle_type_id &&
             v.available_for?(@order) &&
             !@order.order_vehicles.exists?(vehicle: v, current: true)
         end
-      
+
         # For each vehicle, calculate the distance from the last order to the order pickup
         @vehicles_with_distance = @vehicles.map do |v|
           {
@@ -71,29 +77,27 @@ module Dispatcher
             distance: v.distance_to_order(@order)
           }
         end
-      
+
         # Sort by increasing distance (closest vehicle first)
         @vehicles_with_distance.sort_by! { |data| data[:distance] || Float::INFINITY }
-      
+
         # km limit:
         # @vehicles_with_distance = @vehicles_with_distance.first(10)
       end
-      
-  
+
+
       private
-  
+
       def set_order
         @order = Order.find(params[:order_id])
       end
-  
+
       def set_order_vehicle
         @order_vehicle = @order.order_vehicles.find(params[:id])
       end
-  
+
       def order_vehicle_params
         params.require(:order_vehicle).permit(:vehicle_id)
       end
-      
     end
-  end
-  
+end
