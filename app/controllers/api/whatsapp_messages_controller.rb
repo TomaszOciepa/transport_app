@@ -3,10 +3,31 @@ class Api::WhatsappMessagesController < ApplicationController
 
     # POST /api/whatsapp_messages
     def create
-      if params[:from].to_s.include?("@g.us") || params[:to].to_s.include?("@g.us")
-        Rails.logger.info("[WHATSAPP] Ignoring group message in Api::WhatsappMessagesController#create")
+      if params[:chat_type] == "group"
+        conversation =
+          WhatsappConversation.find_by!(
+            whatsapp_chat_id: params[:group_id],
+            chat_type: "group"
+          )
+
+        message = conversation.whatsapp_messages.create!(
+          direction: "incoming",
+          from_number: params[:from],
+          to_number: params[:group_id],
+          body: params[:message],
+          message_type: "text",
+          sent_at: Time.at(params[:timestamp].to_i)
+        )
+
+        conversation.update!(
+          last_message_at: message.sent_at,
+          last_message_preview: message.body.truncate(60),
+          unread_count: conversation.unread_count + 1
+        )
+
         return head :ok
       end
+
 
       user = User.find(params[:user_id])
 

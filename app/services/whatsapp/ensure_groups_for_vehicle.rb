@@ -105,7 +105,8 @@ module Whatsapp
         chat_type: "group",
         whatsapp_chat_id: group_id,
         order_id: order.id,
-        driver_id: driver.id
+        driver_id: driver.id,
+        group_name: group_name(order)
       )
     end
 

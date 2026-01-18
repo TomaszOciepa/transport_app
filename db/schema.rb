@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_02_133355) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_18_190412) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -220,6 +220,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_02_133355) do
     t.datetime "last_message_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "last_message_preview"
+    t.integer "unread_count", default: 0
+    t.string "group_name"
     t.index ["driver_id"], name: "index_whatsapp_conversations_on_driver_id"
     t.index ["order_id"], name: "index_whatsapp_conversations_on_order_id"
     t.index ["user_id"], name: "index_whatsapp_conversations_on_user_id"
