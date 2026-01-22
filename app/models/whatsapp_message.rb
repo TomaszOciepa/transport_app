@@ -1,5 +1,6 @@
 class WhatsappMessage < ApplicationRecord
   belongs_to :whatsapp_conversation
+  has_one_attached :media
 
   validates :direction, inclusion: { in: %w[incoming outgoing] }
 
@@ -7,7 +8,6 @@ class WhatsappMessage < ApplicationRecord
   after_create_commit :broadcast_message
   after_create_commit :broadcast_sidebar_reorder
   after_create_commit :broadcast_global_unread_if_needed, if: :incoming?
-
 
 
   def incoming?

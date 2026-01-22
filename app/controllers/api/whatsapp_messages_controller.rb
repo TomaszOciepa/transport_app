@@ -1,5 +1,6 @@
 class Api::WhatsappMessagesController < ApplicationController
     skip_before_action :verify_authenticity_token
+    require "base64"
 
     # POST /api/whatsapp_messages
     def create
@@ -10,24 +11,32 @@ class Api::WhatsappMessagesController < ApplicationController
             chat_type: "group"
           )
 
+        has_media = params[:media].present?
+
         message = conversation.whatsapp_messages.create!(
-          direction: "incoming",
+          direction: params[:direction].presence || "incoming",
           from_number: params[:from],
           to_number: params[:group_id],
           body: params[:message],
-          message_type: "text",
+          message_type: has_media ? "media" : "text",
+          raw_payload: params.to_json,
           sent_at: Time.at(params[:timestamp].to_i)
         )
 
+        attach_media!(message)
+
+        preview =
+          message.body.present? ? message.body.truncate(60) : "📎 Załącznik"
+
         conversation.update!(
           last_message_at: message.sent_at,
-          last_message_preview: message.body.truncate(60),
-          unread_count: conversation.unread_count + 1
+          last_message_preview: preview
+          # UWAGA: unread_count masz w modelu WhatsappMessage (after_create_commit)
+          # więc tutaj NIE zwiększaj ręcznie, bo zrobisz podwójnie.
         )
 
         return head :ok
       end
-
 
       user = User.find(params[:user_id])
 
@@ -54,18 +63,22 @@ class Api::WhatsappMessagesController < ApplicationController
 
       conversation.assign_driver_if_possible!(chat_partner)
 
+      has_media = params[:media].present?
+
       message = conversation.whatsapp_messages.create!(
         direction: direction,
         from_number: from_number,
         to_number: to_number,
         body: params[:message],
-        message_type: "text",
+        message_type: has_media ? "media" : "text",
         raw_payload: params.to_json,
         sent_at: Time.at(params[:timestamp].to_i)
       )
 
+      attach_media!(message)
+
       preview =
-      message.body.present? ? message.body.truncate(60) : "📎 Załącznik"
+        message.body.present? ? message.body.truncate(60) : "📎 Załącznik"
 
       conversation.update!(
         last_message_at: message.sent_at,
@@ -84,5 +97,27 @@ class Api::WhatsappMessagesController < ApplicationController
 
     def incoming_or_outgoing?(from, owner_phone)
       from == owner_phone ? "outgoing" : "incoming"
+    end
+
+    def attach_media!(message)
+      return unless params[:media].present?
+
+      media = params[:media].to_unsafe_h
+      data = media["data"]
+      return if data.blank?
+
+      decoded = Base64.decode64(data)
+
+      filename = media["filename"].presence || "file"
+      mimetype = media["mimetype"].presence || "application/octet-stream"
+      kind     = media["type"].presence
+
+      message.update!(media_kind: kind) if message.respond_to?(:media_kind)
+
+      message.media.attach(
+        io: StringIO.new(decoded),
+        filename: filename,
+        content_type: mimetype
+      )
     end
 end

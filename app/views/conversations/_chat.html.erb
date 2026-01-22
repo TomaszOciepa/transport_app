@@ -86,15 +86,18 @@
     <div class="whatsapp-chat-input">
       <%= form_with url: send_message_messages_path,
             method: :post,
+            html: { multipart: true },
             data: { turbo: true },
             class: "d-flex gap-2" do |f| %>
 
         <%= hidden_field_tag :conversation_id, conversation.id %>
-
+        
         <%= f.text_field :body,
               placeholder: "Napisz wiadomość...",
               class: "form-control",
               autocomplete: "off" %>
+              
+        <%= f.file_field :file, class: "form-control", accept: "image/*,application/pdf" %>      
 
         <%= f.submit "Wyślij", class: "btn btn-success" %>
       <% end %>

@@ -42,11 +42,17 @@ class MessagesController < ApplicationController
   end
 
   def send_message
-    conversation = WhatsappConversation
-      .find_by!(id: params[:conversation_id], user: current_user)
+    conversation = WhatsappConversation.find_by!(
+      id: params[:conversation_id],
+      user: current_user
+    )
 
     body = params[:body].to_s.strip
-    return head :unprocessable_entity if body.blank?
+    file = params[:file]
+
+    return head :unprocessable_entity if body.blank? && file.blank?
+
+    return send_media(conversation, file, body) if file.present?
 
     if conversation.chat_type == "group"
       send_group_message(conversation, body)
@@ -62,8 +68,6 @@ class MessagesController < ApplicationController
         .reject { |n| n == current_user.phone }
         .first
 
-    conversation.assign_driver_if_possible!(to_number)
-
     response = Faraday.post(
       "http://localhost:3005/send",
       {
@@ -76,17 +80,24 @@ class MessagesController < ApplicationController
 
     return head :service_unavailable unless response.success?
 
+    message = conversation.whatsapp_messages.create!(
+      direction: "outgoing",
+      from_number: current_user.phone,
+      to_number: to_number,
+      body: body,
+      message_type: "text",
+      sent_at: Time.current
+    )
+
+    conversation.update!(
+      last_message_at: message.sent_at,
+      last_message_preview: body.truncate(60)
+    )
+
     head :ok
   end
 
   def send_group_message(conversation, body)
-    Faraday.post(
-      "http://localhost:3005/sessions/ensure",
-      { user_id: current_user.id }.to_json,
-      "Content-Type" => "application/json"
-    )
-
-
     response = Faraday.post(
       "http://localhost:3005/groups/send",
       {
@@ -97,12 +108,8 @@ class MessagesController < ApplicationController
       "Content-Type" => "application/json"
     )
 
-    unless response.success?
-      Rails.logger.error("[WHATSAPP GROUP SEND ERROR] #{response.body}")
-      return head :service_unavailable
-    end
+    return head :service_unavailable unless response.success?
 
-    # zapis wiadomości w DB (dla UI)
     message = conversation.whatsapp_messages.create!(
       direction: "outgoing",
       from_number: current_user.phone,
@@ -119,6 +126,7 @@ class MessagesController < ApplicationController
 
     head :ok
   end
+
 
   def send_order_details
     conversation = WhatsappConversation.find_by!(
@@ -183,6 +191,74 @@ class MessagesController < ApplicationController
     head :ok
   end
 
+  def send_media(conversation, file, caption)
+    base64   = Base64.strict_encode64(file.read)
+    mimetype = file.content_type
+    filename = file.original_filename
+
+    if conversation.chat_type == "group"
+      response = Faraday.post(
+        "http://localhost:3005/groups/send_media",
+        {
+          user_id: current_user.id,
+          group_id: conversation.whatsapp_chat_id,
+          base64: base64,
+          mimetype: mimetype,
+          filename: filename,
+          caption: caption
+        }.to_json,
+        "Content-Type" => "application/json"
+      )
+      to_number = conversation.whatsapp_chat_id
+    else
+      to_number =
+        conversation.whatsapp_chat_id
+          .split("_")
+          .reject { |n| n == current_user.phone }
+          .first
+
+      response = Faraday.post(
+        "http://localhost:3005/send_media",
+        {
+          user_id: current_user.id,
+          phone: to_number,
+          base64: base64,
+          mimetype: mimetype,
+          filename: filename,
+          caption: caption
+        }.to_json,
+        "Content-Type" => "application/json"
+      )
+    end
+
+    unless response.success?
+      Rails.logger.error("[WHATSAPP MEDIA SEND ERROR] #{response.body}")
+      return head :service_unavailable
+    end
+
+    # zapis w DB
+    message = conversation.whatsapp_messages.create!(
+      direction: "outgoing",
+      from_number: current_user.phone,
+      to_number: to_number,
+      body: caption,
+      message_type: "media",
+      sent_at: Time.current
+    )
+
+    message.media.attach(file)
+
+    preview = caption.present? ? caption.truncate(60) : "📎 Załącznik"
+
+    conversation.update!(
+      last_message_at: message.sent_at,
+      last_message_preview: preview
+    )
+
+    head :ok
+  ensure
+    file.rewind if file.respond_to?(:rewind)
+  end
 
 
   def connect

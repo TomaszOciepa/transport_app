@@ -2,13 +2,41 @@
   <%= message.direction == "outgoing" ? "whatsapp-message-out" : "whatsapp-message-in" %>">
 
   <div class="whatsapp-message-bubble">
+
     <div class="whatsapp-message-body">
-      <%= message.body %>
+
+      <% if message.media.attached? %>
+
+        <% if message.media.image? %>
+          <%= link_to url_for(message.media), target: "_blank" do %>
+            <%= image_tag url_for(message.media),
+                  style: "max-width: 240px; border-radius: 10px; margin-bottom: 6px;" %>
+          <% end %>
+        <% else %>
+          <div class="whatsapp-attachment">
+            <i class="bi bi-paperclip me-1"></i>
+            <%= link_to message.media.filename.to_s,
+                        url_for(message.media),
+                        target: "_blank" %>
+          </div>
+        <% end %>
+
+        <% if message.body.present? %>
+          <div class="whatsapp-message-caption mt-1">
+            <%= simple_format(message.body) %>
+          </div>
+        <% end %>
+
+      <% else %>
+        <%= simple_format(message.body) %>
+      <% end %>
+
     </div>
 
     <div class="whatsapp-message-time">
       <%= message.sent_at&.strftime("%H:%M") %>
     </div>
+
   </div>
 
 </div>
