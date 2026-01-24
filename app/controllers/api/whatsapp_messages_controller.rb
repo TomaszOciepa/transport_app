@@ -65,7 +65,6 @@ class Api::WhatsappMessagesController < ApplicationController
       conversation.assign_driver_if_possible!(chat_partner)
 
       has_media = params[:media].present?
-      attach_media_to_order(message)
 
       message = conversation.whatsapp_messages.create!(
         direction: direction,
@@ -78,6 +77,7 @@ class Api::WhatsappMessagesController < ApplicationController
       )
 
       attach_media!(message)
+      attach_media_to_order(message)
 
       preview =
         message.body.present? ? message.body.truncate(60) : "📎 Załącznik"

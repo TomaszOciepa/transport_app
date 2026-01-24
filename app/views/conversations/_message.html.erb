@@ -23,14 +23,12 @@
 
         <% if message.body.present? %>
           <div class="whatsapp-message-caption mt-1">
-            <%= message.body.to_s.gsub("\n", "<br>").html_safe %>
-
+            <%= simple_format(message.body) %>
           </div>
         <% end %>
 
       <% else %>
-        <%= message.body.to_s.gsub("\n", "<br>").html_safe %>
-
+        <%= simple_format(message.body) %>
       <% end %>
 
     </div>
