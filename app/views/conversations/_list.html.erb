@@ -5,7 +5,7 @@
   <!-- HEADER -->
   <div class="whatsapp-sidebar-header d-flex align-items-center justify-content-between px-2 py-2 border-bottom">
     <div class="d-flex align-items-center gap-2">
-
+      
       <!-- MENU WRAPPER (RELATIVE!) -->
       <div class="whatsapp-menu-wrapper"
            data-controller="drivers-menu">
@@ -37,7 +37,10 @@
             <% Driver.order(:last_name, :first_name).each do |driver| %>
               <li class="whatsapp-driver-item py-1 px-1"
                   data-controller="driver-item"
-                  data-driver-item-driver-id-value="<%= driver.id %>">
+                  data-driver-item-driver-id-value="<%= driver.id %>"
+                  data-drivers-menu-target="item"
+                  data-search-text="<%= "#{driver.first_name} #{driver.last_name}".downcase %>">
+
 
                 <button type="button"
                         class="btn btn-link text-start w-100 p-0 text-decoration-none"
