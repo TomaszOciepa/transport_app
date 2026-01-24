@@ -61,11 +61,22 @@
   </div>
 
   <!-- LISTA CZATÓW -->
+<div data-controller="conversation-search">
+
+  <div class="px-2 py-2 border-bottom">
+    <input type="text"
+           class="form-control form-control-sm"
+           placeholder="Szukaj czatu…"
+           data-conversation-search-target="search"
+           data-action="input->conversation-search#filter">
+  </div>
+
   <div class="whatsapp-conversation-items"
-        id="whatsapp_conversation_items">
+       id="whatsapp_conversation_items">
+
     <% conversations.each do |conversation| %>
       <%= render "conversations/conversation", conversation: conversation %>
     <% end %>
   </div>
-
+</div>
 </div>
