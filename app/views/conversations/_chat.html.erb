@@ -1,5 +1,5 @@
 <div class="whatsapp-chat"  
-    data-controller="chat" 
+    data-controller="chat file-preview" 
     data-conversation-id="<%= conversation.id if conversation %>">
 
   <% if conversation.present? %>
@@ -84,24 +84,44 @@
 
      <!-- INPUT -->
     <div class="whatsapp-chat-input">
+
+      <div id="whatsapp-file-preview" class="whatsapp-file-preview" hidden>
+        <span id="whatsapp-file-name"></span>
+        <button type="button" id="whatsapp-file-remove">✕</button>
+      </div>
+
+
       <%= form_with url: send_message_messages_path,
             method: :post,
             html: { multipart: true },
             data: { turbo: true },
-            class: "d-flex gap-2" do |f| %>
+            class: "whatsapp-input-form" do |f| %>
 
         <%= hidden_field_tag :conversation_id, conversation.id %>
-        
+
+        <!-- IKONA PLUSA -->
+        <label class="whatsapp-attach-btn">
+          <i class="bi bi-plus-lg"></i>
+          <%= f.file_field :file,
+              id: "whatsapp_file_input",
+              class: "d-none",
+              accept: "image/*,application/pdf" %>
+        </label>
+
+        <!-- POLE TEKSTOWE -->
         <%= f.text_field :body,
               placeholder: "Napisz wiadomość...",
-              class: "form-control",
+              class: "whatsapp-text-input",
               autocomplete: "off" %>
-              
-        <%= f.file_field :file, class: "form-control", accept: "image/*,application/pdf" %>      
 
-        <%= f.submit "Wyślij", class: "btn btn-success" %>
+        <!-- WYŚLIJ -->
+        <button type="submit" class="whatsapp-send-btn">
+          <i class="bi bi-send-fill"></i>
+        </button>
+
       <% end %>
     </div>
+
 
   <% else %>
     <div class="whatsapp-chat-empty">
