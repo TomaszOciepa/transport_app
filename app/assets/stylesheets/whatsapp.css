@@ -291,9 +291,11 @@
 }
 
 .whatsapp-message-body {
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  display: inline;
+  white-space: normal;
+  word-break: break-word;
 }
+
 
 .whatsapp-message-time {
   font-size: 11px;
