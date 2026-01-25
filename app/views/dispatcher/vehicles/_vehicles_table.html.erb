@@ -62,8 +62,10 @@
                             </span>
                         </td>
                         <td>
-                            <%= link_to dispatcher_vehicle_path(vehicle), class: "ios-btn btn-sm shadow-sm d-flex align-items-center justify-content-center" do %>
-                            <i class="bi bi-gear me-1"></i> Szczegóły
+                            <%= link_to dispatcher_vehicle_path(vehicle),
+                             class: "btn btn-icon btn-pastel-secondary shadow-sm rounded-circle",
+                                title: "Szczegóły" do %>
+                            <i class="bi bi-gear"></i>
                             <% end %>
                         </td>
                     </tr>
