@@ -1,4 +1,15 @@
-<div class="container my-4">
+    <div class="container my-4">
+            <div class="mb-4 d-flex gap-2">
+            <%= link_to edit_dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-sm p-2 shadow-sm rounded-pill" do %>
+            <i class="bi bi-pencil"></i> Edytuj
+            <% end %>
+
+            <%= link_to dispatcher_order_path(@order),
+        data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć zamówienie?" },
+        class: "btn btn-outline-danger btn-sm p-2 shadow-sm rounded-pill" do %>
+            <i class="bi bi-trash"></i> Usuń
+            <% end %>
+    </div>
 
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -6,64 +17,130 @@
             Zamówienie <span class="text-primary">#<%= @order.order_number %></span>
         </h2>
         <small class="text-muted">Utworzono: <%= l(@order.created_at, format: :long) %></small>
+        
+    </div>
+
+    <div class="mt-2 pb-4">
+      <span class="badge status-badge <%= @order.current_status %> rounded-pill px-3 py-2">
+        Status: <%= @order.status_name %>
+      </span>
     </div>
 
     <!-- Actions -->
-    <div class="mb-4 d-flex gap-2">
-        <%= link_to edit_dispatcher_order_path(@order), class: "btn btn-outline-secondary btn-sm p-2 shadow-sm rounded-pill" do %>
-        <i class="bi bi-pencil"></i> Edytuj
-        <% end %>
 
-        <%= link_to dispatcher_order_path(@order),
-      data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć zamówienie?" },
-      class: "btn btn-outline-danger btn-sm p-2 shadow-sm rounded-pill" do %>
-        <i class="bi bi-trash"></i> Usuń
-        <% end %>
-    </div>
 
     <!-- Szczegóły zamówienia -->
     <div class="card pastel-box pastel-box-blue p-4 mb-4">
-        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-info-circle me-2"></i>Szczegóły zamówienia</h5>
-        <div class="row">
-            <div class="col-md-6 mb-2">
-                <p><strong>Status:</strong>
-                    <span class="badge status-badge <%= @order.current_status %> rounded-pill px-3 py-1">
-                        <%= @order.status_name || "Brak statusu" %>
+        <h5 class="mb-4 border-bottom pb-2">
+            <i class="bi bi-info-circle me-2"></i>Szczegóły zamówienia
+        </h5>
+
+        <!-- BLOK: DATY + ADRESY -->
+        <div class="order-inner-card mb-4">
+
+            <div class="row g-0">
+            <div class="col-md-6 p-4 border-end">
+                <div class="order-section-title mb-3">
+                <i class="bi bi-calendar-check me-2"></i>Załadunek
+                </div>
+
+                <div class="order-row">
+                <strong>Data:</strong>
+                <span><%= l(@order.pickup_date, format: :long) if @order.pickup_date %></span>
+                </div>
+
+                <div class="order-row">
+                    <strong>Adres:</strong>
+                    <span>
+                        <%= link_to @order.pickup_address,
+                        "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(@order.pickup_address)}",
+                        target: "_blank",
+                        rel: "noopener",
+                        class: "order-address-link" %>
                     </span>
-                </p>
+                </div>
+
             </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Wymagany pojazd:</strong> <%= @order.vehicle_type.name %></p>
+                
+            <div class="col-md-6 p-4">
+                <div class="order-section-title mb-3">
+                <i class="bi bi-calendar-check me-2"></i>Dostawa
+                </div>
+
+                <div class="order-row">
+                <strong>Data:</strong>
+                <span><%= l(@order.delivery_date, format: :long) if @order.delivery_date %></span>
+                </div>
+
+                <div class="order-row">
+                    <strong>Adres:</strong>
+                    <span>
+                        <%= link_to @order.delivery_address,
+                        "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(@order.delivery_address)}",
+                        target: "_blank",
+                        rel: "noopener",
+                        class: "order-address-link" %>
+                    </span>
+                </div>
+
             </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Data załadunku:</strong> <%= l(@order.pickup_date, format: :long) if @order.pickup_date %></p>
             </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Data dostawy:</strong> <%= l(@order.delivery_date, format: :long) if @order.delivery_date %></p>
+
+        </div>
+
+       <div class="details-divider my-3"></div>
+
+
+        <!-- BLOK: POJAZD + KLIENT -->
+        <div class="order-inner-card">
+
+            <div class="row g-0">
+            <div class="col-md-6 p-4 border-end">
+                <div class="order-section-title mb-3">
+                <i class="bi bi-truck me-2"></i>Szczegóły pojazdu
+                </div>
+
+                <div class="order-row">
+                <strong>Wymagany pojazd:</strong>
+                <span><%= @order.vehicle_type.name %></span>
+                </div>
+
+                <div class="order-row">
+                <strong>Odległość:</strong>
+                <span><%= number_with_precision(@order.distance_km, precision: 2) %> km</span>
+                </div>
+
+                <div class="order-row">
+                <strong>Czas przejazdu:</strong>
+                <span><%= @order.travel_time&.round(2) %> h</span>
+                </div>
             </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Adres załadunku:</strong> <%= @order.pickup_address %></p>
+
+            <div class="col-md-6 p-4">
+                <div class="order-section-title mb-3">
+                <i class="bi bi-person me-2"></i>Szczegóły klienta
+                </div>
+
+                <div class="order-row">
+                <strong>Klient:</strong>
+                <span><%= @order.user.email %></span>
+                </div>
+
+                <div class="order-row">
+                <strong>Typ usługi:</strong>
+                <span><%= @order.service_type.name %></span>
+                </div>
+
+                <div class="order-row highlight-price">
+                <strong>Cena:</strong>
+                <span><%= number_to_currency(@order.price, unit: "PLN ", precision: 2) %></span>
+                </div>
             </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Adres dostawy:</strong> <%= @order.delivery_address %></p>
             </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Czas przejazdu:</strong> <%= @order.travel_time&.round(2) %> h</p>
-            </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Odległość:</strong> <%= number_with_precision(@order.distance_km, precision: 2) %> km</p>
-            </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Typ usługi:</strong> <%= @order.service_type.name %></p>
-            </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Klient:</strong> <%= @order.user.email %></p>
-            </div>
-            <div class="col-md-6 mb-2">
-                <p><strong>Cena:</strong> <%= number_to_currency(@order.price, unit: "PLN ", precision: 2) %></p>
-            </div>
+
         </div>
     </div>
+
 
     <!-- Order Progress -->
     <div class="card pastel-box pastel-box-green p-4 mb-4">
