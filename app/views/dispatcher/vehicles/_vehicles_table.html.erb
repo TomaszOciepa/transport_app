@@ -1,64 +1,75 @@
-<div class="container-fluid py-5">
-    <div class="table-responsive shadow-sm rounded-4 pastel-box p-3">
-        <table class="table table-hover mb-0 align-middle">
-            <thead class="pastel-thead">
-                <tr>
-                    <th class="text-center">Lp</th>
-                    <th><%= sortable "brand", "Marka" %></th>
-                    <th><%= sortable "vehicle_type_id", "Typ pojazdu" %></th>
-                    <th><%= sortable "registration_number", "Numer rejestracyjny" %></th>
-                    <th>Kierowca</th>
-                    <th><%= sortable "status", "Status" %></th>
-                    <th>Akcje</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% @vehicles.each_with_index do |vehicle, index| %>
-                <tr>
-                    <td class="text-center text-muted"><%= index + 1 %></td>
-                    <td><%= vehicle.brand %></td>
-                    <td class="text-center">
-                        <% case vehicle.vehicle_type.name %>
-                        <% when "Bus" %>
-                        <i class="bi bi-bus-front fs-4 text-primary" title="Bus"></i>
-                        <% when "Ciężarówka solo" %>
-                        <i class="bi bi-truck fs-4 text-warning" title="Ciężarówka solo"></i>
-                        <% when "Ciężarówka z naczepą" %>
-                        <i class="bi bi-truck-flatbed fs-4 text-danger" title="Ciężarówka z naczepą"></i>
-                        <% when "Samochód osobowy" %>
-                        <i class="bi bi-car-front fs-4 text-success" title="Samochód osobowy"></i>
-                        <% else %>
-                        <i class="bi bi-question-circle fs-4 text-muted" title="Nieznany typ"></i>
-                        <% end %>
-                    </td>
-                    <td><%= vehicle.registration_number %></td>
-                    <td>
-                        <% if vehicle.current_driver %>
-                        <%= link_to vehicle.current_driver.full_name, dispatcher_driver_path(vehicle.current_driver),
-                            class: "text-decoration-underline fw-semibold" %>
-                        <% else %>
-                        <span class="text-muted fst-italic">Brak</span>
-                        <% end %>
-                    </td>
-                    <td>
-                        <% status_class = case vehicle.current_status
-                when "available" then "status-badge completed"
-                when "in_transit" then "status-badge in_progress"
-                when "unavailable" then "status-badge canceled"
-                else "status-badge pending"
-              end %>
-                        <span class="<%= status_class %> rounded-pill px-3 py-1 fw-semibold">
-                            <%= vehicle.current_status_i18n %>
-                        </span>
-                    </td>
-                    <td>
-                        <%= link_to dispatcher_vehicle_path(vehicle), class: "ios-btn btn-sm shadow-sm d-flex align-items-center justify-content-center" do %>
-                        <i class="bi bi-gear me-1"></i> Szczegóły
-                        <% end %>
-                    </td>
-                </tr>
-                <% end %>
-            </tbody>
-        </table>
+<div data-controller="vehicles-search">
+    <div class="card p-3 mb-3 shadow-sm">
+
+    <input type="text"
+            class="form-control"
+            placeholder="Szukaj po marce, rejestracji, kierowcy, statusie..."
+            data-vehicles-search-target="input"
+            data-action="input->vehicles-search#filter">
     </div>
-</div>
+
+    <div class="container-fluid py-5">
+        <div class="table-responsive shadow-sm rounded-4 pastel-box p-3">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="pastel-thead">
+                    <tr>
+                        <th class="text-center">Lp</th>
+                        <th><%= sortable "brand", "Marka" %></th>
+                        <th><%= sortable "vehicle_type_id", "Typ pojazdu" %></th>
+                        <th><%= sortable "registration_number", "Numer rejestracyjny" %></th>
+                        <th>Kierowca</th>
+                        <th><%= sortable "status", "Status" %></th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody data-vehicles-search-target="rows">
+                    <% @vehicles.each_with_index do |vehicle, index| %>
+                    <tr>
+                        <td class="text-center text-muted"><%= index + 1 %></td>
+                        <td><%= vehicle.brand %></td>
+                        <td class="text-center">
+                            <% case vehicle.vehicle_type.name %>
+                            <% when "Bus" %>
+                            <i class="bi bi-bus-front fs-4 text-primary" title="Bus"></i>
+                            <% when "Ciężarówka solo" %>
+                            <i class="bi bi-truck fs-4 text-warning" title="Ciężarówka solo"></i>
+                            <% when "Ciężarówka z naczepą" %>
+                            <i class="bi bi-truck-flatbed fs-4 text-danger" title="Ciężarówka z naczepą"></i>
+                            <% when "Samochód osobowy" %>
+                            <i class="bi bi-car-front fs-4 text-success" title="Samochód osobowy"></i>
+                            <% else %>
+                            <i class="bi bi-question-circle fs-4 text-muted" title="Nieznany typ"></i>
+                            <% end %>
+                        </td>
+                        <td><%= vehicle.registration_number %></td>
+                        <td>
+                            <% if vehicle.current_driver %>
+                            <%= link_to vehicle.current_driver.full_name, dispatcher_driver_path(vehicle.current_driver),
+                                class: "text-decoration-underline fw-semibold" %>
+                            <% else %>
+                            <span class="text-muted fst-italic">Brak</span>
+                            <% end %>
+                        </td>
+                        <td>
+                            <% status_class = case vehicle.current_status
+                    when "available" then "status-badge completed"
+                    when "in_transit" then "status-badge in_progress"
+                    when "unavailable" then "status-badge canceled"
+                    else "status-badge pending"
+                end %>
+                            <span class="<%= status_class %> rounded-pill px-3 py-1 fw-semibold">
+                                <%= vehicle.current_status_i18n %>
+                            </span>
+                        </td>
+                        <td>
+                            <%= link_to dispatcher_vehicle_path(vehicle), class: "ios-btn btn-sm shadow-sm d-flex align-items-center justify-content-center" do %>
+                            <i class="bi bi-gear me-1"></i> Szczegóły
+                            <% end %>
+                        </td>
+                    </tr>
+                    <% end %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>    
