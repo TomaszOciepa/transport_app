@@ -12,7 +12,6 @@
         <table class="table table-hover mb-0 align-middle">
             <thead class="pastel-thead">
                 <tr>
-                    <th class="text-center">Lp</th>
                     <th><%= sortable "status", "Status" %></th>
                     <th><%= sortable "pickup_date", "Data zał-roz" %></th>
                     <th><%= sortable "pickup_address", "Miejsce zał-roz" %></th>
@@ -25,46 +24,77 @@
             </thead>
 
             <tbody data-orders-search-target="rows">
-                <% @orders.each_with_index do |order, index| %>
-                <tr data-search-months="<%= [
-                        order.pickup_date&.strftime('%m %B'),
-                        order.delivery_date&.strftime('%m %B')
+
+                    <% grouped_orders =
+                        @orders
+                        .sort_by(&:pickup_date).reverse
+                        .group_by { |o| I18n.l(o.pickup_date.to_date, format: :long) } %>
+
+                    <% index = 0 %>
+
+                    <% grouped_orders.each do |day, orders| %>
+
+                    <!-- 🔵 DZIENNY SEPARATOR -->
+                    <tr class="day-separator-row">
+                        <td colspan="9">
+                        <div class="day-separator">
+                            <span><%= day %></span>
+                        </div>
+                        </td>
+                    </tr>
+
+                    <% orders.each do |order| %>
+                    <% index += 1 %>
+
+                    <tr data-search-months="<%= [
+                            order.pickup_date&.strftime('%m %B'),
+                            order.delivery_date&.strftime('%m %B')
                         ].join(' ').downcase %>">
-                        
-                    <td class="text-center text-muted"><%= index + 1 %></td>
-                    <td>
+
+                        <td>
                         <% status = order.current_status %>
                         <span class="badge status-badge <%= status %> rounded-pill px-3 py-2 fw-semibold">
                             <%= order.status_name %>
                         </span>
-                    </td>
-                    <td><%= l(order.pickup_date, format: :short) if order.pickup_date %> - <%= l(order.delivery_date, format: :short) if order.delivery_date %></td>
-                    <td><%= order.pickup_place %> - <%= order.delivery_place %></td>
-                    <td>
+                        </td>
+
+                        <td>
+                        <%= l(order.pickup_date, format: :short) if order.pickup_date %> -
+                        <%= l(order.delivery_date, format: :short) if order.delivery_date %>
+                        </td>
+
+                        <td><%= order.pickup_place %> - <%= order.delivery_place %></td>
+
+                        <td>
                         <% if order.current_vehicle %>
-                        <%= link_to order.current_vehicle&.registration_number, dispatcher_vehicle_path(order.current_vehicle),
+                            <%= link_to order.current_vehicle&.registration_number,
+                                dispatcher_vehicle_path(order.current_vehicle),
                                 class: "text-decoration-underline fw-semibold" %>
                         <% else %>
-                        <span class="text-muted fst-italic">Brak</span>
+                            <span class="text-muted fst-italic">Brak</span>
                         <% end %>
-                    </td>
-                    <td class="text-center">
+                        </td>
+
+                        <td class="text-center">
                         <% case order.vehicle_type.name %>
                         <% when "Bus" %>
-                        <i class="bi bi-bus-front fs-4 text-primary" title="Bus"></i>
+                            <i class="bi bi-bus-front fs-4 text-primary"></i>
                         <% when "Ciężarówka solo" %>
-                        <i class="bi bi-truck fs-4 text-warning" title="Ciężarówka solo"></i>
+                            <i class="bi bi-truck fs-4 text-warning"></i>
                         <% when "Ciężarówka z naczepą" %>
-                        <i class="bi bi-truck-flatbed fs-4 text-danger" title="Ciężarówka z naczepą"></i>
+                            <i class="bi bi-truck-flatbed fs-4 text-danger"></i>
                         <% when "Samochód osobowy" %>
-                        <i class="bi bi-car-front fs-4 text-success" title="Samochód osobowy"></i>
+                            <i class="bi bi-car-front fs-4 text-success"></i>
                         <% else %>
-                        <i class="bi bi-question-circle fs-4 text-muted" title="Nieznany typ"></i>
+                            <i class="bi bi-question-circle fs-4 text-muted"></i>
                         <% end %>
-                    </td>
-                    <td class="fw-bold text-dark"><%= order.order_number %></td>
-                    <td><%= order.service_type.name %></td>
-                    <td>
+                        </td>
+
+                        <td class="fw-bold text-dark"><%= order.order_number %></td>
+
+                        <td><%= order.service_type.name %></td>
+
+                        <td>
                         <div class="d-flex gap-2">
                             <%= link_to dispatcher_order_path(order),
                                 class: "btn btn-icon btn-pastel-secondary shadow-sm rounded-circle",
@@ -73,16 +103,21 @@
                             <% end %>
 
                             <%= link_to dispatcher_order_path(order),
-                    data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zamówienie?" },
-                    class: "btn btn-icon btn-pastel-danger shadow-sm rounded-circle",
-                    title: "Usuń" do %>
+                                data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć to zamówienie?" },
+                                class: "btn btn-icon btn-pastel-danger shadow-sm rounded-circle",
+                                title: "Usuń" do %>
                             <i class="bi bi-trash"></i>
                             <% end %>
                         </div>
-                    </td>
-                </tr>
-                <% end %>
-            </tbody>
+                        </td>
+
+                    </tr>
+                    <% end %>
+
+                    <% end %>
+
+                </tbody>
+
         </table>
     </div>
 </div>    

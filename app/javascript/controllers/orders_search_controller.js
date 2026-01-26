@@ -24,25 +24,40 @@ export default class extends Controller {
 
   filter() {
     const query = this.inputTarget.value.toLowerCase().trim()
-    const terms = query.split(/\s+/) // ["listopad", "wgm97102"]
+    const tokens = query.split(/\s+/)   // ["06", "lis", "wgm97105"]
   
-    this.rows.forEach(row => {
-      const text = row.innerText.toLowerCase()
-      let months = row.dataset.searchMonths || ""
+    const rows = Array.from(this.rowsTarget.querySelectorAll("tr"))
   
-      Object.keys(this.monthMap).forEach(en => {
-        if (months.includes(en)) {
-          months += " " + this.monthMap[en]
+    let currentSeparator = null
+    let visibleUnderSeparator = false
+  
+    rows.forEach(row => {
+      // Separator dnia
+      if (row.classList.contains("day-separator-row")) {
+        if (currentSeparator) {
+          currentSeparator.style.display = visibleUnderSeparator ? "" : "none"
         }
-      })
   
-      const searchable = text + " " + months
+        currentSeparator = row
+        visibleUnderSeparator = false
+        return
+      }
   
-      // 🔥 KLUCZOWA ZMIANA
-      const matchesAll = terms.every(term => searchable.includes(term))
+      const text = row.innerText.toLowerCase()
   
-      row.style.display = matchesAll ? "" : "none"
+      // każdy token musi pasować
+      const match = tokens.every(token => text.includes(token))
+  
+      row.style.display = match ? "" : "none"
+  
+      if (match) visibleUnderSeparator = true
     })
+  
+    if (currentSeparator) {
+      currentSeparator.style.display = visibleUnderSeparator ? "" : "none"
+    }
   }
+  
+  
   
 }
