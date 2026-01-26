@@ -3,13 +3,7 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="fw-bold mb-0">
-            Kierowca <span class="text-primary"><%= @driver.first_name %> <%= @driver.last_name %></span>
-        </h2>
-        <small class="text-muted">Utworzono: <%= l(@driver.created_at, format: :long) %></small>
-    </div>
-
-    <!-- Actions -->
-    <div class="mb-4 d-flex gap-2">
+                <div class="mb-4 d-flex gap-2">
         <%= link_to edit_dispatcher_driver_path(@driver), class: "ios-fab-btn", title: "Edytuj" do %>
         <i class="bi bi-pencil"></i> Edytuj
         <% end %>
@@ -20,152 +14,229 @@
         <i class="bi bi-trash"></i> Usuń
         <% end %>
     </div>
+        </h2>
+        <small class="text-muted">Utworzono: <%= l(@driver.created_at, format: :long) %></small>
+    </div>
+
+    
 
     <!-- Dane kierowcy -->
-    <div class="card pastel-box pastel-box-blue p-4 mb-4">
-        <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-person-circle me-2"></i>Dane kierowcy</h5>
+    <div class="card shadow-sm rounded-4 p-4 mb-4 driver-profile-card">
 
-        <div class="row">
-            <div class="col-md-6 mb-2">
-                <p><strong>Status:</strong>
-                    <% status_class = case @driver.current_status
-            when "available" then "bg-success text-white"
-            when "busy" then "bg-primary text-white"
-            when "unavailable" then "bg-danger text-white"
-            else "bg-light text-dark"
-          end %>
-                    <span class="badge <%= status_class %> rounded-pill px-3 py-1">
+                <!-- HEADER PROFILU -->
+                <div class="d-flex align-items-center mb-4">
+
+                    <div class="driver-avatar me-4">
+                    <%= image_tag "men_icon.png", class: "driver-avatar-img" %>
+                    </div>
+
+                    <div class="flex-grow-1">
+                    <h4 class="mb-1 fw-bold">
+                        <%= @driver.first_name %> <%= @driver.last_name %>
+                    </h4>
+
+                    <div class="text-muted small">
+                        Kierowca <%= @driver.license_category.name %>
+                    </div>
+                    </div>
+
+                    <div class="text-end small">
+                    <div><strong>Status:</strong>
+                        <% status_class = case @driver.current_status
+                        when "available" then "bg-success"
+                        when "busy" then "bg-primary"
+                        when "unavailable" then "bg-danger"
+                        else "bg-secondary"
+                        end %>
+                        <span class="badge <%= status_class %> rounded-pill px-3 py-1">
                         <%= @driver.current_status_i18n %>
-                    </span>
-                </p>
-            </div>
-
-            <div class="col-md-6 mb-2">
-                <p><strong>Email:</strong> <%= @driver.email %></p>
-            </div>
-
-            <div class="col-md-6 mb-2">
-                <p><strong>Telefon:</strong> <%= @driver.phone %></p>
-            </div>
-
-            <div class="col-md-6 mb-2">
-                <p><strong>Kategoria prawa jazdy:</strong> <%= @driver.license_category.name %></p>
-            </div>
-
-            <div class="col-md-6 mb-2">
-                <p><strong>Rok urodzenia:</strong> <%= @driver.birth_year %></p>
-            </div>
-        </div>
-    </div>
-
-    <ul class="timeline list-unstyled position-relative m-0 p-0">
-        <% current_assignment = @driver.vehicle_drivers.find_by(current: true) %>
-        <% vehicle = current_assignment&.vehicle %>
-        <% vehicle_assigned = vehicle.present? %>
-
-        <li class="timeline-item mb-5 position-relative ps-4">
-            <span class="timeline-line position-absolute start-0 top-0 bottom-0 border-start border-2" style="left: 15px;"></span>
-
-            <%# 🔵 Kolorowa kropka w zależności od przypisania %>
-            <span class="timeline-dot position-absolute rounded-circle" style="left: 7px; width: 16px; height: 16px; background-color:
-          <%= vehicle_assigned ? '#28a745' : '#dc3545' %>;">
-            </span>
-
-            <div class="timeline-content position-relative">
-                <h6 class="mb-2 fw-bold">
-                    <i class="bi bi-truck me-2"></i>Aktualnie przypisany pojazd
-                </h6>
-
-                <% if vehicle_assigned %>
-                <p>Aktualnie przypisany pojazd:
-                    <%= link_to "#{vehicle.brand} - #{vehicle.registration_number}",
-                      dispatcher_vehicle_path(vehicle),
-                      class: "text-decoration-underline fw-semibold" %>
-                </p>
-
-                <% if current_assignment %>
-                <small class="position-absolute top-0 end-0 text-muted text-end" style="font-size: 0.75rem;">
-                    <%= l(current_assignment.updated_at, format: :short) %><br>
-                    <%= current_assignment.user&.email || "system" %>
-                </small>
-                <% end %>
-                <% else %>
-                <p class="text-muted fst-italic">
-                    Kierowca nie ma aktualnie przypisanego pojazdu.
-                </p>
-                <% end %>
-
-                <div class="mt-2 d-flex gap-2">
-
-                    <%= link_to driver_history_dispatcher_driver_path(@driver),
-            class: "ios-fab-btn", title: "Historia przypisań pojazdów" do %>
-                    <i class="bi bi-clock-history me-1"></i> Historia
-                    <% end %>
+                        </span>
+                    </div>
+                    </div>
 
                 </div>
+
+                <div class="row">
+
+                    <!-- LEWA KOLUMNA -->
+                    <div class="col-md-6 border-end pe-4">
+
+                    <h6 class="text-muted mb-3">Informacje osobiste</h6>
+
+                    <div class="driver-info-row">
+                        <span>Narodowość</span>
+                        <strong>Polska</strong>
+                    </div>
+                    
+                    <div class="driver-info-row">
+                        <span>Stan cywilny</span>
+                        <strong>Żonaty</strong>
+                    </div>
+
+                    <div class="driver-info-row">
+                        <span>Rok urodzenia</span>
+                        <strong>07-08-<%= @driver.birth_year %></strong>
+                    </div>
+
+                    <div class="driver-info-row">
+                        <span>Adres zamieszkania</span>
+                        <strong>80-288 Gdańsk, ul. Myśliwskie Wzgórze 2/33</strong>
+                    </div>
+
+                </div>
+
+            <!-- PRAWA KOLUMNA -->
+            <div class="col-md-6 ps-4">
+
+            <h6 class="text-muted mb-3">Pozostałe informacje</h6>
+                
+                <div class="driver-info-row">
+                    <span>Telefon</span>
+                    <strong><%= @driver.phone %></strong>
+                </div>
+
+                <div class="driver-info-row">
+                    <span>Email</span>
+                    <strong><%= @driver.email %></strong>
+                </div>
+
+            <div class="driver-info-row">
+                <span>Kategoria prawa jazdy</span>
+                <strong><%= @driver.license_category.name %></strong>
             </div>
-        </li>
-    </ul>
 
 
-    <!-- Dostępność kierowcy -->
-    <div class="card pastel-box pastel-box-green p-4 mb-4">
-        <h5 class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-calendar2-check me-2"></i>Dostępność kierowcy</span>
-            <%= link_to new_dispatcher_availability_path(
-            availableable_id: @driver.id,
-            availableable_type: "Driver"
-          ),
-          class: "ios-fab-btn", title: "Dodaj dostępność" do %>
-            <i class="bi bi-plus-lg me-1"></i> Dodaj
-            <% end %>
-        </h5>
+            </div>
 
-        <% if @driver.availabilities.any? %>
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="pastel-thead">
-                    <tr>
-                        <th>Od</th>
-                        <th>Do</th>
-                        <th class="text-center">Akcje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% @availabilities.each do |availability| %>
-
-                    <tr>
-                        <td><%= l(availability.start_time, format: :short) %></td>
-                        <td><%= l(availability.end_time, format: :short) %></td>
-                        <td class="text-center">
-                            <%= link_to edit_dispatcher_availability_path(
-                        availability,
-                        availableable_id: @driver.id,
-                        availableable_type: "Driver"
-                      ),
-                      class: "ios-fab-btn btn-sm me-1 mb-1",
-                      title: "Edytuj dostępność" do %>
-                            <i class="bi bi-pencil"></i>
-                            <% end %>
-
-                            <%= link_to dispatcher_availability_path(availability,
-                      availableable_id: @driver.id,
-                      availableable_type: "Driver"),
-                    data: { turbo_method: :delete, turbo_confirm: "Czy na pewno chcesz usunąć tę dostępność?" },
-                    class: "ios-fab-btn btn-sm mb-1",
-                    title: "Usuń dostępność" do %>
-                            <i class="bi bi-trash"></i>
-                            <% end %>
-                        </td>
-                    </tr>
-                    <% end %>
-                </tbody>
-            </table>
         </div>
-        <% else %>
-        <p class="text-muted fst-italic">Brak dostępności dla tego kierowcy.</p>
-        <% end %>
+
     </div>
+
+
+    <!--  przypisany pojazd -->
+   
+    <div class="card shadow-sm rounded-4 p-4 mb-4 driver-section-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="section-title">
+            <i class="bi bi-truck me-2"></i>Przypisany pojazd
+            </h6>
+
+            <%= link_to driver_history_dispatcher_driver_path(@driver),
+                class: "btn btn-sm btn-light border" do %>
+            <i class="bi bi-clock-history me-1"></i> Historia
+            <% end %>
+        </div>
+
+        <% current_assignment = @driver.vehicle_drivers.find_by(current: true) %>
+        <% vehicle = current_assignment&.vehicle %>
+
+        <% if vehicle.present? %>
+
+            <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="info-row">
+                <span>Pojazd</span>
+                <strong>
+                    <%= link_to "#{vehicle.brand} — #{vehicle.registration_number}",
+                        dispatcher_vehicle_path(vehicle),
+                        class: "text-decoration-none" %>
+                </strong>
+                </div>
+
+                <div class="info-row">
+                <span>Przypisano</span>
+                <strong><%= l(current_assignment.updated_at, format: :long) %></strong>
+                </div>
+            </div>
+
+            </div>
+
+        <% else %>
+
+            <div class="text-muted fst-italic">
+            Kierowca nie ma przypisanego pojazdu.
+            </div>
+
+        <% end %>
+        </div>
+
+
+
+   <!-- Dostępność kierowcy -->
+<div class="card shadow-sm rounded-4 p-4 mb-4 driver-section-card">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="section-title">
+      <i class="bi bi-calendar2-check me-2"></i>Dostępność kierowcy
+    </h6>
+
+    <%= link_to new_dispatcher_availability_path(
+          availableable_id: @driver.id,
+          availableable_type: "Driver"
+        ),
+        class: "btn btn-sm btn-light border" do %>
+      <i class="bi bi-plus-lg me-1"></i> Dodaj
+    <% end %>
+  </div>
+
+  <% if @availabilities.any? %>
+    <div class="availability-list">
+
+      <% @availabilities
+            .sort_by(&:start_time).reverse
+            .group_by { |a| I18n.l(a.start_time, format: "%B %Y") }
+            .each do |month, avails| %>
+
+        <!-- 🔹 Separator miesiąca -->
+        <div class="month-separator">
+          <span><%= month %></span>
+        </div>
+
+        <!-- 🔹 Dostępności w tym miesiącu -->
+        <% avails.each do |availability| %>
+          <div class="availability-row">
+
+            <div class="availability-dates">
+              <strong><%= l(availability.start_time, format: :long) %></strong>
+              <div class="text-muted small">do</div>
+              <strong><%= l(availability.end_time, format: :long) %></strong>
+            </div>
+
+            <div class="d-flex gap-2">
+              <%= link_to edit_dispatcher_availability_path(
+                    availability,
+                    availableable_id: @driver.id,
+                    availableable_type: "Driver"
+                  ),
+                  class: "btn btn-sm btn-light border" do %>
+                <i class="bi bi-pencil"></i>
+              <% end %>
+
+              <%= link_to dispatcher_availability_path(
+                    availability,
+                    availableable_id: @driver.id,
+                    availableable_type: "Driver"
+                  ),
+                  data: { turbo_method: :delete, turbo_confirm: "Usunąć dostępność?" },
+                  class: "btn btn-sm btn-light border" do %>
+                <i class="bi bi-trash"></i>
+              <% end %>
+            </div>
+
+          </div>
+        <% end %>
+
+      <% end %>
+
+    </div>
+  <% else %>
+    <div class="text-muted fst-italic">Brak dostępności</div>
+  <% end %>
+
+</div>
+
+
 
     <div class="mt-3">
         <%= link_to dispatcher_drivers_path, class: "ios-back-btn ios-btn-back" do %>
