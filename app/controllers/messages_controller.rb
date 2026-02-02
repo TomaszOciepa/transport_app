@@ -80,20 +80,6 @@ class MessagesController < ApplicationController
 
     return head :service_unavailable unless response.success?
 
-    message = conversation.whatsapp_messages.create!(
-      direction: "outgoing",
-      from_number: current_user.phone,
-      to_number: to_number,
-      body: body,
-      message_type: "text",
-      sent_at: Time.current
-    )
-
-    conversation.update!(
-      last_message_at: message.sent_at,
-      last_message_preview: body.truncate(60)
-    )
-
     head :ok
   end
 
